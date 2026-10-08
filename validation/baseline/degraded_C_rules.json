@@ -1,0 +1,848 @@
+{
+  "contract_version": "1.0",
+  "n_records": 4000,
+  "n_pairs_sampled": 1000,
+  "record_id_column": "customer_id",
+  "embeddings_used": false,
+  "run": {
+    "verity_version": "0.1.0",
+    "seed": 42,
+    "n_candidate_pairs": 0
+  },
+  "columns_excluded": [
+    {
+      "name": "customer_id",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity. Its name contains id and every value is different.",
+      "rule": [
+        "primary_key",
+        "system_process_field"
+      ]
+    },
+    {
+      "name": "source_system",
+      "reason": "It has very few distinct values, so it cannot tell records apart.",
+      "rule": [
+        "near_constant_field"
+      ]
+    }
+  ],
+  "separability": {
+    "label": null,
+    "candidate_top_decile_mean": null,
+    "random_pair_mean": null,
+    "gap": null
+  },
+  "calibration_pairs": {
+    "likely_match": [],
+    "unclear": [],
+    "likely_non_match": [
+      {
+        "record_id_a": "1049d5c6-2784-476c-9c07-2ca132c68276",
+        "record_id_b": "41911755-5c56-42f2-a8e2-c3bfcd5db9e1",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "991 Andrea Forges Apt. 006",
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Taylor",
+          "email": null,
+          "phone": null,
+          "address": "418 Berry Key Suite 103",
+          "city": "Stokesville",
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "ce75bf10-1413-4aa8-8ec8-4514a200588b",
+        "record_id_b": "7f51aa17-d7b4-4efa-9e85-86cb140bb974",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Vaughan",
+          "email": "teresaayala@icloud.com",
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "539 30",
+          "SSN": "726-93-9666"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Crawford",
+          "email": "rbenson@example.com",
+          "phone": "+1 361 858 7898",
+          "address": "71511 Jonathan Stream",
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "45d332bf-a383-4a5c-8d78-f4b6716407b5",
+        "record_id_b": "066ee9f1-6660-4451-b01c-98f44d37c399",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Cole",
+          "email": "mariahdavis@gmail.com",
+          "phone": null,
+          "address": null,
+          "city": "NORTH JONATHANBERG",
+          "zip_code": "724 33-0000",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Tara",
+          "last_name": null,
+          "email": null,
+          "phone": "236-557-6455",
+          "address": null,
+          "city": "Webershire",
+          "zip_code": "41806",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "801807c1-b4d4-4599-ab42-45300e59c497",
+        "record_id_b": "080510d1-ef4e-40a2-aa95-cd30b5dae589",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": "Royland",
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": "colemankristen76@example.com",
+          "phone": "237-532-3014",
+          "address": "541 Neal Circle",
+          "city": null,
+          "zip_code": null,
+          "SSN": "307-76--9263"
+        }
+      },
+      {
+        "record_id_a": "6808ed48-909f-43e4-a9d2-13dc4687a57e",
+        "record_id_b": "f23e868e-e012-4174-892a-3443be9096f6",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "+1 001 659 3229",
+          "address": "0629 Christopher Mission",
+          "city": "EAST WILLIAM",
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": "452-3O-5237"
+        }
+      },
+      {
+        "record_id_a": "7569726a-87e2-49ef-b436-cc729877a885",
+        "record_id_b": "96ed7b00-9250-4d82-bc26-1a3156911e98",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Peterson",
+          "email": "thompsonbrian@icloud.com",
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": "134-19-1794"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "5642 Li Creek Suite 372",
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "2e26f1ac-e6da-4b46-9651-3a60ea7e628d",
+        "record_id_b": "27f3b5fe-a7e0-4a21-b847-ee3401f71917",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": "diana5@gmail.com",
+          "phone": "5179518636",
+          "address": null,
+          "city": "Smithburgh",
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": "368-43-8311"
+        }
+      },
+      {
+        "record_id_a": "b6c4f6b2-9b0d-481d-b019-d6e83e6bb776",
+        "record_id_b": "0e16abcb-c654-401d-82c7-3e171cfd873a",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "182-462-5059",
+          "address": "87768 Miller Mountains Suite 872",
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "78511",
+          "SSN": "419-83-7149"
+        }
+      },
+      {
+        "record_id_a": "83c62bd2-cecf-41ab-bd7a-632199795f80",
+        "record_id_b": "3c88f1df-c22b-4013-977b-95d655d2215d",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": "smithmichael@example.net",
+          "phone": null,
+          "address": null,
+          "city": "Jamesfurt",
+          "zip_code": "20901",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "5793 Williams Islands Suite 029",
+          "city": "South Williamland",
+          "zip_code": null,
+          "SSN": "495-94-3492"
+        }
+      },
+      {
+        "record_id_a": "02512f18-0c19-4eb8-ade0-7438b8f4c5d1",
+        "record_id_b": "f12510d9-805a-4389-8f61-8aed70780fb1",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Ballard",
+          "email": "courtneysantiago@example.net",
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "121-433-1374",
+          "address": null,
+          "city": "Jsefurt",
+          "zip_code": "46026",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "f80b43f4-3e90-482b-9f28-abbfbe228f61",
+        "record_id_b": "f12510d9-805a-4389-8f61-8aed70780fb1",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Campebll",
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": "Port Haileystad",
+          "zip_code": "09989",
+          "SSN": "545-94-3141"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "121-433-1374",
+          "address": null,
+          "city": "Jsefurt",
+          "zip_code": "46026",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "d7dcc3fc-7c53-4f68-a571-3717bc256aeb",
+        "record_id_b": "9dae0423-2e51-41b6-b5e6-8e1f1846202a",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": "laurie1(at)example.org",
+          "phone": "351-630-5570",
+          "address": null,
+          "city": "Colemouth",
+          "zip_code": null,
+          "SSN": "639-95-6053"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Chase",
+          "email": null,
+          "phone": null,
+          "address": "6964 Benson Ville Suite 066",
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "1b8437c1-36e1-414b-9ea7-db97a365d333",
+        "record_id_b": "4269a6ae-c0ed-4119-bc21-a12fc1f72659",
+        "values_a": {
+          "first_name": "Kenneth",
+          "last_name": "Evrns",
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": "Farleyberg",
+          "zip_code": "08484",
+          "SSN": "304-22-1421"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Elliott",
+          "email": "xfarley@example.net",
+          "phone": "+1.774.231.6032",
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "159224d0-3b80-4ef1-b932-b117d89fcfd3",
+        "record_id_b": "5d8304f5-fb03-4a6d-ad08-ba3430d6817d",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "0465 Ryan Port Suite 987",
+          "city": null,
+          "zip_code": "30821",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Rose",
+          "email": "nhiggins72@example.com",
+          "phone": "+1 001 752 8988",
+          "address": null,
+          "city": null,
+          "zip_code": "68478",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "5d8304f5-fb03-4a6d-ad08-ba3430d6817d",
+        "record_id_b": "bda8958a-5f6a-4847-873a-57a24224d401",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Rose",
+          "email": "nhiggins72@example.com",
+          "phone": "+1 001 752 8988",
+          "address": null,
+          "city": null,
+          "zip_code": "68478",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "072 Carolyn Branch",
+          "city": null,
+          "zip_code": null,
+          "SSN": "290-18-2113"
+        }
+      },
+      {
+        "record_id_a": "5fb47d5b-2c23-4e42-a865-d6be74aae0ed",
+        "record_id_b": "b99d6c74-7e60-4353-b3dc-3a2b2653c8be",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Rice",
+          "email": null,
+          "phone": null,
+          "address": "8085 Green Trail",
+          "city": null,
+          "zip_code": "18108",
+          "SSN": "708-88-8909"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": "HELENHORTON@EXAMPLE.ORG",
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "58870 USA",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "3e03fc93-10d9-4d8b-91af-27f4db2bb795",
+        "record_id_b": "23df475d-faf7-4ed9-880c-0dfa7b776827",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Joseph",
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "37252",
+          "SSN": "646-17-4594"
+        }
+      },
+      {
+        "record_id_a": "26e5426e-c543-45d6-bb03-d66fb6d86001",
+        "record_id_b": "018e923b-4318-4265-bf00-b1e0fedc11f2",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Weaver",
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "34020",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Cooper",
+          "email": null,
+          "phone": "(126) 430-0524",
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "0272a0f7-39a8-40bd-a405-5a6919b4678f",
+        "record_id_b": "503aeff3-d8bf-42ff-b92f-5167861d5e49",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": "XARMSTRONG@EXAMPLE.ORG",
+          "phone": "+1.944.613.3954",
+          "address": null,
+          "city": "Heathermough",
+          "zip_code": "76984 USA",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Crystal",
+          "last_name": "Sharp",
+          "email": null,
+          "phone": null,
+          "address": "40620 Robert Fields",
+          "city": "West Kimberly",
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "58752ee9-1bbd-44b7-8f83-4d0e421a433a",
+        "record_id_b": "038bf631-8d5e-4815-8930-899a919d3dc1",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "32402",
+          "SSN": "727-53-6995"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Diaz",
+          "email": null,
+          "phone": null,
+          "address": "7250 Rebecca Square",
+          "city": "North Laurenport",
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "78c7a2fd-f500-4e6d-a6bb-fb6617f770f0",
+        "record_id_b": "321343c5-36e8-4e27-ac08-4a717162f8b5",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Wbster",
+          "email": null,
+          "phone": "4505124955",
+          "address": null,
+          "city": null,
+          "zip_code": "66586",
+          "SSN": "365-41-5543"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": "KIM4@EXAMPLE.NET",
+          "phone": null,
+          "address": "17552 Castillo Camp Apt. 458",
+          "city": "Adamville",
+          "zip_code": "15037",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "8bc8df60-c0f2-47b1-a7eb-246a917b1162",
+        "record_id_b": "c5143e26-16fb-4a90-91d9-dfb51e8bdbbf",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Rice",
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": "Jasonfort",
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Watson",
+          "email": "hrodriguez@yahoo.com",
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "3be56811-d3ba-45e7-a133-d70479bfaf47",
+        "record_id_b": "06272dff-9f09-4c4d-8369-eb6464b7b1f7",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Myers",
+          "email": null,
+          "phone": "+1 802 524 8248",
+          "address": "73714 Williams Clfifs",
+          "city": "New Anthonyberg",
+          "zip_code": null,
+          "SSN": "584-40-4692"
+        },
+        "values_b": {
+          "first_name": "Rhonda",
+          "last_name": "Nelson",
+          "email": null,
+          "phone": null,
+          "address": "410 Thomas Estate Apt. 659",
+          "city": "Davidmouth",
+          "zip_code": "17360",
+          "SSN": "326-37-6437"
+        }
+      },
+      {
+        "record_id_a": "a5ea8e20-4c7d-481a-a1a4-a9a2b85661ec",
+        "record_id_b": "d0ec02d1-7bd1-45be-98f6-14547f3dea4d",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "925-821-6538",
+          "address": null,
+          "city": null,
+          "zip_code": "63522",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": "yhenry(at)example.com",
+          "phone": "+1.539.435.4337",
+          "address": null,
+          "city": null,
+          "zip_code": "99668",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "059996dd-8a24-4c9f-8688-0773e646d57c",
+        "record_id_b": "74bac8b4-081c-46fc-a242-f54b82c972ad",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": "williamolsen@outlook.com",
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Flynn",
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "cfb02143-0cda-47b2-a5ff-d55f058247da",
+        "record_id_b": "f0e56094-ef48-4cdb-86ad-e6a15635389d",
+        "values_a": {
+          "first_name": null,
+          "last_name": "OconAor",
+          "email": "dickersonscott@icloud.com",
+          "phone": "799-563-2155",
+          "address": null,
+          "city": "West Yvette",
+          "zip_code": null,
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Williams",
+          "email": null,
+          "phone": null,
+          "address": "81433 Richard Club",
+          "city": "Mercerfort",
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "7fe58ce6-886f-4ebc-ad7d-e4764a63fb07",
+        "record_id_b": "f1b4521c-aca0-4965-b8f0-08219b3abd8b",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "65914 Angela Divide",
+          "city": null,
+          "zip_code": "48170",
+          "SSN": "309-48-4460"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "7132449689",
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "e3060c54-c4a4-457c-8db4-e9d8a5448c20",
+        "record_id_b": "6c399343-dea6-483f-825d-691daa054c17",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": "kristen714@example.com",
+          "phone": "+1 129 093 0458",
+          "address": "614 Gregory Forges",
+          "city": "Susanmouth",
+          "zip_code": "91220",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Griffin",
+          "email": null,
+          "phone": "(710) 541-3677",
+          "address": "249 Mendoza Mountain",
+          "city": null,
+          "zip_code": "43549",
+          "SSN": "271-37-4157"
+        }
+      },
+      {
+        "record_id_a": "93fd99f2-0e06-4c1a-a274-a32069048cac",
+        "record_id_b": "39210844-c9f0-401a-9cc8-014ead01a2a7",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": "199591704204730",
+          "address": null,
+          "city": null,
+          "zip_code": "083 14",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Burgess",
+          "email": "lori94(at)example.net",
+          "phone": null,
+          "address": null,
+          "city": "Lake Yolandaberg",
+          "zip_code": null,
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "b61b3b76-4a2a-4ac4-853b-72684cceb6b8",
+        "record_id_b": "bf2ec4c3-6151-43b1-bd9c-db85d5aba066",
+        "values_a": {
+          "first_name": null,
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": null,
+          "SSN": "377-66-6950"
+        },
+        "values_b": {
+          "first_name": "Sally",
+          "last_name": "Gomez",
+          "email": null,
+          "phone": null,
+          "address": null,
+          "city": null,
+          "zip_code": "98012",
+          "SSN": null
+        }
+      }
+    ]
+  },
+  "notes": [
+    "first_name: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "last_name: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "email: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "phone: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "address: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "city: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "zip_code: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "SSN: only 0 anchor pairs (need 30) even with anchor rule relaxed; reliability set to 1.0.",
+    "No candidate pairs found; likely_match and unclear are empty and separability could not be computed.",
+    "likely_match: only 0 of 30 requested pairs available.",
+    "unclear: only 0 of 40 requested pairs available."
+  ],
+  "columns": {
+    "first_name": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.17325,
+      "null_rate": 0.51075,
+      "reliability_score": 1.0,
+      "composite_weight": 0.062356,
+      "reason": "Many repeated values (17% unique), often empty (51% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "last_name": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.23375,
+      "null_rate": 0.50875,
+      "reliability_score": 1.0,
+      "composite_weight": 0.084475,
+      "reason": "Many repeated values (23% unique), often empty (51% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "email": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "email",
+      "uniqueness_ratio": 0.4405,
+      "null_rate": 0.5215,
+      "reliability_score": 1.0,
+      "composite_weight": 0.155061,
+      "reason": "Moderately distinctive values (44% unique), often empty (52% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "phone": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.4125,
+      "null_rate": 0.559,
+      "reliability_score": 1.0,
+      "composite_weight": 0.133825,
+      "reason": "Moderately distinctive values (41% unique), often empty (56% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "address": {
+      "semantic_type": "STREET_ADDRESS",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.39625,
+      "null_rate": 0.5,
+      "reliability_score": 1.0,
+      "composite_weight": 0.145752,
+      "reason": "Moderately distinctive values (40% unique), often empty (50% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "city": {
+      "semantic_type": "NAME",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.36725,
+      "null_rate": 0.5,
+      "reliability_score": 1.0,
+      "composite_weight": 0.135085,
+      "reason": "Moderately distinctive values (37% unique), often empty (50% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "zip_code": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.413,
+      "null_rate": 0.5,
+      "reliability_score": 1.0,
+      "composite_weight": 0.151913,
+      "reason": "Moderately distinctive values (41% unique), often empty (50% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "SSN": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.378,
+      "null_rate": 0.527,
+      "reliability_score": 1.0,
+      "composite_weight": 0.131531,
+      "reason": "Moderately distinctive values (38% unique), often empty (53% null), and agrees well across likely duplicates (reliability 1.00)."
+    }
+  }
+}

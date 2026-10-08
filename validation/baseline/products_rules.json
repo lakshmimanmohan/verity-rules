@@ -1,0 +1,2103 @@
+{
+  "contract_version": "1.0",
+  "n_records": 500,
+  "n_pairs_sampled": 1000,
+  "record_id_column": "product_id",
+  "embeddings_used": false,
+  "run": {
+    "verity_version": "0.1.0",
+    "seed": 42,
+    "n_candidate_pairs": 331
+  },
+  "columns_excluded": [
+    {
+      "name": "product_id",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity. Its name contains id and every value is different.",
+      "rule": [
+        "primary_key",
+        "system_process_field"
+      ]
+    },
+    {
+      "name": "source_system",
+      "reason": "It has very few distinct values, so it cannot tell records apart.",
+      "rule": [
+        "near_constant_field"
+      ]
+    }
+  ],
+  "separability": {
+    "label": "clear",
+    "candidate_top_decile_mean": 0.934922,
+    "random_pair_mean": 0.343445,
+    "gap": 0.591477
+  },
+  "calibration_pairs": {
+    "likely_match": [
+      {
+        "record_id_a": "4d8670bd-a222-4f96-a3a1-3e207fd255ee",
+        "record_id_b": "d908a121-d1a7-4a20-91b4-61e9b15da72d",
+        "values_a": {
+          "manufacturer_part_number": "cld-65905-t",
+          "member_part_number": "RET-02-SKU-00193",
+          "upc_ean": "205493296685",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-05",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "CLD-65905-T",
+          "member_part_number": "RET-05-SKU-00193",
+          "upc_ean": "205493296685",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-05",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "a7de02cc-dda4-44a7-8c3c-e284c7e53bbb",
+        "record_id_b": "a59b457f-c0d7-4c73-895f-fa8140d92bce",
+        "values_a": {
+          "manufacturer_part_number": "BLC-01031-S",
+          "member_part_number": "RET-02-SKU-00025",
+          "upc_ean": "812191361939",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-14",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BLC-01031-S",
+          "member_part_number": "RET-05-SKU-00025",
+          "upc_ean": "812191361939",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-14",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "8b040f53-e639-49d4-87c6-8688ecf32053",
+        "record_id_b": "2dea2d2d-086c-405f-a879-d8f890422eb7",
+        "values_a": {
+          "manufacturer_part_number": "XRH-19832-d",
+          "member_part_number": "RET-06-SKU-00166",
+          "upc_ean": "424981829922",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-11",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XRH-19832-D",
+          "member_part_number": "RET-06-SKU-00166",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-11",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "78d9a88a-ef0b-4a4f-bc73-7d9211ab3d11",
+        "record_id_b": "8a89b0f0-1052-41d3-b34c-6c7358330b30",
+        "values_a": {
+          "manufacturer_part_number": "kzk-65840-u",
+          "member_part_number": "RET-04-SKU-00121",
+          "upc_ean": "784036900343",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "KZK-65840-U",
+          "member_part_number": "RET-04-SKU-00121",
+          "upc_ean": "7 84036 900343",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "3db0174e-7938-478a-89b5-aab0c12169db",
+        "record_id_b": "6883ac6e-6a94-4054-b241-4482519894d8",
+        "values_a": {
+          "manufacturer_part_number": "vzr-64090-k",
+          "member_part_number": "RET-10-SKU-00137",
+          "upc_ean": "221418880592",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "VZR-64090-K",
+          "member_part_number": "RET-10-SKU-00137",
+          "upc_ean": "2 21418 880592",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "e61599c8-cbf8-4f86-8ec3-f970956d80e4",
+        "record_id_b": "a1173719-b023-40ea-9f41-e335b9aed8e4",
+        "values_a": {
+          "manufacturer_part_number": "AHG-05310-A",
+          "member_part_number": "RET-10-SKU-00078",
+          "upc_ean": "512567468071",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-10",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "AHG-05310-A",
+          "member_part_number": "RET-10-SKU-00078",
+          "upc_ean": "5 12567 468071",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-10",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "c9b7c9bc-65a1-4fa9-9611-69a1ff46a6bf",
+        "record_id_b": "d66d4627-e1da-4e6a-aafa-828c2cd10b9f",
+        "values_a": {
+          "manufacturer_part_number": "EEU-67190-K",
+          "member_part_number": "RET-04-SKU-00099",
+          "upc_ean": "481754965137",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-07",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "EEU6-7190-K",
+          "member_part_number": "RET-05-SKU-00099",
+          "upc_ean": "481754965137",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-07",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "b6adf48b-2314-40c8-89f6-44050b990034",
+        "record_id_b": "84f2fd0f-7947-4bfa-8dd0-b4d4554227de",
+        "values_a": {
+          "manufacturer_part_number": "EVT-65627-A",
+          "member_part_number": "RET-09-SKU-00074",
+          "upc_ean": "210249947174",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-12",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Evt-65627-A",
+          "member_part_number": "RET-08-SKU-00074",
+          "upc_ean": "210249947174",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-12",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "b74eba93-1027-4b53-a285-b2efcfbe4fe9",
+        "record_id_b": "ca862225-0b36-4356-b39b-77a84b1f0d7b",
+        "values_a": {
+          "manufacturer_part_number": "SQD-34657-h",
+          "member_part_number": "RET-02-SKU-00023",
+          "upc_ean": "647468723430",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-15",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "SQD-34657-H",
+          "member_part_number": "RET-06-SKU-00023",
+          "upc_ean": "647468723430",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-15",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "c92e8c93-d105-48d6-87c1-c01760452909",
+        "record_id_b": "ee9bf3e1-1d27-409a-9d71-a89864976593",
+        "values_a": {
+          "manufacturer_part_number": "SEB-93597-Q",
+          "member_part_number": "RET-04-SKU-00190",
+          "upc_ean": "0 19380 262067",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-14",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "SEB-93597-Q",
+          "member_part_number": "RET-09-SKU-00190",
+          "upc_ean": "0 19380 262067",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-14",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "836b15c7-e7c2-45da-b306-958845d5a68d",
+        "record_id_b": "290a3abb-c35b-4fea-9578-d70948f9e3d0",
+        "values_a": {
+          "manufacturer_part_number": "ZQT-55940-D",
+          "member_part_number": "RET-02-SKU-00006",
+          "upc_ean": "316475255341",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-01",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "zqt-55940-d",
+          "member_part_number": "RET-02-SKU-00006",
+          "upc_ean": "316475-255341",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-01",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "4d8670bd-a222-4f96-a3a1-3e207fd255ee",
+        "record_id_b": "ac484366-68bd-40d7-8b88-1c32cbb02a8b",
+        "values_a": {
+          "manufacturer_part_number": "cld-65905-t",
+          "member_part_number": "RET-02-SKU-00193",
+          "upc_ean": "205493296685",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-05",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "CLD-65905-T",
+          "member_part_number": "RET-08-SKU-00193",
+          "upc_ean": "205493296685",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-05",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "3da06476-f778-4676-b50d-112e8164ceec",
+        "record_id_b": "0c74dc0f-5a57-4539-9556-0a2d3713b466",
+        "values_a": {
+          "manufacturer_part_number": "ZRQ-86872-J",
+          "member_part_number": "RET-03-SKU-00067",
+          "upc_ean": "4 00842 710947",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-08",
+          "member_id": "RET-03"
+        },
+        "values_b": {
+          "manufacturer_part_number": "ZRQ-86872-J",
+          "member_part_number": "RET-07-SKU-00067",
+          "upc_ean": "4 00842 710947",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-08",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "c24369e7-2387-4af6-94c3-a832b231c60b",
+        "record_id_b": "9d8776a0-72d7-4bdd-b817-99ffb49e04cc",
+        "values_a": {
+          "manufacturer_part_number": "BLN-83503-J",
+          "member_part_number": "RET-07-SKU-00011",
+          "upc_ean": "166978-480184",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-06",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BLN-83503-J",
+          "member_part_number": "RET-07-SKU-00011",
+          "upc_ean": "166978480184",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-06",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "3db0174e-7938-478a-89b5-aab0c12169db",
+        "record_id_b": "2f12b150-605f-41eb-8cc5-7e0d26332018",
+        "values_a": {
+          "manufacturer_part_number": "vzr-64090-k",
+          "member_part_number": "RET-10-SKU-00137",
+          "upc_ean": "221418880592",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "VZR-64090-K",
+          "member_part_number": "RET-01-SKU-00137",
+          "upc_ean": "221418880592",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "16f142a2-06b9-49aa-9a71-67c768759545",
+        "record_id_b": "dd1ca267-530d-4da6-88d0-f9e5991965ea",
+        "values_a": {
+          "manufacturer_part_number": "YWP-59696-K",
+          "member_part_number": "RET-05-SKU-00179",
+          "upc_ean": "949588879470",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-12",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "YWP-59696-k",
+          "member_part_number": "RET-01-SKU-00179",
+          "upc_ean": "949588879470",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-12",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "43f9cd6b-797e-4e87-98cf-118806d25913",
+        "record_id_b": "f8d8b7f1-c86c-4544-a7d4-cf50f791f1e5",
+        "values_a": {
+          "manufacturer_part_number": "xdu-92327-g",
+          "member_part_number": "RET-07-SKU-00079",
+          "upc_ean": "545168087603",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XDU-92327-G",
+          "member_part_number": "RET-09-SKU-00079",
+          "upc_ean": "545168087603",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "982a2277-f966-459f-a6aa-59e5dc08bf29",
+        "record_id_b": "9a6c0db9-5217-4c88-8ce9-53a722d90db3",
+        "values_a": {
+          "manufacturer_part_number": "Sck-44905-Q",
+          "member_part_number": "RET-01-SKU-00187",
+          "upc_ean": "747338484219",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-08",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "SCK-44905-Q",
+          "member_part_number": "RET-07-SKU-00187",
+          "upc_ean": "747338484219",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-08",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "b74eba93-1027-4b53-a285-b2efcfbe4fe9",
+        "record_id_b": "0977c513-752a-4d25-b190-1b7ec6b469ef",
+        "values_a": {
+          "manufacturer_part_number": "SQD-34657-h",
+          "member_part_number": "RET-02-SKU-00023",
+          "upc_ean": "647468723430",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-15",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "SQD-34657-H",
+          "member_part_number": "RET-06-SKU-00023",
+          "upc_ean": "647468723430",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-15",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "b3b26337-6a74-4bb7-9fa5-e0aa9b11b530",
+        "record_id_b": "fd247c11-bf6b-4cdf-b479-7b6127372b52",
+        "values_a": {
+          "manufacturer_part_number": "FLP-56551-Y",
+          "member_part_number": "RET-10-SKU-00112",
+          "upc_ean": "576615654527",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-08",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "FLP-56551-Y",
+          "member_part_number": "RET-10-SKU-00112",
+          "upc_ean": "576615654527",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-08",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "b98f5dbe-15ae-4e0f-8777-a07f6346d4ef",
+        "record_id_b": "69ef74e3-4ab6-421c-8328-c136629ef3d8",
+        "values_a": {
+          "manufacturer_part_number": "VQY-16052-M",
+          "member_part_number": "RET-07-SKU-00180",
+          "upc_ean": "551694097499",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-04",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "VQY-16052-M",
+          "member_part_number": "RET-02-SKU-00180",
+          "upc_ean": "551694097499",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-04",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "9e3c5a88-6aa5-4e6d-9277-9574c4576cc3",
+        "record_id_b": "a4540937-4a27-4bf2-8baa-f744a08dd21b",
+        "values_a": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-10-SKU-00057",
+          "upc_ean": "663193149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-07-SKU-00057",
+          "upc_ean": "663193149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "81df6517-561c-4210-97fe-56c54c9a9f24",
+        "record_id_b": "d7b4c294-bd44-489d-9dd2-f9defd98fe33",
+        "values_a": {
+          "manufacturer_part_number": "GQL-20465-L",
+          "member_part_number": "RET-06-SKU-00076",
+          "upc_ean": "401399049027",
+          "manufacturer_code": "MFG-16",
+          "brand_code": "BR-11",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Gql-20465-L",
+          "member_part_number": "RET-03-SKU-00076",
+          "upc_ean": "401399049027",
+          "manufacturer_code": "MFG-16",
+          "brand_code": "BR-11",
+          "member_id": "RET-03"
+        }
+      },
+      {
+        "record_id_a": "608e2f5c-6117-4270-a7c0-518b17efa621",
+        "record_id_b": "fdde64af-a75b-495a-94a3-4f7fd90dd19b",
+        "values_a": {
+          "manufacturer_part_number": "PLX-76615-J",
+          "member_part_number": "RET-01-SKU-00162",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-02",
+          "brand_code": "BR-13",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "PLX-76615J-",
+          "member_part_number": "RET-01-SKU-00162",
+          "upc_ean": "589578291146",
+          "manufacturer_code": "MFG-02",
+          "brand_code": "BR-13",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "bdd151b0-f64a-46ec-b0a5-648eefe9b3d0",
+        "record_id_b": "c11bd1c4-ffe3-4366-bf33-7a151e086f20",
+        "values_a": {
+          "manufacturer_part_number": "AJT-68516-D",
+          "member_part_number": "RET-02-SKU-00143",
+          "upc_ean": "EAN 536153051522",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-15",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "AJT-68516-D",
+          "member_part_number": "RET-02-SKU-00143",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-15",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "143df5b3-a58e-43dd-948c-1d84340de049",
+        "record_id_b": "41476506-3e2b-49c9-a36f-6e5c2253e706",
+        "values_a": {
+          "manufacturer_part_number": "BUM-21047-Z",
+          "member_part_number": "RET-02-SKU-00139",
+          "upc_ean": "794738-347359",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BUM-21047-Z",
+          "member_part_number": "RET-07-SKU-00139",
+          "upc_ean": "794738-347359",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "bdc2b74b-38a5-4b49-9d34-aa1890019ed4",
+        "record_id_b": "0bb401e7-69f7-43f1-901b-a8515ee68495",
+        "values_a": {
+          "manufacturer_part_number": "ENQ-71138-M",
+          "member_part_number": "RET-02-SKU-00147",
+          "upc_ean": "246095396218",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-13",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "ENQ-71138-M",
+          "member_part_number": "RET-08-SKU-00147",
+          "upc_ean": "246095396218",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-13",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "d11376e0-38d7-4b9a-a916-da57f24823ab",
+        "record_id_b": "177a8a5f-6ffe-43b3-94bf-7a4b25b8a42f",
+        "values_a": {
+          "manufacturer_part_number": "mug-61849-y",
+          "member_part_number": "RET-05-SKU-00007",
+          "upc_ean": "928327648350",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-08",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "MUG-61849-Y",
+          "member_part_number": "RET-09-SKU-00007",
+          "upc_ean": "928327648350",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-08",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "3a4045dd-93df-4907-9416-e4dcc6b28def",
+        "record_id_b": "7afeb114-9561-4813-8d25-9caab8adad87",
+        "values_a": {
+          "manufacturer_part_number": "VZY-74529-D",
+          "member_part_number": "RET-05-SKU-00080",
+          "upc_ean": "859770348247",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-09",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "VZY-74592-D",
+          "member_part_number": "RET-08-SKU-00080",
+          "upc_ean": "859770348247",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-09",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "8e85140d-0f9a-4b70-8670-7cd64ceda164",
+        "record_id_b": "bc36dc59-e134-4dfc-9777-7f10f2d2393f",
+        "values_a": {
+          "manufacturer_part_number": "NRD-64743H-",
+          "member_part_number": "RET-07-SKU-00135",
+          "upc_ean": "462914865281",
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-04",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "NRD-64743-H",
+          "member_part_number": "RET-08-SKU-00135",
+          "upc_ean": "462914865281",
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-04",
+          "member_id": "RET-08"
+        }
+      }
+    ],
+    "unclear": [
+      {
+        "record_id_a": "c6641285-4303-4bc1-9e25-95b88fc9c86b",
+        "record_id_b": "e9ddebf5-6311-4aca-848a-f4407fc15858",
+        "values_a": {
+          "manufacturer_part_number": "Xwk-53462-Q",
+          "member_part_number": "RET-06-SKU-00038",
+          "upc_ean": "655698169340",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-15",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XWK-53462-Q",
+          "member_part_number": "RET-07-SKU-00038",
+          "upc_ean": "EAN 655698169340",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-15",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "8da5d39b-42c2-4797-8426-fcc9255b30e2",
+        "record_id_b": "32399ffb-2704-4f25-8b91-b8cb6ae66582",
+        "values_a": {
+          "manufacturer_part_number": "Wdr-86926-V",
+          "member_part_number": "RET-01-SKU-00148",
+          "upc_ean": "5 18888 806706",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-05",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "WDR-86926-V",
+          "member_part_number": "RET-03-SKU-00148",
+          "upc_ean": "518888806706",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-05",
+          "member_id": "RET-03"
+        }
+      },
+      {
+        "record_id_a": "33c08bf1-8167-499f-a723-ada38c32bdb2",
+        "record_id_b": "d42a895e-0fcf-401f-9cb9-b73a906d5c8c",
+        "values_a": {
+          "manufacturer_part_number": "RWQ-03859-B",
+          "member_part_number": "RET-08-SKU-00115",
+          "upc_ean": "9 83273 158514",
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-14",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "RWQ-03859-B",
+          "member_part_number": "RET-08-SKU-00115",
+          "upc_ean": "EAN 983273158514",
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-14",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "3ca5be29-5217-4bf3-9181-83d1ac2b0cfc",
+        "record_id_b": "69df14e9-3896-41dd-8570-b59fa903ae67",
+        "values_a": {
+          "manufacturer_part_number": "MUK-488217-W",
+          "member_part_number": "RET-04-SKU-00134",
+          "upc_ean": "EAN 186449251925",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-12",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "MUK-48217-W",
+          "member_part_number": "RET-04-SKU-00134",
+          "upc_ean": "186449251925",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-12",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "8fd33afc-91fd-4a4f-8d18-ab95668c8477",
+        "record_id_b": "49e1cd13-8da0-4495-9cce-5ba931d4ee09",
+        "values_a": {
+          "manufacturer_part_number": "PPL-36231-T",
+          "member_part_number": "RET-01-SKU-00070",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-14",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "PPL-36231-T",
+          "member_part_number": "RET-04-SKU-00070",
+          "upc_ean": "9 93867 749649",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-14",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "7227890e-4e76-433a-8baf-0f5ea9320094",
+        "record_id_b": "53f28f11-147f-4570-9a43-db54523ae993",
+        "values_a": {
+          "manufacturer_part_number": "GGT-06513-Q",
+          "member_part_number": "RET-02-SKU-00029",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "GGT-06513-Q",
+          "member_part_number": "RET-07-SKU-00029",
+          "upc_ean": "278498084124",
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "317304b5-c1dd-484a-aca5-8d95915a1c30",
+        "record_id_b": "039b058c-2faa-4e0b-b7f6-0cdf41dc1c60",
+        "values_a": {
+          "manufacturer_part_number": "HKY-79740-K",
+          "member_part_number": "RET-09-SKU-00104",
+          "upc_ean": "317139005329",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "HKY-79740-K",
+          "member_part_number": "RET-04-SKU-00104",
+          "upc_ean": "317139-005329",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "e3954cb1-7f7f-4c0a-87c0-d116a394ed54",
+        "record_id_b": "a4540937-4a27-4bf2-8baa-f744a08dd21b",
+        "values_a": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-02-SKU-00057",
+          "upc_ean": "663193-149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-07-SKU-00057",
+          "upc_ean": "663193149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "ef9240b6-52d7-4f10-ba3a-6e9623ff23d3",
+        "record_id_b": "669d01ff-1634-425b-93f3-007383e96ef4",
+        "values_a": {
+          "manufacturer_part_number": "CBF-83242-K",
+          "member_part_number": "RET-03-SKU-00106",
+          "upc_ean": "228421020539",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-11",
+          "member_id": "RET-03"
+        },
+        "values_b": {
+          "manufacturer_part_number": "CBF-83242-K",
+          "member_part_number": "RET-10-SKU-00106",
+          "upc_ean": "2 28421 020539",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-11",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "ab1021ce-aa14-4cd8-aff3-cde46aa42c9f",
+        "record_id_b": "5c508720-f982-44e0-8603-156a15eacbcf",
+        "values_a": {
+          "manufacturer_part_number": "KPF-18451-Q",
+          "member_part_number": "RET-08-SKU-00017",
+          "upc_ean": "5 09839 301031",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Kpf-18451-Q",
+          "member_part_number": "RET-03-SKU-00017",
+          "upc_ean": "509839301031",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-03"
+        }
+      },
+      {
+        "record_id_a": "143df5b3-a58e-43dd-948c-1d84340de049",
+        "record_id_b": "87ad8b26-8eaa-4841-aaa0-426df7c0d5f7",
+        "values_a": {
+          "manufacturer_part_number": "BUM-21047-Z",
+          "member_part_number": "RET-02-SKU-00139",
+          "upc_ean": "794738-347359",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BUM-21047-Z",
+          "member_part_number": "RET-08-SKU-00139",
+          "upc_ean": "794738347359",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "2f1dc121-7d02-4c6d-8bea-75c1b86677aa",
+        "record_id_b": "23d4526b-2b54-4f7a-9a28-37b2cb8383f2",
+        "values_a": {
+          "manufacturer_part_number": "UGH-93183-L",
+          "member_part_number": "RET-03-SKU-00152",
+          "upc_ean": "345054156676",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-03",
+          "member_id": "RET-03"
+        },
+        "values_b": {
+          "manufacturer_part_number": "UGH-93183-L",
+          "member_part_number": "RET-07-SKU-00152",
+          "upc_ean": "3 45054 156676",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-03",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "24e9bcfd-9647-4f9f-b508-507af622d842",
+        "record_id_b": "d226a8b3-b674-410d-9218-c9d6c093bfb0",
+        "values_a": {
+          "manufacturer_part_number": "Uhp-58514-T",
+          "member_part_number": "RET-09-SKU-00167",
+          "upc_ean": "9 95900 109439",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-03",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "UHP-58514-T",
+          "member_part_number": "RET-06-SKU-00167",
+          "upc_ean": "995900109439",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-03",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "b139c476-de3c-488b-a6b9-d31a361f6d90",
+        "record_id_b": "45667c48-79ba-430a-9118-c400e336c243",
+        "values_a": {
+          "manufacturer_part_number": "KVK-16560-M",
+          "member_part_number": "RET-08-SKU-00165",
+          "upc_ean": "EAN 422535841438",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-04",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Kvk-16560-M",
+          "member_part_number": "RET-06-SKU-00165",
+          "upc_ean": "422535841438",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-04",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "f6729464-3f8e-440a-ab0a-e0e39d896047",
+        "record_id_b": "dd39d793-6257-44a2-b204-be894a4b5563",
+        "values_a": {
+          "manufacturer_part_number": "WUG-79176-Y",
+          "member_part_number": "RET-09-SKU-00063",
+          "upc_ean": "770143634957",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-10",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "WUG-79176-Y",
+          "member_part_number": "RET-05-SKU-00063",
+          "upc_ean": "770143-634957",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-10",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "614077d3-9ec4-4a48-9773-f98d550c2fe9",
+        "record_id_b": "70b27304-545c-488d-9cb9-075ecdd7f460",
+        "values_a": {
+          "manufacturer_part_number": "CRQ-95527-W",
+          "member_part_number": "RET-01-SKU-00186",
+          "upc_ean": "198665240415",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-01",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "CRQ-95527-W",
+          "member_part_number": "RET-2-SKU-00186",
+          "upc_ean": "1 98665 240415",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-01",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "5f07c1a5-dfc6-40ce-bb07-fd31a4244f23",
+        "record_id_b": "1feae1e0-d9e6-44b3-8412-a335d88c656d",
+        "values_a": {
+          "manufacturer_part_number": "DCN-54235-d",
+          "member_part_number": "RET-07-SKU-00005",
+          "upc_ean": "1 84959 310341",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-09",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "DCN-54235-D",
+          "member_part_number": "RET-02-SKU-00005",
+          "upc_ean": "184959-310341",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-09",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "0ac4de85-4a5b-4aff-a57f-7595cdfb4db9",
+        "record_id_b": "c5e78b23-f461-4f09-985a-befbd1812f77",
+        "values_a": {
+          "manufacturer_part_number": "WYR-67837-Q",
+          "member_part_number": "RET-01-SKU-00090",
+          "upc_ean": "4 00504 556238",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-04",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "wyr-67837-q",
+          "member_part_number": "RET-05-SKU-00090",
+          "upc_ean": "400504-556238",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-04",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "9e3c5a88-6aa5-4e6d-9277-9574c4576cc3",
+        "record_id_b": "e3954cb1-7f7f-4c0a-87c0-d116a394ed54",
+        "values_a": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-10-SKU-00057",
+          "upc_ean": "663193149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-02-SKU-00057",
+          "upc_ean": "663193-149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "5efeef4f-d8dd-4bc0-b325-3aa3ec170298",
+        "record_id_b": "d453f867-b97e-4224-891f-691217abb863",
+        "values_a": {
+          "manufacturer_part_number": "FGE-21456-T",
+          "member_part_number": "RET-04-SKU-00140",
+          "upc_ean": "774688-623924",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-09",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Fge-21456-T",
+          "member_part_number": "RET-10-SKU-00140",
+          "upc_ean": "774688623924",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-09",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "78d9a88a-ef0b-4a4f-bc73-7d9211ab3d11",
+        "record_id_b": "e4eb8000-ef40-4162-8f6c-e9bffe7ee362",
+        "values_a": {
+          "manufacturer_part_number": "kzk-65840-u",
+          "member_part_number": "RET-04-SKU-00121",
+          "upc_ean": "784036900343",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "KZK-65840-U",
+          "member_part_number": "RET-10-SKU-00121",
+          "upc_ean": "EAN 784036900343",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "abd2b512-1335-45db-8eaf-04b5f2a9dc8a",
+        "record_id_b": "83599af6-5d01-455f-a7fd-64c4a334058a",
+        "values_a": {
+          "manufacturer_part_number": "NAN-73602-J",
+          "member_part_number": "RET-06-SKU-00032",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-03",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "NAN-73602-J",
+          "member_part_number": "RET-05-SKU-00032",
+          "upc_ean": "7 86801 128059",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-03",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "702c1821-c804-4fb7-ad97-3b679b89e5cb",
+        "record_id_b": "d942644c-248d-41ec-87f8-d4f0f3ea0184",
+        "values_a": {
+          "manufacturer_part_number": "EGK-74687-G",
+          "member_part_number": "RET-09-SKU-00033",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-10",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "egk-74687-g",
+          "member_part_number": "RET-06-SKU-00033",
+          "upc_ean": "826204505331",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-10",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "c9912032-df85-4777-9887-4bfec1369c65",
+        "record_id_b": "ead08c89-13fe-4a29-9c9d-eee0b42a0456",
+        "values_a": {
+          "manufacturer_part_number": "XTQ-51680-P",
+          "member_part_number": "RET-02-SKU-00114",
+          "upc_ean": "851656-049451",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-07",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XTQ-51680-P",
+          "member_part_number": "RET-06-SKU-00114",
+          "upc_ean": "851656049451",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-07",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "b35556a5-f2bd-42f2-9293-f70508150147",
+        "record_id_b": "61542765-d756-4a9c-864c-96479ea7017c",
+        "values_a": {
+          "manufacturer_part_number": "KUX-24190-N",
+          "member_part_number": "RET-05-SKU-00081",
+          "upc_ean": "710932-480861",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-01",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "kux-24190-N",
+          "member_part_number": "RET-06-SKU-00081",
+          "upc_ean": "EAN 710932480861",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-01",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "8b0e8eb1-ad37-4d9e-92cf-60211f33242d",
+        "record_id_b": "65001423-faeb-4d19-a550-8ea26133a34d",
+        "values_a": {
+          "manufacturer_part_number": "GCH-94808-Z",
+          "member_part_number": "RET-02-SKU-00089",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "GCH-94808-Z",
+          "member_part_number": "RET-07-SKU-00089",
+          "upc_ean": "091343161172",
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "705fddf5-66fa-4ca0-8b53-1932bd9419aa",
+        "record_id_b": "23dfecd7-0e73-4dd7-86ac-1b04dd1d6cd1",
+        "values_a": {
+          "manufacturer_part_number": "XHR-21969-U",
+          "member_part_number": "RET-06-SKU-00132",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-13",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XHR-21969-U",
+          "member_part_number": "RET-08-SKU-00132",
+          "upc_ean": "1 51820 377889",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-13",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "4910fade-5238-4bf2-8988-e418f6c31218",
+        "record_id_b": "3b72c86d-92fa-475f-a6fd-0cb116e6e5c0",
+        "values_a": {
+          "manufacturer_part_number": "AUK-84271-R",
+          "member_part_number": "RET-05-SKU-00097",
+          "upc_ean": "232858842474",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-08",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "AUK-84271-R",
+          "member_part_number": "RET-10-SKU-00097",
+          "upc_ean": "232858-842474",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-08",
+          "member_id": "RET-10"
+        }
+      },
+      {
+        "record_id_a": "c1e1b94a-7888-4058-a9ad-0e9b8c9aa1e9",
+        "record_id_b": "d35ac07a-aa02-47d0-8d4f-8b2b899ac252",
+        "values_a": {
+          "manufacturer_part_number": "Qcl-74680-J",
+          "member_part_number": "RET-09-SKU-00113",
+          "upc_ean": "111161-528098",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-15",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Qcl-74680-J",
+          "member_part_number": "RET-01-SKU-00113",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-15",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "78f2ce6b-d46b-415d-aada-79a34970ed9a",
+        "record_id_b": "9d8776a0-72d7-4bdd-b817-99ffb49e04cc",
+        "values_a": {
+          "manufacturer_part_number": "BLN-83503-J",
+          "member_part_number": "RET-08-SKU-00011",
+          "upc_ean": "1 66978 480184",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-06",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BLN-83503-J",
+          "member_part_number": "RET-07-SKU-00011",
+          "upc_ean": "166978480184",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-06",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "862138ad-0f09-405c-b50d-7a37a44d9fec",
+        "record_id_b": "13075157-d8c1-48e7-96cd-315508a8ac7f",
+        "values_a": {
+          "manufacturer_part_number": "ETJ-29042-F",
+          "member_part_number": "RET-09-SKU-00153",
+          "upc_ean": "527758416169",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-10",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Etj-29042-F",
+          "member_part_number": "RET-03-SKU-00153",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-10",
+          "member_id": "RET-03"
+        }
+      },
+      {
+        "record_id_a": "8da5d39b-42c2-4797-8426-fcc9255b30e2",
+        "record_id_b": "b852b3cd-9442-45e6-9583-1d58ef4c5119",
+        "values_a": {
+          "manufacturer_part_number": "Wdr-86926-V",
+          "member_part_number": "RET-01-SKU-00148",
+          "upc_ean": "5 18888 806706",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-05",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "wdr-86926-v",
+          "member_part_number": "RET-09-SKU-00148",
+          "upc_ean": "EAN 518888806706",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-05",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "832f52c4-8e03-40cf-8e96-922772e76b51",
+        "record_id_b": "6e54ac6d-2ff8-487e-9659-1c8921ebfaa9",
+        "values_a": {
+          "manufacturer_part_number": "Paq-85160-C",
+          "member_part_number": "RET-09-SKU-00178",
+          "upc_ean": "787298-259526",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-05",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "PAQ-85160-C",
+          "member_part_number": "RET-03-SKU-00178",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-05",
+          "member_id": "RET-03"
+        }
+      },
+      {
+        "record_id_a": "85671b58-926b-4fa5-be24-5fbffa698cd2",
+        "record_id_b": "fe2390f3-e7bb-4efc-8f3d-c97fe6b0da0a",
+        "values_a": {
+          "manufacturer_part_number": "UNS-16136-C",
+          "member_part_number": "RET-01-SKU-00181",
+          "upc_ean": "309728-962309",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "UNS-16136-C",
+          "member_part_number": "RET-07-SKU-00181",
+          "upc_ean": "3 09728 962309",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "2aa93b43-6d15-416f-b7b8-c1a59a45693d",
+        "record_id_b": "7227890e-4e76-433a-8baf-0f5ea9320094",
+        "values_a": {
+          "manufacturer_part_number": "Ggt-06513-Q",
+          "member_part_number": "RET-09-SKU-00029",
+          "upc_ean": "EAN 278498084124",
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "GGT-06513-Q",
+          "member_part_number": "RET-02-SKU-00029",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "e5110961-1869-4217-b94d-8fcbdba3496f",
+        "record_id_b": "3ad1fa33-0ae4-4c11-ab4d-8f42873570a2",
+        "values_a": {
+          "manufacturer_part_number": "Ttl-52809-X",
+          "member_part_number": "RET-10-SKU-00164",
+          "upc_ean": "528922-680182",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "TTL-52809-X",
+          "member_part_number": "RET-08-SKU-00164",
+          "upc_ean": "5 28922 680182",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "48b763d5-e519-4d7e-84d6-7c4ff0df1684",
+        "record_id_b": "3240d7a1-4027-4b7d-9430-29a9d88f1c94",
+        "values_a": {
+          "manufacturer_part_number": "HAX-37543-G",
+          "member_part_number": "RET-09-SKU-00051",
+          "upc_ean": "3 73467 065627",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-01",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "hax-37543-g",
+          "member_part_number": "RET-08-SKU-00051",
+          "upc_ean": "373467-065627",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-01",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "ca5e151b-23d3-4d4c-bd5f-f093c16f9bcc",
+        "record_id_b": "6243bed7-54ec-4f33-8a62-4cbde582b678",
+        "values_a": {
+          "manufacturer_part_number": "AFE-24455-U",
+          "member_part_number": "RET-05-SKU-00169",
+          "upc_ean": "EAN 102767735925",
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-02",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "AFE-24455-U",
+          "member_part_number": "RET-01-SKU-00169",
+          "upc_ean": "1 02767 735925",
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-02",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "b00ac64c-949c-48d4-8ed8-a80d84cfee39",
+        "record_id_b": "bf31c29f-82bb-4d84-b8d5-101f423cad9d",
+        "values_a": {
+          "manufacturer_part_number": "pmx-29270-Z",
+          "member_part_number": "RET-10-SKU-00200",
+          "upc_ean": "187072867908",
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-09",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "PMX-29270-Z",
+          "member_part_number": "RET-06-SKU-00200",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-20",
+          "brand_code": "BR-09",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "36ee1640-723e-4466-b43b-d27f42a259a6",
+        "record_id_b": "e9ddebf5-6311-4aca-848a-f4407fc15858",
+        "values_a": {
+          "manufacturer_part_number": "XWK-53462-Q",
+          "member_part_number": "RET-10-SKU-00038",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-15",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XWK-53462-Q",
+          "member_part_number": "RET-07-SKU-00038",
+          "upc_ean": "EAN 655698169340",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-15",
+          "member_id": "RET-07"
+        }
+      }
+    ],
+    "likely_non_match": [
+      {
+        "record_id_a": "92170475-3d95-4e3f-9a52-26e69d642932",
+        "record_id_b": "fa323f69-90db-4ad6-94ce-26bec8cce2c2",
+        "values_a": {
+          "manufacturer_part_number": "KPF-18451-Q",
+          "member_part_number": "RET-09-SKU-00017",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "TTL-52890-X",
+          "member_part_number": "RET-04-SKU-00164",
+          "upc_ean": "EAN 528922680182",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "23d4526b-2b54-4f7a-9a28-37b2cb8383f2",
+        "record_id_b": "193e4783-02b3-4254-9b1f-2eb16e3255a8",
+        "values_a": {
+          "manufacturer_part_number": "UGH-93183-L",
+          "member_part_number": "RET-07-SKU-00152",
+          "upc_ean": "3 45054 156676",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-03",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "VNE-80592-F",
+          "member_part_number": "RET-04-SKU-00199",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "ef145064-aab0-4015-a342-2e509e2a7324",
+        "record_id_b": "abd2b512-1335-45db-8eaf-04b5f2a9dc8a",
+        "values_a": {
+          "manufacturer_part_number": "SDZ-24026-C",
+          "member_part_number": "RET-08-SKU-00155",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-09",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "NAN-73602-J",
+          "member_part_number": "RET-06-SKU-00032",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-03",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "5c72aebd-13b1-4e59-885c-d7147bf69552",
+        "record_id_b": "3ad1fa33-0ae4-4c11-ab4d-8f42873570a2",
+        "values_a": {
+          "manufacturer_part_number": "FVE-31243-W",
+          "member_part_number": "RET-03-SKU-00184",
+          "upc_ean": "EAN 785854973348",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-02",
+          "member_id": "RET-03"
+        },
+        "values_b": {
+          "manufacturer_part_number": "TTL-52809-X",
+          "member_part_number": "RET-08-SKU-00164",
+          "upc_ean": "5 28922 680182",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "c56bad4c-4c30-47c4-bb75-6923f910abb3",
+        "record_id_b": "65f202f9-83f0-4dc7-8f61-2217eef16694",
+        "values_a": {
+          "manufacturer_part_number": "XNL-73799-A",
+          "member_part_number": "RET-01-SKU-00087",
+          "upc_ean": "951718702621",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-13",
+          "member_id": "RET-01"
+        },
+        "values_b": {
+          "manufacturer_part_number": "THU-31509-H",
+          "member_part_number": "RET-01-SKU-00024",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-07",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "ca5e151b-23d3-4d4c-bd5f-f093c16f9bcc",
+        "record_id_b": "aa2960fd-a858-44df-bf8c-1097c4da2c2e",
+        "values_a": {
+          "manufacturer_part_number": "AFE-24455-U",
+          "member_part_number": "RET-05-SKU-00169",
+          "upc_ean": "EAN 102767735925",
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-02",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "fgl-85054-r",
+          "member_part_number": "RET-09-SKU-00197",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "31ab0b56-d5c9-4dc7-a76a-dca978116802",
+        "record_id_b": "b34191b8-ed65-42b4-b5a5-f8e6b6391f04",
+        "values_a": {
+          "manufacturer_part_number": "ACG-81960-H",
+          "member_part_number": "RET-10-SKU-00002",
+          "upc_ean": "013389083863",
+          "manufacturer_code": "MFG-02",
+          "brand_code": "BR-03",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "DDZ-84124--T",
+          "member_part_number": "RET-06-SKU-00042",
+          "upc_ean": "9 57773 872148",
+          "manufacturer_code": "MFG-02",
+          "brand_code": "BR-13",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "b61e5fdb-1a43-4206-af2d-dcc48df661da",
+        "record_id_b": "23dfecd7-0e73-4dd7-86ac-1b04dd1d6cd1",
+        "values_a": {
+          "manufacturer_part_number": "DCN-5435-D",
+          "member_part_number": "RET-04-SKU-00005",
+          "upc_ean": "184959310341",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-09",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XHR-21969-U",
+          "member_part_number": "RET-08-SKU-00132",
+          "upc_ean": "1 51820 377889",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-13",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "b852b3cd-9442-45e6-9583-1d58ef4c5119",
+        "record_id_b": "49e1cd13-8da0-4495-9cce-5ba931d4ee09",
+        "values_a": {
+          "manufacturer_part_number": "wdr-86926-v",
+          "member_part_number": "RET-09-SKU-00148",
+          "upc_ean": "EAN 518888806706",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-05",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "PPL-36231-T",
+          "member_part_number": "RET-04-SKU-00070",
+          "upc_ean": "9 93867 749649",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-14",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "bf5023f4-40ef-4935-9f90-bed6fb25664d",
+        "record_id_b": "607796a3-8685-4baa-ba76-8555a987b218",
+        "values_a": {
+          "manufacturer_part_number": "FTS-89325-A",
+          "member_part_number": "RET-08-SKU-00019",
+          "upc_ean": "EAN 737631165667",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "RDP-18506-M",
+          "member_part_number": "RET-07-SKU-00084",
+          "upc_ean": "EAN 584044997278",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-07",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "ee33688d-597e-4845-a277-18c5737d1fb6",
+        "record_id_b": "608e2f5c-6117-4270-a7c0-518b17efa621",
+        "values_a": {
+          "manufacturer_part_number": "hdn-10341-J",
+          "member_part_number": "RET-02-SKU-00008",
+          "upc_ean": "305641-395376",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-15",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "PLX-76615-J",
+          "member_part_number": "RET-01-SKU-00162",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-02",
+          "brand_code": "BR-13",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "fa323f69-90db-4ad6-94ce-26bec8cce2c2",
+        "record_id_b": "9c6d52d5-ae2e-4af9-9f8c-c29ffd350c5f",
+        "values_a": {
+          "manufacturer_part_number": "TTL-52890-X",
+          "member_part_number": "RET-04-SKU-00164",
+          "upc_ean": "EAN 528922680182",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-12",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "NUY-76036-A",
+          "member_part_number": "RET-07-SKU-00071",
+          "upc_ean": "909133412328",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-06",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "b0b6dedf-4f9c-4027-8514-4d98b41c504f",
+        "record_id_b": "ee6e2e72-53f5-41dc-a3c8-afdb83f82f16",
+        "values_a": {
+          "manufacturer_part_number": "FRS-90490-W",
+          "member_part_number": "RET-05-SKU-00110",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-09",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "wpe-69901-q",
+          "member_part_number": "RET-05-SKU-00075",
+          "upc_ean": "648877190659",
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-04",
+          "member_id": "RET-05"
+        }
+      },
+      {
+        "record_id_a": "a1173719-b023-40ea-9f41-e335b9aed8e4",
+        "record_id_b": "a4540937-4a27-4bf2-8baa-f744a08dd21b",
+        "values_a": {
+          "manufacturer_part_number": "AHG-05310-A",
+          "member_part_number": "RET-10-SKU-00078",
+          "upc_ean": "5 12567 468071",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-10",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "LNY-14846-K",
+          "member_part_number": "RET-07-SKU-00057",
+          "upc_ean": "663193149190",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-13",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "b3b26337-6a74-4bb7-9fa5-e0aa9b11b530",
+        "record_id_b": "7bf33a34-9c2d-4a97-83ad-3d62b17cfb21",
+        "values_a": {
+          "manufacturer_part_number": "FLP-56551-Y",
+          "member_part_number": "RET-10-SKU-00112",
+          "upc_ean": "576615654527",
+          "manufacturer_code": "MFG-12",
+          "brand_code": "BR-08",
+          "member_id": "RET-10"
+        },
+        "values_b": {
+          "manufacturer_part_number": "LHC-77694-J",
+          "member_part_number": "RET-01-SKU-00086",
+          "upc_ean": "360576627028",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-06",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "65f30779-f6ee-4cdb-ad79-a2d1506e50c7",
+        "record_id_b": "9c4ffb46-71b7-41aa-b836-f5713ccec76c",
+        "values_a": {
+          "manufacturer_part_number": "Cwc-70054-V",
+          "member_part_number": "RET-08-SKU-00188",
+          "upc_ean": "EAN 933083301657",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-15",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "ezd-10433-x",
+          "member_part_number": "RET-09-SKU-00001",
+          "upc_ean": "104332-181960",
+          "manufacturer_code": "MFG-01",
+          "brand_code": "BR-11",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "ae2ae341-3f59-44f2-8309-3b6e37e9d2e2",
+        "record_id_b": "41476506-3e2b-49c9-a36f-6e5c2253e706",
+        "values_a": {
+          "manufacturer_part_number": "Qcl-74680-J",
+          "member_part_number": "RET-07-SKU-00113",
+          "upc_ean": "111161528098",
+          "manufacturer_code": "MFG-13",
+          "brand_code": "BR-15",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BUM-21047-Z",
+          "member_part_number": "RET-07-SKU-00139",
+          "upc_ean": "794738-347359",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "af36b8cc-1308-4974-ac95-b3ac0beb7c34",
+        "record_id_b": "0c00988a-7ee1-411a-8e4c-3ab56d5d0477",
+        "values_a": {
+          "manufacturer_part_number": "KVK-16560-M",
+          "member_part_number": "RET-05-SKU-00165",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-04",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "YKA-69594-X",
+          "member_part_number": "RET-06-SKU-00136",
+          "upc_ean": "EAN 685054235733",
+          "manufacturer_code": "MFG-16",
+          "brand_code": "BR-11",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "c48d5650-2e95-42d6-9679-2482a3c988e4",
+        "record_id_b": "bb96f602-2b11-4c36-b5f8-e3a87d97ac0f",
+        "values_a": {
+          "manufacturer_part_number": "MP-05331-V",
+          "member_part_number": "RET-06-SKU-00048",
+          "upc_ean": "EAN 345581223623",
+          "manufacturer_code": "MFG-08",
+          "brand_code": "BR-10",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "BLH-71390-E",
+          "member_part_number": "RET-06-SKU-00151",
+          "upc_ean": "303054-868740",
+          "manufacturer_code": "MFG-11",
+          "brand_code": "BR-11",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "e95f176c-deba-4186-ba10-82170ad7c9a2",
+        "record_id_b": "db87d29c-4cfd-4fc1-b9b0-2e2ad96e684f",
+        "values_a": {
+          "manufacturer_part_number": "HCQ-26247-t",
+          "member_part_number": "RET-06-SKU-00030",
+          "upc_ean": "118244935348",
+          "manufacturer_code": "MFG-10",
+          "brand_code": "BR-04",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "VJX-39533-Z",
+          "member_part_number": "RET-09-SKU-00138",
+          "upc_ean": "9 62229 270653",
+          "manufacturer_code": "MFG-18",
+          "brand_code": "BR-10",
+          "member_id": "RET-09"
+        }
+      },
+      {
+        "record_id_a": "3ca5be29-5217-4bf3-9181-83d1ac2b0cfc",
+        "record_id_b": "fa585b27-8ce3-47c3-b6ea-b3a001539221",
+        "values_a": {
+          "manufacturer_part_number": "MUK-488217-W",
+          "member_part_number": "RET-04-SKU-00134",
+          "upc_ean": "EAN 186449251925",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-12",
+          "member_id": "RET-04"
+        },
+        "values_b": {
+          "manufacturer_part_number": "DK-49894-H",
+          "member_part_number": "RET-06-SKU-00095",
+          "upc_ean": "0 97439 533942",
+          "manufacturer_code": "MFG-15",
+          "brand_code": "BR-09",
+          "member_id": "RET-06"
+        }
+      },
+      {
+        "record_id_a": "43f9cd6b-797e-4e87-98cf-118806d25913",
+        "record_id_b": "b7f28572-3def-4849-9336-4f7e83efa9f3",
+        "values_a": {
+          "manufacturer_part_number": "xdu-92327-g",
+          "member_part_number": "RET-07-SKU-00079",
+          "upc_ean": "545168087603",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "jta-66978-x",
+          "member_part_number": "RET-04-SKU-00016",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-16",
+          "brand_code": "BR-11",
+          "member_id": "RET-04"
+        }
+      },
+      {
+        "record_id_a": "2332a50e-6992-496e-81a2-5ed1c3abb5f1",
+        "record_id_b": "a8c6dbc0-7bb3-447b-a9aa-144b9dd43675",
+        "values_a": {
+          "manufacturer_part_number": "Hul-10205-A",
+          "member_part_number": "RET-03-SKU-00154",
+          "upc_ean": "EAN 284511544796",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-02",
+          "member_id": "RET-03"
+        },
+        "values_b": {
+          "manufacturer_part_number": "dqs-77589-H",
+          "member_part_number": "RET-01-SKU-00156",
+          "upc_ean": "582029702135",
+          "manufacturer_code": "MFG-16",
+          "brand_code": "BR-01",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "6231ee73-42c2-42eb-81bf-9e733f800385",
+        "record_id_b": "5e0a72ab-7f5d-4163-b12b-66807f072cb9",
+        "values_a": {
+          "manufacturer_part_number": "QYK-99471-Y",
+          "member_part_number": "RET-02-SKU-00107",
+          "upc_ean": "502402681177",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-03",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "ddx-73763-p",
+          "member_part_number": "RET-02-SKU-00027",
+          "upc_ean": "EAN 346247510799",
+          "manufacturer_code": "MFG-07",
+          "brand_code": "BR-13",
+          "member_id": "RET-02"
+        }
+      },
+      {
+        "record_id_a": "43f9cd6b-797e-4e87-98cf-118806d25913",
+        "record_id_b": "6a662fce-7089-4c6d-a877-f5d90f5675f8",
+        "values_a": {
+          "manufacturer_part_number": "xdu-92327-g",
+          "member_part_number": "RET-07-SKU-00079",
+          "upc_ean": "545168087603",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-02",
+          "member_id": "RET-07"
+        },
+        "values_b": {
+          "manufacturer_part_number": "KKG694680-P",
+          "member_part_number": "RET-07-SKU-00059",
+          "upc_ean": "EAN 572628498776",
+          "manufacturer_code": "MFG-19",
+          "brand_code": "BR-12",
+          "member_id": "RET-07"
+        }
+      },
+      {
+        "record_id_a": "b2149062-3e1a-463e-aa18-d32c7a9a8ef5",
+        "record_id_b": "91ddb9bf-613d-4de9-bae2-802354720d2d",
+        "values_a": {
+          "manufacturer_part_number": "WMD-75496-X",
+          "member_part_number": "RET-06-SKU-00144",
+          "upc_ean": "047277901043",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-07",
+          "member_id": "RET-06"
+        },
+        "values_b": {
+          "manufacturer_part_number": "Qqh-64053-M",
+          "member_part_number": "RET-01-SKU-00149",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "b139c476-de3c-488b-a6b9-d31a361f6d90",
+        "record_id_b": "6aa26216-fada-48f5-9c0f-0bdcac7e937c",
+        "values_a": {
+          "manufacturer_part_number": "KVK-16560-M",
+          "member_part_number": "RET-08-SKU-00165",
+          "upc_ean": "EAN 422535841438",
+          "manufacturer_code": "MFG-05",
+          "brand_code": "BR-04",
+          "member_id": "RET-08"
+        },
+        "values_b": {
+          "manufacturer_part_number": "RAZ-646c1-T",
+          "member_part_number": "RET-03-SKU-00077",
+          "upc_ean": "874296717565",
+          "manufacturer_code": "MFG-17",
+          "brand_code": "BR-03",
+          "member_id": "RET-03"
+        }
+      },
+      {
+        "record_id_a": "b89bdf7f-93e3-4c35-af0a-573d53d2d56d",
+        "record_id_b": "3c9abe10-238d-4f44-8ac4-d0eb3373730e",
+        "values_a": {
+          "manufacturer_part_number": "WYA-67632-D",
+          "member_part_number": "RET-05-SKU-00064",
+          "upc_ean": "885685574443",
+          "manufacturer_code": "MFG-04",
+          "brand_code": "BR-02",
+          "member_id": "RET-05"
+        },
+        "values_b": {
+          "manufacturer_part_number": "YLG-24493-X",
+          "member_part_number": "RET-01-SKU-00043",
+          "upc_ean": "951343320037",
+          "manufacturer_code": "MFG-03",
+          "brand_code": "BR-05",
+          "member_id": "RET-01"
+        }
+      },
+      {
+        "record_id_a": "9fddde2e-a8a2-47ad-abd3-cdcd27794685",
+        "record_id_b": "04022b3c-5082-41a5-99b5-9f84edc3a1c3",
+        "values_a": {
+          "manufacturer_part_number": "PVS-19655-D",
+          "member_part_number": "RET-09-SKU-00054",
+          "upc_ean": "417080-531003",
+          "manufacturer_code": "MFG-14",
+          "brand_code": "BR-07",
+          "member_id": "RET-09"
+        },
+        "values_b": {
+          "manufacturer_part_number": "XRH-19832-D",
+          "member_part_number": "RET-08-SKU-00166",
+          "upc_ean": "EAN 424981829922",
+          "manufacturer_code": "MFG-06",
+          "brand_code": "BR-11",
+          "member_id": "RET-08"
+        }
+      },
+      {
+        "record_id_a": "8b0e8eb1-ad37-4d9e-92cf-60211f33242d",
+        "record_id_b": "883f13c6-01b1-48e9-8406-ff447ce40679",
+        "values_a": {
+          "manufacturer_part_number": "GCH-94808-Z",
+          "member_part_number": "RET-02-SKU-00089",
+          "upc_ean": null,
+          "manufacturer_code": "MFG-09",
+          "brand_code": "BR-12",
+          "member_id": "RET-02"
+        },
+        "values_b": {
+          "manufacturer_part_number": "DQS-77589FH",
+          "member_part_number": "RET-04-SKU-00156",
+          "upc_ean": "582029702135",
+          "manufacturer_code": "MFG-16",
+          "brand_code": "BR-01",
+          "member_id": "RET-04"
+        }
+      }
+    ]
+  },
+  "notes": [
+    "manufacturer_part_number: anchor rule relaxed from 2 to 1 agreeing columns (210 anchor pairs).",
+    "upc_ean: anchor rule relaxed from 2 to 1 agreeing columns (235 anchor pairs)."
+  ],
+  "columns": {
+    "manufacturer_part_number": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.526,
+      "null_rate": 0.0,
+      "reliability_score": 0.990801,
+      "composite_weight": 0.424781,
+      "reason": "Moderately distinctive values (53% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 0.99)."
+    },
+    "member_part_number": {
+      "semantic_type": "IDENTIFIER",
+      "comparison_method": "exact",
+      "uniqueness_ratio": 0.924,
+      "null_rate": 0.0,
+      "reliability_score": 0.104046,
+      "composite_weight": 0.07836,
+      "reason": "Highly distinctive values (92% unique), rarely empty (0% null), and often disagrees across likely duplicates (reliability 0.10)."
+    },
+    "upc_ean": {
+      "semantic_type": "QUASI_IDENTIFIER",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.698,
+      "null_rate": 0.124,
+      "reliability_score": 0.857211,
+      "composite_weight": 0.427209,
+      "reason": "Moderately distinctive values (70% unique), sometimes empty (12% null), and agrees well across likely duplicates (reliability 0.86)."
+    },
+    "manufacturer_code": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.04,
+      "null_rate": 0.0,
+      "reliability_score": 1.0,
+      "composite_weight": 0.032603,
+      "reason": "Many repeated values (4% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "brand_code": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.03,
+      "null_rate": 0.0,
+      "reliability_score": 1.0,
+      "composite_weight": 0.024452,
+      "reason": "Many repeated values (3% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 1.00)."
+    },
+    "member_id": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.02,
+      "null_rate": 0.0,
+      "reliability_score": 0.772625,
+      "composite_weight": 0.012595,
+      "reason": "Many repeated values (2% unique), rarely empty (0% null), and usually agrees across likely duplicates (reliability 0.77)."
+    }
+  }
+}
