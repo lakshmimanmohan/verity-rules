@@ -96,7 +96,7 @@ _EXCLUDED_SENTENCES = {
     "degenerate_field": "Every record has the same value, so it cannot tell records apart.",
     "near_constant_field": "It has very few distinct values, so it cannot tell records apart.",
     "record_id_column": "It is the record id column.",
-    USER_EXCLUDED_RULE: "You excluded it with --exclude-columns.",
+    USER_EXCLUDED_RULE: "Excluded at your request.",
 }
 
 
@@ -133,6 +133,35 @@ def _excluded_entry(name: str, raw: str) -> dict[str, Any]:
     return {"name": name, "reason": _excluded_sentence(raw), "rule": _rule_tags(raw)}
 
 
+def _apply_column_overrides(cls: dict[str, Any], columns: list[str],
+                            exclude: list[str], keep: list[str], notes: list[str]) -> None:
+    """Apply the user's exclude/keep lists to the classification, in place.
+    Raises ValueError (naming exclude_columns / keep_columns) for unknown names, a name in
+    both lists, or keeping the record id column."""
+    both = sorted(set(exclude) & set(keep))
+    if both:
+        raise ValueError("exclude_columns and keep_columns both list: " + ", ".join(both))
+    for option, names in (("exclude_columns", exclude), ("keep_columns", keep)):
+        unknown = sorted(set(names) - set(columns))
+        if unknown:
+            raise ValueError(f"{option}: no such column: " + ", ".join(unknown))
+    rid = cls["record_id_column"]
+    if rid in keep:
+        raise ValueError(f"keep_columns: {rid} is the record id column and cannot be kept")
+    metadata, content = set(cls["metadata_columns"]), set(cls["content_columns"])
+    for c in sorted(set(keep) & metadata):
+        notes.append(f"{c}: Verity would have excluded it ({_excluded_sentence(cls['reasoning'][c])}) "
+                     "but it was kept at your request.")
+        metadata.discard(c)
+        content.add(c)
+    for c in sorted(set(exclude) & content):
+        metadata.add(c)
+        content.discard(c)
+        cls["reasoning"][c] = f"excluded: [{USER_EXCLUDED_RULE}] excluded by the user"
+    cls["metadata_columns"] = sorted(metadata)
+    cls["content_columns"] = sorted(content)
+
+
 def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
     def vals(k):
         return {c: _clean_value(rows[k].get(c)) for c in content}
@@ -147,6 +176,8 @@ def learn_rules(
     seed: int = 42,
     debug: bool = False,
     reliability: str = "v2",
+    exclude_columns: list[str] | None = None,
+    keep_columns: list[str] | None = None,
 ) -> dict[str, Any]:
     if reliability not in ("v1", "v2"):
         raise ValueError(f"reliability must be 'v1' or 'v2', got {reliability!r}")
@@ -160,6 +191,9 @@ def learn_rules(
         raise ValueError("Need at least 2 records.")
 
     cls = classify_columns(df)
+    notes: list[str] = []
+    _apply_column_overrides(cls, list(df.columns), list(exclude_columns or []),
+                            list(keep_columns or []), notes)
     rows = df.to_dict(orient="records")
     content = [h for h in df.columns if h in set(cls["content_columns"])]
     if not content:
@@ -188,7 +222,6 @@ def learn_rules(
     # Candidate pairs: random pairs are almost all non-matches.
     cand_map = _build_candidates(rows, profiles)
     cand_pairs = sorted(cand_map)
-    notes: list[str] = []
     if len(cand_pairs) > CANDIDATE_CAP:
         cand_pairs = sorted(random.sample(cand_pairs, CANDIDATE_CAP))
         notes.append(f"Candidate pairs capped at {CANDIDATE_CAP} by sampling.")

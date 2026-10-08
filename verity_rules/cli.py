@@ -16,7 +16,7 @@ from typing import Any
 
 import pandas as pd
 
-from .core import learn_rules
+from .core import USER_EXCLUDED_RULE, learn_rules
 
 DEFAULT_SEED = 42
 DEFAULT_MAX_ROWS = 20_000
@@ -77,7 +77,8 @@ _METHOD_GLOSSARY = {
 
 def build_report(result: dict[str, Any], source: Path, n_original: int,
                  debug: dict[str, Any], seed: int, n_pairs_written: int,
-                 pairs_written: bool, masked: set[str]) -> str:
+                 pairs_written: bool, masked: set[str],
+                 exclude: list[str] = (), keep: list[str] = ()) -> str:
     cols = result["columns"]
     ordered = sorted(cols.items(), key=lambda kv: (-kv[1]["composite_weight"], kv[0]))
     anchor_counts = debug.get("reliability_debug", {}).get("anchor_count")
@@ -102,6 +103,8 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           f"- Run date (UTC): {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}",
           f"- Contract version: {result['contract_version']}",
           f"- Embeddings used: {'yes' if embeddings_used else 'no'}",
+          *([f"- Excluded by you (--exclude-columns): {', '.join(exclude)}"] if exclude else []),
+          *([f"- Kept by you (--keep-columns): {', '.join(keep)}"] if keep else []),
           f"- Random pairs sampled: {result['n_pairs_sampled']:,}",
           f"- Candidate pairs found: {n_cand:,}",
           f"- Calibration pairs: {n_pairs_written}", "",
@@ -127,8 +130,16 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
         L += ["", "Text similarity is character-based in this run because no embeddings were used."]
     L += ["", "## Excluded columns", ""]
     if result["columns_excluded"]:
-        L += [f"- `{e['name']}`: {e['reason']}"
-              for e in result["columns_excluded"]]
+        for e in result["columns_excluded"]:
+            name = e["name"]
+            if e["rule"] == [USER_EXCLUDED_RULE]:
+                L.append(f"- `{name}`: Excluded by you.")
+                continue
+            if name == result["record_id_column"]:
+                origin = "Verity rule."
+            else:
+                origin = f"Verity rule. To include it anyway, use `--keep-columns {name}`."
+            L.append(f"- `{name}`: {e['reason']} ({origin})")
     else:
         L.append("No columns were excluded.")
     L += ["", "## Separability", ""]
@@ -246,15 +257,28 @@ def write_calibration_csv(path: Path, key_path: Path, result: dict[str, Any], se
     return len(flat)
 
 
+def _name_list(text: str | None) -> list[str]:
+    return [c.strip() for c in text.split(",") if c.strip()] if text else []
+
+
 def cmd_learn(args: argparse.Namespace) -> int:
     src, out = Path(args.csv), Path(args.out)
     if args.max_rows < 2:
         raise CliError("--max-rows must be at least 2.")
+    exclude, keep = _name_list(args.exclude_columns), _name_list(args.keep_columns)
+    both = sorted(set(exclude) & set(keep))
+    if both:
+        raise CliError("--exclude-columns and --keep-columns both list: " + ", ".join(both))
     records, n_original = load_records(src, args.max_rows, args.seed)
     try:
-        result = learn_rules(records, seed=args.seed, debug=True)
+        result = learn_rules(records, seed=args.seed, debug=True,
+                             exclude_columns=exclude, keep_columns=keep)
     except ValueError as exc:
-        if "record id" in str(exc).lower():
+        msg = str(exc)
+        if msg.startswith(("exclude_columns", "keep_columns")):
+            raise CliError(msg.replace("exclude_columns", "--exclude-columns")
+                           .replace("keep_columns", "--keep-columns")) from None
+        if "record id" in msg.lower():
             raise CliError(f"no usable record id column found in {src}.") from None
         raise CliError(str(exc)) from None
 
@@ -285,7 +309,7 @@ def cmd_learn(args: argparse.Namespace) -> int:
         written += ["calibration_pairs.csv", "calibration_pairs_key.csv"]
     (out / "rules_report.md").write_text(
         build_report(result, src, n_original, debug, args.seed, n_pairs,
-                     not args.no_pairs, mask), encoding="utf-8")
+                     not args.no_pairs, mask, exclude, keep), encoding="utf-8")
     if args.debug:
         (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
         written.append("debug.json")
@@ -309,6 +333,11 @@ def build_parser() -> argparse.ArgumentParser:
     learn.add_argument("--mask-columns", metavar="COLS",
                        help="comma-separated column names; their values become *** in the pairs "
                             "(calibration_pairs.csv and rules.json)")
+    learn.add_argument("--exclude-columns", metavar="COLS",
+                       help="comma-separated column names to leave out even if Verity would use them")
+    learn.add_argument("--keep-columns", metavar="COLS",
+                       help="comma-separated column names to use even if a Verity rule would "
+                            "exclude them (not the record id column)")
     learn.add_argument("--no-pairs", action="store_true",
                        help="write no calibration pairs files and leave calibration_pairs empty")
     learn.add_argument("--debug", action="store_true", help="also write debug.json")
