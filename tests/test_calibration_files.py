@@ -38,7 +38,9 @@ def test_pairs_file_has_no_label_and_key_matches(tmp_path):
     out = _learn(tmp_path, "o")
     pairs, key = _rows(out / "calibration_pairs.csv"), _rows(out / "calibration_pairs_key.csv")
     assert "suggested_label" not in pairs[0]
-    assert list(key[0]) == ["pair_id", "suggested_label"]
+    assert list(key[0]) == ["pair_id", "suggested_label", "source"]
+    assert {r["source"] for r in key if r["suggested_label"] == "unclear"} <= {"candidate_mid", "non_candidate_top"}
+    assert {r["source"] for r in key if r["suggested_label"] == "likely_match"} <= {"candidate_top"}
     ids = [r["pair_id"] for r in pairs]
     assert ids == [str(i) for i in range(1, len(pairs) + 1)]
     assert ids == [r["pair_id"] for r in key]
@@ -125,3 +127,11 @@ def test_report_sections(tmp_path):
     assert "separability" not in rules
     expected = sum(c["composite_weight"] * (1 - c["null_rate"]) for c in rules["columns"].values())
     assert rules["expected_pair_coverage"] == pytest.approx(expected, abs=1e-4)
+
+
+def test_unclear_mixes_mid_candidates_and_non_candidate_near_misses(tmp_path):
+    out = _learn(tmp_path, "u")
+    rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
+    sources = [p["source"] for p in rules["calibration_pairs"]["unclear"]]
+    assert sources.count("candidate_mid") <= 20 and sources.count("non_candidate_top") == 20
+    assert len({(p["record_id_a"], p["record_id_b"]) for v in rules["calibration_pairs"].values() for p in v})         == sum(len(v) for v in rules["calibration_pairs"].values())

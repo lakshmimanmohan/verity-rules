@@ -210,7 +210,9 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
               "or not a match. Label at least 30 pairs of each kind. If the file does not "
               "have 30 of a kind, add pairs from your own data. Leave "
               "`calibration_pairs_key.csv` unopened until you finish; it holds Verity's "
-              "guesses, which are not the truth."]
+              "guesses and where each pair came from, which are not the truth. The `unclear` "
+              "pairs mix mid-range candidate pairs with the highest-scoring pairs that are not "
+              "candidates (near-misses)."]
     else:
         L += ["1. Take pairs from your own data and label each as a match or not a match. "
               "Label at least 30 pairs of each kind. (No pairs files were written because "
@@ -266,7 +268,7 @@ def shuffled_pairs(result: dict[str, Any], seed: int) -> list[tuple[str, dict[st
 
 
 def write_calibration_csv(path: Path, key_path: Path, result: dict[str, Any], seed: int) -> int:
-    """Write the shuffled pairs file (no labels) and the key file (pair_id, suggested_label)."""
+    """Write the shuffled pairs file (no labels) and the key file (pair_id, suggested_label, source)."""
     content = list(result["columns"])
     header = ["pair_id", "record_id_a", "record_id_b"]
     for c in content:
@@ -277,14 +279,14 @@ def write_calibration_csv(path: Path, key_path: Path, result: dict[str, Any], se
             key_path.open("w", newline="", encoding="utf-8") as kh:
         w, kw = csv.writer(fh), csv.writer(kh)
         w.writerow(header)
-        kw.writerow(["pair_id", "suggested_label"])
+        kw.writerow(["pair_id", "suggested_label", "source"])
         for k, (cat, pair) in enumerate(flat, start=1):
             row = [k, pair["record_id_a"], pair["record_id_b"]]
             for c in content:
                 row += [pair["values_a"].get(c), pair["values_b"].get(c)]
             row.append("")
             w.writerow(["" if v is None or v != v else v for v in row])  # v != v: NaN
-            kw.writerow([k, cat])
+            kw.writerow([k, cat, pair["source"]])
     return len(flat)
 
 

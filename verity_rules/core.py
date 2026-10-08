@@ -22,11 +22,13 @@ CONTRACT_VERSION = "1.0"
 CANDIDATE_MIN_UNIQUENESS = 0.5
 CANDIDATE_GROUP_MIN, CANDIDATE_GROUP_MAX = 2, 10
 CANDIDATE_CAP = 20_000
-N_LIKELY_MATCH, N_UNCLEAR, N_LIKELY_NON_MATCH = 30, 40, 30
+N_LIKELY_MATCH, N_LIKELY_NON_MATCH = 30, 30
+N_UNCLEAR_MID, N_UNCLEAR_NEAR_MISS = 20, 20  # candidate mid-range, top-scoring non-candidates
+NEAR_MISS_POOL = 50_000  # pairs scored when looking for near-misses
 MAX_PER_GROUP = 2
 NO_CANDIDATES_NOTE = ("No candidate pairs found (no column with enough distinct values shares a value "
-                      "between 2 and 10 records); likely_match and unclear are empty "
-                      "and reliability is not learned.")
+                      "between 2 and 10 records); likely_match is empty, unclear holds only non-candidate "
+                      "pairs and reliability is not learned.")
 RELIABILITY_HIGH, RELIABILITY_MID = 0.85, 0.65  # reason wording bands
 
 
@@ -168,10 +170,27 @@ def _apply_column_overrides(cls: dict[str, Any], columns: list[str],
     cls["content_columns"] = sorted(content)
 
 
-def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
+def _near_miss_pool(n: int, cand_map, seed: int) -> list[tuple[int, int]]:
+    """Non-candidate pairs to score for near-misses: all pairs when there are
+    NEAR_MISS_POOL or fewer, otherwise those of a seeded random sample of NEAR_MISS_POOL pairs."""
+    total = n * (n - 1) // 2
+    if total <= NEAR_MISS_POOL:
+        pool = ((i, j) for i in range(n) for j in range(i + 1, n))
+    else:
+        rng = random.Random(seed)
+        drawn: set[tuple[int, int]] = set()
+        while len(drawn) < NEAR_MISS_POOL:
+            i, j = rng.randrange(n), rng.randrange(n)
+            if i != j:
+                drawn.add((min(i, j), max(i, j)))
+        pool = sorted(drawn)
+    return [pr for pr in pool if pr not in cand_map]
+
+
+def _pair_view(i, j, rows, row_ids, content, source: str) -> dict[str, Any]:
     def vals(k):
         return {c: _clean_value(rows[k].get(c)) for c in content}
-    return {"record_id_a": row_ids[i], "record_id_b": row_ids[j],
+    return {"source": source, "record_id_a": row_ids[i], "record_id_b": row_ids[j],
             "values_a": vals(i), "values_b": vals(j)}
 
 
@@ -275,6 +294,7 @@ def learn_rules(
     separability: dict[str, Any] = {"candidate_top_decile_mean": None,
                                     "random_pair_mean": None, "gap": None}
     calibration: dict[str, list] = {"likely_match": [], "unclear": [], "likely_non_match": []}
+    sources: dict[tuple[int, int], str] = {}
     if len(cand_pairs) == 0:
         notes.append(NO_CANDIDATES_NOTE)
     else:
@@ -296,19 +316,33 @@ def learn_rules(
                 continue
             per_group[g] = per_group.get(g, 0) + 1
             calibration["likely_match"].append(cand_pairs[k])
+            sources[cand_pairs[k]] = "candidate_top"
         mid = [k for k in order if rand_mean <= cand_sims[k] < floor]
-        calibration["unclear"] = [cand_pairs[k] for k in mid[:N_UNCLEAR]]
+        calibration["unclear"] = [cand_pairs[k] for k in mid[:N_UNCLEAR_MID]]
+        sources.update({cand_pairs[k]: "candidate_mid" for k in mid[:N_UNCLEAR_MID]})
 
-    low = [pairs[k] for k in range(len(pairs)) if sims[k] < rand_mean]
+    # Near-misses: the highest-scoring pairs that are not candidates.
+    near = _near_miss_pool(n, cand_map, seed)
+    near_sims = [weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
+                                          embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]),
+                                          weight_attr="composite_weight",
+                                          comparator_variant=comparator_variant)
+                 for i, j in near]
+    top_near = sorted(range(len(near)), key=lambda k: (-near_sims[k], near[k]))[:N_UNCLEAR_NEAR_MISS]
+    calibration["unclear"] += [near[k] for k in top_near]
+    sources.update({near[k]: "non_candidate_top" for k in top_near})
+
+    low = [pairs[k] for k in range(len(pairs)) if sims[k] < rand_mean and pairs[k] not in sources]
     random.shuffle(low)
     calibration["likely_non_match"] = low[:N_LIKELY_NON_MATCH]
+    sources.update({pr: "random_low" for pr in calibration["likely_non_match"]})
 
-    want = {"likely_match": N_LIKELY_MATCH, "unclear": N_UNCLEAR,
+    want = {"likely_match": N_LIKELY_MATCH, "unclear": N_UNCLEAR_MID + N_UNCLEAR_NEAR_MISS,
             "likely_non_match": N_LIKELY_NON_MATCH}
     for cat, pl in calibration.items():
         if len(pl) < want[cat]:
             notes.append(f"{cat}: only {len(pl)} of {want[cat]} requested pairs available.")
-        calibration[cat] = [_pair_view(i, j, rows, row_ids, content) for i, j in pl]
+        calibration[cat] = [_pair_view(i, j, rows, row_ids, content, sources[(i, j)]) for i, j in pl]
 
     result = {
         "contract_version": CONTRACT_VERSION,
