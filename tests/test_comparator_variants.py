@@ -1,4 +1,4 @@
-"""comparator_variant: v0 is the current behavior; v1 to v4 change how IDENTIFIER and text columns compare."""
+"""comparator_variant: v4 is the default; v0 is the original behavior; v1 to v4 change how IDENTIFIER and text columns compare."""
 import json
 import random
 
@@ -157,9 +157,25 @@ def test_each_variant_runs_reports_method_and_is_deterministic(variant):
     assert sum(c["composite_weight"] for c in cols.values()) == pytest.approx(1.0, abs=1e-4)
 
 
-def test_default_is_v0_and_matches_explicit_v0():
+def test_default_is_v4_and_matches_explicit_v4():
     recs = _records()
-    assert learn_rules(recs) == learn_rules(recs, comparator_variant="v0")
+    assert learn_rules(recs) == learn_rules(recs, comparator_variant="v4")
+    assert learn_rules(recs) != learn_rules(recs, comparator_variant="v0")
+
+
+def test_default_argument_of_field_similarity_and_method_is_v4():
+    p = _prof("QUASI_IDENTIFIER", "STRING", inferred="STRING")
+    assert field_similarity("abcd", "dcba", p, NO_RANGE) == 0.0
+    assert comparison_method(p, False) == "text_bigram"
+
+
+def test_report_glossary_defines_every_method():
+    from verity_rules.cli import _METHOD_GLOSSARY
+    all_methods = {"email", "exact", "exact_normalized", "bigram_jaccard", "text_bigram",
+                   "text_character", "text_hybrid", "date", "numeric_range"}
+    assert all_methods <= set(_METHOD_GLOSSARY)
+    assert "order matters" in _METHOD_GLOSSARY["text_bigram"]
+    assert "order matters" in _METHOD_GLOSSARY["bigram_jaccard"].lower()
 
 
 def test_variants_change_reliability_of_formatting_variants():

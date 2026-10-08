@@ -470,7 +470,7 @@ def field_similarity(
     *,
     record_emb_i: np.ndarray | None = None,
     record_emb_j: np.ndarray | None = None,
-    comparator_variant: str = "v0",
+    comparator_variant: str = "v4",
 ) -> float:
     if is_null(va) or is_null(vb):
         return 0.0
@@ -503,7 +503,7 @@ def field_similarity(
     return char_jaccard(clean_str(va), clean_str(vb))
 
 
-def comparison_method(prof: ColumnProfile, embeddings_used: bool, comparator_variant: str = "v0") -> str:
+def comparison_method(prof: ColumnProfile, embeddings_used: bool, comparator_variant: str = "v4") -> str:
     """Name the comparison field_similarity applies to this column. Keep in sync with it."""
     semantic_type = str(prof.semantic_type).strip().upper()
     physical_type = str(prof.physical_kind).strip().upper()
@@ -536,7 +536,7 @@ def weighted_pair_similarity(
     embeddings: dict[str, list[float]] | None = None,
     row_ids: tuple[str, str] | None = None,
     weight_attr: str = "normalized_weight",
-    comparator_variant: str = "v0",
+    comparator_variant: str = "v4",
 ) -> float:
     record_emb_i: np.ndarray | None = None
     record_emb_j: np.ndarray | None = None
@@ -704,7 +704,7 @@ def learn_reliability_v2(
     embeddings: dict[str, list[float]] | None = None,
     row_ids: list[str] | None = None,
     random_pairs: list[tuple[int, int]] | None = None,
-    comparator_variant: str = "v0",
+    comparator_variant: str = "v4",
 ) -> tuple[dict[str, float], dict[str, Any]]:
     """
     Chance-corrected reliability: how much more similar a column is on anchor pairs

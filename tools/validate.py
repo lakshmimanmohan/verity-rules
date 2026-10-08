@@ -52,7 +52,7 @@ class Dataset:
     """Records, truth and a rebuilt scoring context (profiles, numeric ranges) for one CSV."""
 
     def __init__(self, name: str, csv: Path, truth_csv: Path, columns: list[str] | None = None,
-                 variant: str = "v0"):
+                 variant: str = "v4"):
         self.name, self.csv, self.variant = name, csv, variant
         self.records, _ = load_records(csv, 20_000, SEED)
         self.result = learn_rules(self.records, seed=SEED, debug=True, comparator_variant=variant)

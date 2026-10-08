@@ -57,21 +57,36 @@ def _md_cell(text: Any) -> str:
 _BAND = "rule of thumb, not yet validated"
 
 _METHOD_GLOSSARY = {
-    "exact": ("1 if the two values are identical after trimming spaces (capitals "
+    "email": ("Lower-cases both values, reads `(at)` as `@`, then compares the part before the `@` "
+              "and the domain separately, each as the share of distinct characters the two parts "
+              "have in common, and averages the two. If either value has no `@`, it compares "
+              "the whole values that way."),
+    "exact": ("1 if the two values are identical after trimming spaces (capitals and punctuation "
               "matter), otherwise 0."),
-    "email": ("Lower-cases both, reads `(at)` as `@`, then scores the part before the `@` and "
-              "the domain separately with text_character and averages the two. If either "
-              "value has no `@`, it scores the whole values with text_character."),
+    "exact_normalized": ("1 if the two values are identical after lower-casing and dropping "
+                         "everything except letters and digits, otherwise 0. `AB-123` and "
+                         "`ab 123` match."),
+    "bigram_jaccard": ("Lower-cases the values and drops everything except letters and digits, "
+                       "then splits each into adjacent character pairs (bigrams). The score is "
+                       "the pairs both values share divided by all distinct pairs in either. "
+                       "Order matters: `abcd` and `dcba` share no pairs and score 0, and one "
+                       "typo costs only the pairs next to it."),
+    "text_bigram": ("The same bigram comparison as bigram_jaccard, used for text columns: "
+                    "adjacent character pairs, so order matters and `abcd` and `dcba` score 0. "
+                    "A small typo lowers the score a little instead of failing the match."),
+    "text_character": ("The share of distinct characters the two values have in common, "
+                       "ignoring capitals and order. It is a rough measure: the same letters "
+                       "in a different order score 1. Not used by default; it appears only when "
+                       "an older comparator variant is selected."),
+    "text_hybrid": ("A blend of text embedding similarity (cosine) and a character score. It "
+                    "appears only when embeddings were used. The character part is the "
+                    "distinct-character share described under text_character, so order does "
+                    "not matter in that part."),
     "date": ("1 minus the number of days apart divided by 3,650 (ten years), never below 0. "
              "A value that cannot be read as a date scores 0."),
     "numeric_range": ("Both numbers are placed on a 0 to 1 scale using the smallest and largest "
                       "value in the column. The score is 1 minus the difference. A value that "
                       "is not a number scores 0."),
-    "text_character": ("The share of distinct characters the two values have in common, "
-                       "ignoring capitals and order. It is a rough measure: the same letters "
-                       "in a different order score 1."),
-    "text_hybrid": ("A blend of text embedding similarity (cosine) and the text_character "
-                    "score."),
 }
 
 
@@ -127,7 +142,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     methods = sorted({c["comparison_method"] for c in cols.values()})
     L += [f"- **{m}**: {_METHOD_GLOSSARY.get(m, 'See the Verity documentation.')}" for m in methods]
     if not embeddings_used:
-        L += ["", "Text similarity is character-based in this run because no embeddings were used."]
+        L += ["", "No embeddings were used in this run, so text columns are compared by adjacent character pairs (bigrams)."]
     L += ["", "## Excluded columns", ""]
     if result["columns_excluded"]:
         for e in result["columns_excluded"]:

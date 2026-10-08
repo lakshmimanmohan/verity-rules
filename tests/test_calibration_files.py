@@ -112,7 +112,7 @@ def test_report_sections(tmp_path):
     assert "| Type |" not in text and "\|" not in text
     assert " weight:" not in text.split("## Columns")[1].split("**Caution")[0]
     assert "[primary_key]" not in text
-    assert "Text similarity is character-based" in text
+    assert "text columns are compared by adjacent character pairs" in text
     rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
     assert all("[" not in e["reason"] and e["rule"] for e in rules["columns_excluded"])
     assert set(rules["run"]) == {"verity_version", "seed", "n_candidate_pairs"}

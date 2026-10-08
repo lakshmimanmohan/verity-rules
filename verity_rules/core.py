@@ -181,7 +181,7 @@ def learn_rules(
     reliability: str = "v2",
     exclude_columns: list[str] | None = None,
     keep_columns: list[str] | None = None,
-    comparator_variant: str = "v0",
+    comparator_variant: str = "v4",
 ) -> dict[str, Any]:
     if reliability not in ("v1", "v2"):
         raise ValueError(f"reliability must be 'v1' or 'v2', got {reliability!r}")
