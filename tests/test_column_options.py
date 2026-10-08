@@ -114,7 +114,7 @@ def test_separability_uses_published_weights(tmp_path):
     _write_csv(src, n=30)
     with src.open(encoding="utf-8") as fh:
         records = list(csv.DictReader(fh))
-    res = learn_rules(records)
+    res = learn_rules(records, debug=True)
     cols = list(res["columns"])
     rows = [{c: r[c] for c in cols} for r in records]
     profiles = build_profiles(cols, rows)

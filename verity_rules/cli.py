@@ -20,7 +20,7 @@ from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
 
 DEFAULT_SEED = 42
 DEFAULT_MAX_ROWS = 20_000
-DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_stats")
+DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_stats", "separability")
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
 MASK = "***"
 PAIRS_NOTICE = ("Note: calibration_pairs.csv and rules.json contain values from the source data. "
@@ -54,7 +54,8 @@ def _md_cell(text: Any) -> str:
     return str(text).replace("|", "\\|").replace("\n", " ")
 
 
-_BAND = "rule of thumb, not yet validated"
+COVERAGE_LOW = 0.3  # rule of thumb from synthetic tests
+ANCHOR_LEVEL = 2  # agreeing columns an anchor needs before the rule is relaxed
 
 _METHOD_GLOSSARY = {
     "email": ("Lower-cases both values, reads `(at)` as `@`, then compares the part before the `@` "
@@ -97,7 +98,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     cols = result["columns"]
     ordered = sorted(cols.items(), key=lambda kv: (-kv[1]["composite_weight"], kv[0]))
     anchor_counts = debug.get("reliability_debug", {}).get("anchor_count")
-    sep = result["separability"]
+    levels = debug.get("reliability_debug", {}).get("min_agree_used", {})
     n = result["n_records"]
     n_cand = result["run"]["n_candidate_pairs"]
     embeddings_used = result["embeddings_used"]
@@ -128,12 +129,19 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "|---|---|---|---|---|---|"]
     for name, c in ordered:
         anchors = "n/a" if anchor_counts is None else anchor_counts.get(name, 0)
+        low = levels.get(name, ANCHOR_LEVEL) < ANCHOR_LEVEL
         L.append(f"| {_md_cell(name)} | {c['comparison_method']} | "
-                 f"{c['composite_weight']:.3f} | {c['reliability_score']:.3f} | {anchors} | "
+                 f"{c['composite_weight']:.3f} | {c['reliability_score']:.3f}"
+                 f"{' (low confidence)' if low else ''} | {anchors} | "
                  f"{_md_cell(c['reason'])} |")
     L += ["",
+          "Candidate pairs are pairs of records that share an identical value in a column where "
+          "at least half the values are distinct (and the value is shared by 2 to 10 records). "
           "Anchors are the pairs used to measure that column's reliability: candidate pairs "
           "that agree on at least two other columns, or on one when too few pairs qualify.", "",
+          "**Low confidence** marks a column whose reliability was measured with the relaxed "
+          "rule (one agreeing column, or too few anchors even then). Treat its reliability "
+          "and weight as less certain.", "",
           "**Caution:** a weight is how distinctive the column is in this dataset, times its "
           "reliability, scaled so all weights sum to 1. A column that is generally a weak "
           "identifier can still score high here if it happens to be distinctive and "
@@ -157,25 +165,17 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
             L.append(f"- `{name}`: {e['reason']} ({origin})")
     else:
         L.append("No columns were excluded.")
-    L += ["", "## Separability", ""]
-    if sep["label"] is None:
-        L.append("Separability could not be computed because no candidate pairs were found.")
-    else:
-        L += [f"**{sep['label'].capitalize()}.**", "",
-              f"- Top 10% of candidate pairs, mean score: {sep['candidate_top_decile_mean']:.3f}",
-              f"- Random pairs, mean score: {sep['random_pair_mean']:.3f}",
-              f"- Gap: {sep['gap']:.3f}", "",
-              "Candidate pairs are pairs of records that share an identical value in a highly "
-              "distinctive column. This measures how clearly the best candidate pairs stand "
-              "out from random pairs. It does not estimate how many true duplicates fall in "
-              "between.", "",
-              "The scores in this check use the published weights from the table above, so "
-              "you can reproduce them by scoring pairs with those weights and the pair score "
-              "formula below.", "",
-              f"Bands ({_BAND}):", "",
-              "- Clear: gap 0.30 or more.",
-              "- Moderate: gap 0.15 to 0.30.",
-              "- Weak: gap under 0.15."]
+    coverage = result["expected_pair_coverage"]
+    L += ["", "## Expected pair coverage", "",
+          f"**{coverage:.3f}**", "",
+          "Expected pair coverage is the sum of each kept column's weight times the share of "
+          "records that have a value in it (1 minus its null rate). It runs from 0 to 1. A high "
+          "number means a typical record has values in most of the columns that carry weight, so "
+          "most pairs can be compared on most of the evidence. A low number means many pairs "
+          "will share only a few columns.", "",
+          f"Rule of thumb: below about {COVERAGE_LOW}, many true duplicates will share too few "
+          "columns to be decided, so send low-coverage pairs to review instead of deciding them "
+          "automatically. This rule of thumb comes from synthetic tests, not from your data."]
     L += ["", "## Notes", ""]
     L += [f"- {_md_cell(t)}" for t in result["notes"]] or ["None."]
     L += ["", "## How to use these rules", "",
@@ -194,6 +194,15 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "of the fraction, so the remaining weights are scaled up to fill its place. If no "
           "column has a value in both records, the score is 0. A pair compared on only a few "
           "columns can therefore score high on little evidence.", "",
+          "### Pair coverage", "",
+          "Coverage for a pair = the sum of the weights of the columns present in both records, "
+          "divided by the sum of all weights. It is 1 when every column has a value in both "
+          "records and falls as columns go missing. Pairs with low coverage are scored on little "
+          "evidence.", "",
+          f"On your labelled pairs, check whether low-coverage pairs are decided worse than the "
+          f"rest (for example, compare the wrong-call rate for pairs below {COVERAGE_LOW} with "
+          "the rate for the others). If they are, send pairs below the coverage level you choose "
+          "to review instead of deciding them automatically.", "",
           "### Choosing a match cutoff", "",
           "Verity does not provide a cutoff. To set your own:", ""]
     if pairs_written:
@@ -210,7 +219,8 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "3. Sort the pairs by score.",
           "4. For each candidate cutoff, count the wrong calls: matches that score below it "
           "plus non-matches that score at or above it.",
-          "5. Pick the cutoff with the fewest wrong calls.",
+          "5. Pick the cutoff with the fewest wrong calls. If several cutoffs tie for the "
+          "fewest, pick the middle of the tied range.",
           "6. If a false merge costs you more than a missed match, move the cutoff up."]
     if pairs_written:
         L += ["", "### Handling the pairs files", "",
@@ -220,7 +230,12 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
               + ". Handle them like the source data."]
     L += ["", "## Limits", "",
           "- Verity does not match or clean records.",
-          "- The weights come from one run on a sample of the data. Rerun if the data changes.",
+          ("- The weights come from one run. " + (
+              f"All {n:,} rows analysed were used; only pairs of records are sampled."
+              if n >= n_original else
+              f"A random sample of {n:,} of the {n_original:,} rows was analysed; "
+              "within it, only pairs of records are sampled.")
+           + " Rerun if the data changes."),
           ""]
     return "\n".join(L)
 

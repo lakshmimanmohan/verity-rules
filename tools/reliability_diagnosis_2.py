@@ -196,7 +196,7 @@ def h2_section(d) -> str:
                 "Ideal reliability", "Composite weight"], rows)
     noise = [c for c in d["columns"] if c.startswith("noise_")]
     L += [f"Weight on the four noise columns: {sum(d['columns'][c]['weight'] for c in noise):.6f} in total. "
-          f"Separability: {d['separability']['label']} (gap {d['separability']['gap']}).", "",
+          f"Separability gap: {d['separability']['gap']}.", "",
           f"Candidate pairs: {d['n_candidates']}, of which {d['cand_true_dups']} are true duplicates "
           f"({pc(d['cand_true_dups'] / d['n_candidates'])}). Pairs by source column (true duplicates): "
           + ", ".join(f"{c}: {n} ({d['cand_dups_by_source'].get(c, 0)})" for c, n in d["cand_by_source"].items())

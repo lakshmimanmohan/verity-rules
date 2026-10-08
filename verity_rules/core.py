@@ -25,8 +25,8 @@ CANDIDATE_CAP = 20_000
 N_LIKELY_MATCH, N_UNCLEAR, N_LIKELY_NON_MATCH = 30, 40, 30
 MAX_PER_GROUP = 2
 NO_CANDIDATES_NOTE = ("No candidate pairs found (no column with enough distinct values shares a value "
-                      "between 2 and 10 records); likely_match and unclear are empty, separability "
-                      "could not be computed and reliability is not learned.")
+                      "between 2 and 10 records); likely_match and unclear are empty "
+                      "and reliability is not learned.")
 RELIABILITY_HIGH, RELIABILITY_MID = 0.85, 0.65  # reason wording bands
 
 
@@ -111,6 +111,7 @@ def _rule_tags(raw: str) -> list[str]:
 def _excluded_sentence(raw: str) -> str:
     """Turn the classifier's raw reason into plain sentences."""
     out: list[str] = []
+    has_primary_key = "primary_key" in _rule_tags(raw)
     for part in raw.removeprefix("excluded: ").split(" | "):
         m = re.match(r"\[(\w+)\]\s*(.*)", part.strip())
         if not m:
@@ -120,6 +121,8 @@ def _excluded_sentence(raw: str) -> str:
         if tag == "system_process_field":
             words = re.search(r"name contains: ([^;)]*)", detail)
             if "100% unique" in detail:
+                if has_primary_key:  # the primary_key sentence already says every value differs
+                    continue
                 sentence = (f"Its name contains {words.group(1).strip() if words else 'id/key/code'}"
                             " and every value is different.")
             else:
@@ -269,7 +272,7 @@ def learn_rules(
     ], dtype=np.float64)
 
     rand_mean = float(sims.mean())
-    separability: dict[str, Any] = {"label": None, "candidate_top_decile_mean": None,
+    separability: dict[str, Any] = {"candidate_top_decile_mean": None,
                                     "random_pair_mean": None, "gap": None}
     calibration: dict[str, list] = {"likely_match": [], "unclear": [], "likely_non_match": []}
     if len(cand_pairs) == 0:
@@ -279,8 +282,7 @@ def learn_rules(
         top = cand_sims >= floor
         high_mean = float(cand_sims[top].mean())
         gap = high_mean - rand_mean
-        label = "clear" if gap >= 0.30 else "moderate" if gap >= 0.15 else "weak"
-        separability = {"label": label, "candidate_top_decile_mean": high_mean,
+        separability = {"candidate_top_decile_mean": high_mean,
                         "random_pair_mean": rand_mean, "gap": gap}
 
         order = list(range(len(cand_pairs)))
@@ -312,6 +314,7 @@ def learn_rules(
         "contract_version": CONTRACT_VERSION,
         "n_records": n,
         "n_pairs_sampled": len(pairs),
+        "expected_pair_coverage": sum(p.composite_weight * (1 - p.null_rate) for p in profiles),
         "record_id_column": rid_col,
         "embeddings_used": bool(embeddings),
         "run": {"verity_version": __version__, "seed": seed,
@@ -320,7 +323,6 @@ def learn_rules(
             _excluded_entry(c, cls["reasoning"].get(c, "excluded as metadata"))
             for c in sorted(cls["metadata_columns"])
         ],
-        "separability": separability,
         "calibration_pairs": calibration,
         "notes": notes,
         "columns": {
@@ -342,6 +344,7 @@ def learn_rules(
                 "method": "v2", "anchor_count": rel_info["anchor_count"],
                 "min_agree_used": rel_info["min_agree_used"],
                 "anchor_mean": rel_info["anchor_mean"], "random_mean": rel_info["random_mean"]}
+        result["separability"] = _round_floats(separability)
         result["candidate_pairs"] = len(cand_pairs)
         result["threshold"] = {
             "value": round(float(threshold), 6), "method": method,

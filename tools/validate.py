@@ -239,7 +239,7 @@ def calibration(ds: Dataset, result: dict[str, Any], checks: list | None, title:
                        f"{pct(nm)} ({pur['likely_non_match'][0] - pur['likely_non_match'][1]} of {pur['likely_non_match'][0]})"))
     sep = result["separability"]
     L = [f"### {title}", "",
-         f"Separability: label **{sep['label']}**, gap {sep['gap']}, "
+         f"Separability (debug only, no label): gap {sep['gap']}, "
          f"top-decile mean {sep['candidate_top_decile_mean']}, random-pair mean {sep['random_pair_mean']}.", ""]
     L += table(["Category", "Pairs", "True duplicates", "Share"], [
         ["likely_match (share true duplicates, target >= 90%)", pur["likely_match"][0], pur["likely_match"][1], pct(lm)],
@@ -310,7 +310,7 @@ def degraded(base_csv: Path, truth_csv: Path, checks: list) -> list[str]:
         csv = ROOT / "data" / f"customers_degraded_{key}.csv"
         out_dir = ROOT / "out" / f"degraded_{key}"
         degrade(df, SEED, kw["blank"], kw["typos"], {id_col}).to_csv(csv, index=False)
-        subprocess.run([sys.executable, "-m", "verity_rules", "learn", str(csv), "--out", str(out_dir)],
+        subprocess.run([sys.executable, "-m", "verity_rules", "learn", str(csv), "--out", str(out_dir), "--debug"],
                        check=True, capture_output=True, text=True, cwd=ROOT)
         import json
         res = json.loads((out_dir / "rules.json").read_text(encoding="utf-8"))
@@ -324,8 +324,8 @@ def degraded(base_csv: Path, truth_csv: Path, checks: list) -> list[str]:
         r_l, r_e = auc(ds, sch["learned"], neg_rand), auc(ds, sch["equal"], neg_rand)
         lm_n, lm_d = pur["likely_match"]
         un_n, un_d = pur["unclear"]
-        sep = res["separability"]
-        rows.append([key, sep["gap"], sep["label"], f"{pct(lm_d / lm_n if lm_n else None)} ({lm_d}/{lm_n})",
+        sep = json.loads((out_dir / "debug.json").read_text(encoding="utf-8"))["separability"]
+        rows.append([key, sep["gap"], f"{pct(lm_d / lm_n if lm_n else None)} ({lm_d}/{lm_n})",
                      f"{pct(un_d / un_n if un_n else None)} ({un_d}/{un_n})", f"{a_l:.6f}", f"{a_e:.6f}",
                      len(neg_hard), f"{r_l:.6f}", f"{r_e:.6f}", res["run"]["n_candidate_pairs"]])
         notes.append(f"- {key}: {desc}. Columns kept: {', '.join(res['columns'])}. "
@@ -335,7 +335,7 @@ def degraded(base_csv: Path, truth_csv: Path, checks: list) -> list[str]:
          "typo fractions are of the non-empty values left after blanking. Hard negatives are built from the "
          "degraded copy. nan means the set is empty. Random-negative AUC is added so a copy with no candidates "
          "still has a number.", ""]
-    L += table(["Copy", "Separability gap", "Label", "likely_match true-duplicate share", "unclear true-duplicate share",
+    L += table(["Copy", "Separability gap", "likely_match true-duplicate share", "unclear true-duplicate share",
                 "AUC learned (hard)", "AUC equal (hard)", "Hard negatives",
                 "AUC learned (random)", "AUC equal (random)", "Candidate pairs"], rows)
     return L + notes + [""]

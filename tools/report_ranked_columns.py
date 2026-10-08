@@ -27,8 +27,8 @@ def main() -> None:
         df = pd.read_csv(path, dtype=str, keep_default_na=False).replace("", None)
         res = learn_rules(df.to_dict(orient="records"), debug=True)
         dbg = res["reliability_debug"]
-        out += ["=" * 100, f"{path}  records={res['n_records']}  separability={res['separability']['label']} "
-                f"(gap {res['separability']['gap']})", ""]
+        out += ["=" * 100, f"{path}  records={res['n_records']}  separability "
+                f"gap {res['separability']['gap']}", ""]
         ranked = sorted(res["columns"].items(), key=lambda kv: -kv[1]["composite_weight"])
         for rank, (name, c) in enumerate(ranked, 1):
             out += [f"{rank}. {name}  [{c['semantic_type']}, {c['comparison_method']}]",

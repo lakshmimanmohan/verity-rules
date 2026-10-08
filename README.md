@@ -37,7 +37,7 @@ Options:
 
 | File | Contents |
 |---|---|
-| `rules.json` | Learned rules: per-column weight, reliability, comparison method and reason, plus separability and calibration pairs |
+| `rules.json` | Learned rules: per-column weight, reliability, comparison method and reason, plus expected pair coverage and calibration pairs |
 | `rules_report.md` | Plain-language report of the rules, for people new to Verity |
 | `calibration_pairs.csv` | Sample pairs to label by hand, in random order and without Verity's labels. Fill in `your_label` |
 | `calibration_pairs_key.csv` | `pair_id` and `suggested_label` (Verity's guess) for each pair. Open it after you label |

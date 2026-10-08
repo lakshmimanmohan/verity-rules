@@ -1,6 +1,8 @@
 """Calibration pairs files: seeded shuffle, separate key file, masking, --no-pairs."""
 import csv
 import json
+
+import pytest
 import random
 from pathlib import Path
 
@@ -107,7 +109,11 @@ def test_report_sections(tmp_path):
     for heading in ("## Run details", "### Comparison methods", "### Pair score",
                     "### Choosing a match cutoff", "### Handling the pairs files"):
         assert heading in text
-    assert "rule of thumb, not yet validated" in text
+    assert "## Expected pair coverage" in text and "synthetic tests" in text
+    assert "## Separability" not in text and "Bands" not in text and "Gap" not in text
+    assert "### Pair coverage" in text and "pick the middle of the tied range" in text
+    assert "at least half the values are distinct" in text
+    assert "only pairs of records are sampled" in text
     assert "review effort" not in text and "grey zone" not in text
     assert "| Type |" not in text and "\|" not in text
     assert " weight:" not in text.split("## Columns")[1].split("**Caution")[0]
@@ -116,3 +122,6 @@ def test_report_sections(tmp_path):
     rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
     assert all("[" not in e["reason"] and e["rule"] for e in rules["columns_excluded"])
     assert set(rules["run"]) == {"verity_version", "seed", "n_candidate_pairs"}
+    assert "separability" not in rules
+    expected = sum(c["composite_weight"] * (1 - c["null_rate"]) for c in rules["columns"].values())
+    assert rules["expected_pair_coverage"] == pytest.approx(expected, abs=1e-4)
