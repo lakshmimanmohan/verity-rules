@@ -45,6 +45,17 @@ def _build_candidates(rows, profiles) -> dict[tuple[int, int], tuple[str, str]]:
     return cands
 
 
+def _round_floats(obj: Any) -> Any:
+    """Round every float in a nested structure to six decimals."""
+    if isinstance(obj, (float, np.floating)):
+        return round(float(obj), 6)
+    if isinstance(obj, dict):
+        return {k: _round_floats(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_round_floats(v) for v in obj]
+    return obj
+
+
 def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
     def vals(k):
         return {c: (v.item() if hasattr(v, "item") else v)
@@ -129,8 +140,8 @@ def learn_rules(
     ], dtype=np.float64)
 
     rand_mean = float(sims.mean())
-    separability: dict[str, Any] = {"label": None, "cluster_center_high": None,
-                                    "cluster_center_low": None}
+    separability: dict[str, Any] = {"label": None, "candidate_top_decile_mean": None,
+                                    "random_pair_mean": None, "gap": None}
     calibration: dict[str, list] = {"likely_match": [], "unclear": [], "likely_non_match": []}
     if len(cand_pairs) == 0:
         notes.append("No candidate pairs found; likely_match and unclear are empty "
@@ -141,8 +152,8 @@ def learn_rules(
         high_mean = float(cand_sims[top].mean())
         gap = high_mean - rand_mean
         label = "clear" if gap >= 0.30 else "moderate" if gap >= 0.15 else "weak"
-        separability = {"label": label, "cluster_center_high": round(high_mean, 6),
-                        "cluster_center_low": round(rand_mean, 6)}
+        separability = {"label": label, "candidate_top_decile_mean": high_mean,
+                        "random_pair_mean": rand_mean, "gap": gap}
 
         order = list(range(len(cand_pairs)))
         random.shuffle(order)
@@ -189,6 +200,7 @@ def learn_rules(
             } for p in profiles
         },
     }
+    result = _round_floats(result)
     if debug:
         result["threshold"] = {
             "value": round(float(threshold), 6), "method": method,
