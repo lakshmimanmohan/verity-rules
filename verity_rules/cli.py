@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import importlib.metadata
 import json
 import random
 import re
@@ -57,16 +56,6 @@ def _md_cell(text: Any) -> str:
 
 _BAND = "rule of thumb, not yet validated"
 
-_EXCLUDED_SENTENCES = {
-    "reserved_name": "Its name marks it as a label, target or internal column.",
-    "primary_key": "Almost every value is different, so it identifies a row rather than an entity.",
-    "answer_key": "Most values look like generated labels (WORD_number or UNKNOWN_...).",
-    "boolean_flag": "It has two or three values and its name suggests a yes/no flag.",
-    "degenerate_field": "Every record has the same value, so it cannot tell records apart.",
-    "near_constant_field": "It has very few distinct values, so it cannot tell records apart.",
-    "record_id_column": "It is the record id column.",
-}
-
 _METHOD_GLOSSARY = {
     "exact": ("1 if the two values are identical after trimming spaces (capitals "
               "matter), otherwise 0."),
@@ -86,42 +75,6 @@ _METHOD_GLOSSARY = {
 }
 
 
-def _excluded_sentence(raw: str) -> str:
-    """Turn the classifier's raw reason ('[tag] detail | [tag] detail') into plain sentences."""
-    out: list[str] = []
-    for part in raw.split(" | "):
-        m = re.match(r"\[(\w+)\]\s*(.*)", part.strip())
-        if not m:
-            out.append(part.strip().rstrip(".") + ".")
-            continue
-        tag, detail = m.groups()
-        if tag == "system_process_field":
-            words = re.search(r"name contains: ([^;)]*)", detail)
-            if "100% unique" in detail:
-                sentence = (f"Its name contains {words.group(1).strip() if words else 'id/key/code'}"
-                            " and every value is different.")
-            else:
-                sentence = ("Its name suggests a system or process field"
-                            + (f" (it contains: {words.group(1).strip()})" if words else "") + ".")
-            out.append(sentence)
-        else:
-            out.append(_EXCLUDED_SENTENCES.get(tag, detail.rstrip(".") + "."))
-    return " ".join(out)
-
-
-def _plain_reason(reason: str) -> str:
-    """The column reason without its leading 'High weight:' style prefix."""
-    text = re.sub(r"^\w+ weight:\s*", "", reason)
-    return text[:1].upper() + text[1:]
-
-
-def _verity_version() -> str:
-    try:
-        return importlib.metadata.version("verity-rules")
-    except importlib.metadata.PackageNotFoundError:
-        return "unknown"
-
-
 def build_report(result: dict[str, Any], source: Path, n_original: int,
                  debug: dict[str, Any], seed: int, n_pairs_written: int,
                  pairs_written: bool, masked: set[str]) -> str:
@@ -130,7 +83,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     anchor_counts = debug.get("reliability_debug", {}).get("anchor_count")
     sep = result["separability"]
     n = result["n_records"]
-    n_cand = debug.get("candidate_pairs")
+    n_cand = result["run"]["n_candidate_pairs"]
     embeddings_used = result["embeddings_used"]
     L: list[str] = []
     L += [f"# Verity rules report: {source.name}", "",
@@ -144,14 +97,13 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           f"- Rows analysed: {n:,}" + (" (a random sample; see Notes)" if n < n_original else ""),
           f"- Record id column: `{result['record_id_column']}`", "",
           "## Run details", "",
-          f"- Verity version: {_verity_version()}",
+          f"- Verity version: {result['run']['verity_version']}",
           f"- Seed: {seed}",
           f"- Run date (UTC): {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}",
           f"- Contract version: {result['contract_version']}",
           f"- Embeddings used: {'yes' if embeddings_used else 'no'}",
           f"- Random pairs sampled: {result['n_pairs_sampled']:,}",
-          f"- Candidate pairs found: {n_cand:,}" if n_cand is not None
-          else "- Candidate pairs found: not recorded",
+          f"- Candidate pairs found: {n_cand:,}",
           f"- Calibration pairs: {n_pairs_written}", "",
           "## Columns, by weight", "",
           "| Column | Comparison method | Weight | Reliability | Anchors | Reason |",
@@ -160,7 +112,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
         anchors = "n/a" if anchor_counts is None else anchor_counts.get(name, 0)
         L.append(f"| {_md_cell(name)} | {c['comparison_method']} | "
                  f"{c['composite_weight']:.3f} | {c['reliability_score']:.3f} | {anchors} | "
-                 f"{_md_cell(_plain_reason(c['reason']))} |")
+                 f"{_md_cell(c['reason'])} |")
     L += ["",
           "Anchors are the pairs used to measure that column's reliability: candidate pairs "
           "that agree on at least two other columns, or on one when too few pairs qualify.", "",
@@ -175,7 +127,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
         L += ["", "Text similarity is character-based in this run because no embeddings were used."]
     L += ["", "## Excluded columns", ""]
     if result["columns_excluded"]:
-        L += [f"- `{e['name']}`: {_excluded_sentence(e['reason'])}"
+        L += [f"- `{e['name']}`: {e['reason']}"
               for e in result["columns_excluded"]]
     else:
         L.append("No columns were excluded.")

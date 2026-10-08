@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
+from . import __version__
 from .column_classification import classify_columns
 from .rule_learner import (
     build_profiles, comparison_method, kmeans_gap_threshold, learn_reliability,
@@ -70,7 +72,7 @@ def _round_floats(obj: Any) -> Any:
 
 
 def _column_reason(p) -> str:
-    """One sentence explaining a kept column's weight from uniqueness, nulls and reliability."""
+    """One sentence describing a kept column from uniqueness, nulls and reliability."""
     uniq = ("highly distinctive values" if p.uniqueness_ratio >= 0.7
             else "moderately distinctive values" if p.uniqueness_ratio >= 0.3
             else "many repeated values")
@@ -80,17 +82,55 @@ def _column_reason(p) -> str:
     rel = ("agrees well across likely duplicates" if p.reliability_score >= RELIABILITY_HIGH
            else "usually agrees across likely duplicates" if p.reliability_score >= RELIABILITY_MID
            else "often disagrees across likely duplicates")
-    weight = ("high" if p.composite_weight >= 0.2
-              else "moderate" if p.composite_weight >= 0.08
-              else "low")
-    return (f"{weight.capitalize()} weight: {uniq} "
-            f"({p.uniqueness_ratio:.0%} unique), {nulls} ({p.null_rate:.0%} null), "
-            f"and {rel} (reliability {p.reliability_score:.2f}).")
+    return (f"{uniq.capitalize()} ({p.uniqueness_ratio:.0%} unique), {nulls} "
+            f"({p.null_rate:.0%} null), and {rel} (reliability {p.reliability_score:.2f}).")
 
 
-def _excluded_reason(text: str) -> str:
-    """Tidy the classifier's reasoning string into the public reason."""
-    return text.removeprefix("excluded: ").strip()
+USER_EXCLUDED_RULE = "user_excluded"
+
+_EXCLUDED_SENTENCES = {
+    "reserved_name": "Its name marks it as a label, target or internal column.",
+    "primary_key": "Almost every value is different, so it identifies a row rather than an entity.",
+    "answer_key": "Most values look like generated labels (WORD_number or UNKNOWN_...).",
+    "boolean_flag": "It has two or three values and its name suggests a yes/no flag.",
+    "degenerate_field": "Every record has the same value, so it cannot tell records apart.",
+    "near_constant_field": "It has very few distinct values, so it cannot tell records apart.",
+    "record_id_column": "It is the record id column.",
+    USER_EXCLUDED_RULE: "You excluded it with --exclude-columns.",
+}
+
+
+def _rule_tags(raw: str) -> list[str]:
+    """The classifier's rule tags in a raw reasoning string ('[tag] detail | [tag] detail')."""
+    return re.findall(r"\[(\w+)\]", raw)
+
+
+def _excluded_sentence(raw: str) -> str:
+    """Turn the classifier's raw reason into plain sentences."""
+    out: list[str] = []
+    for part in raw.removeprefix("excluded: ").split(" | "):
+        m = re.match(r"\[(\w+)\]\s*(.*)", part.strip())
+        if not m:
+            out.append(part.strip().rstrip(".") + ".")
+            continue
+        tag, detail = m.groups()
+        if tag == "system_process_field":
+            words = re.search(r"name contains: ([^;)]*)", detail)
+            if "100% unique" in detail:
+                sentence = (f"Its name contains {words.group(1).strip() if words else 'id/key/code'}"
+                            " and every value is different.")
+            else:
+                sentence = ("Its name suggests a system or process field"
+                            + (f" (it contains: {words.group(1).strip()})" if words else "") + ".")
+            out.append(sentence)
+        else:
+            out.append(_EXCLUDED_SENTENCES.get(tag, detail.rstrip(".") + "."))
+    return " ".join(out)
+
+
+def _excluded_entry(name: str, raw: str) -> dict[str, Any]:
+    """Public entry for an excluded column: plain sentence plus the raw rule tags."""
+    return {"name": name, "reason": _excluded_sentence(raw), "rule": _rule_tags(raw)}
 
 
 def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
@@ -234,8 +274,10 @@ def learn_rules(
         "n_pairs_sampled": len(pairs),
         "record_id_column": rid_col,
         "embeddings_used": bool(embeddings),
+        "run": {"verity_version": __version__, "seed": seed,
+                "n_candidate_pairs": len(cand_pairs)},
         "columns_excluded": [
-            {"name": c, "reason": _excluded_reason(cls["reasoning"].get(c, "excluded as metadata"))}
+            _excluded_entry(c, cls["reasoning"].get(c, "excluded as metadata"))
             for c in sorted(cls["metadata_columns"])
         ],
         "separability": separability,

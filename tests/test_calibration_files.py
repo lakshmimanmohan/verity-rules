@@ -114,4 +114,5 @@ def test_report_sections(tmp_path):
     assert "[primary_key]" not in text
     assert "Text similarity is character-based" in text
     rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
-    assert all("[" in e["reason"] for e in rules["columns_excluded"])  # raw reason kept
+    assert all("[" not in e["reason"] and e["rule"] for e in rules["columns_excluded"])
+    assert set(rules["run"]) == {"verity_version", "seed", "n_candidate_pairs"}
