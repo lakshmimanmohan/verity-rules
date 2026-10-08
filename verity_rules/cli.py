@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import random
 import sys
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,9 @@ DEFAULT_SEED = 42
 DEFAULT_MAX_ROWS = 20_000
 DEBUG_KEYS = ("reliability_debug", "threshold", "similarity_stats")
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
+MASK = "***"
+PAIRS_NOTICE = ("Note: calibration_pairs.csv and rules.json contain values from the source data. "
+                "Handle them like the source data.")
 
 
 class CliError(Exception):
@@ -125,25 +129,52 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     return "\n".join(L)
 
 
-def write_calibration_csv(path: Path, result: dict[str, Any]) -> int:
+def mask_pairs(result: dict[str, Any], mask: set[str]) -> None:
+    """Replace non-empty values of the masked columns with *** in the pairs, in place.
+    Empty values stay empty. Masking the record id column masks the pair record ids."""
+    if not mask:
+        return
+    for pairs in result["calibration_pairs"].values():
+        for pair in pairs:
+            for side in ("a", "b"):
+                vals = pair[f"values_{side}"]
+                for c in vals:
+                    if c in mask and vals[c] is not None:
+                        vals[c] = MASK
+                if result["record_id_column"] in mask and pair[f"record_id_{side}"]:
+                    pair[f"record_id_{side}"] = MASK
+
+
+def shuffled_pairs(result: dict[str, Any], seed: int) -> list[tuple[str, dict[str, Any]]]:
+    """All calibration pairs as (suggested_label, pair), in a seeded random order so the
+    row order of the pairs file does not reveal the label."""
+    flat = [(cat, pair) for cat in CATEGORY_ORDER
+            for pair in result["calibration_pairs"].get(cat, [])]
+    random.Random(seed).shuffle(flat)
+    return flat
+
+
+def write_calibration_csv(path: Path, key_path: Path, result: dict[str, Any], seed: int) -> int:
+    """Write the shuffled pairs file (no labels) and the key file (pair_id, suggested_label)."""
     content = list(result["columns"])
-    header = ["pair_id", "suggested_label", "record_id_a", "record_id_b"]
+    header = ["pair_id", "record_id_a", "record_id_b"]
     for c in content:
         header += [f"{c}_a", f"{c}_b"]
     header.append("your_label")
-    k = 0
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
+    flat = shuffled_pairs(result, seed)
+    with path.open("w", newline="", encoding="utf-8") as fh, \
+            key_path.open("w", newline="", encoding="utf-8") as kh:
+        w, kw = csv.writer(fh), csv.writer(kh)
         w.writerow(header)
-        for cat in CATEGORY_ORDER:
-            for pair in result["calibration_pairs"].get(cat, []):
-                k += 1
-                row = [k, cat, pair["record_id_a"], pair["record_id_b"]]
-                for c in content:
-                    row += [pair["values_a"].get(c), pair["values_b"].get(c)]
-                row.append("")
-                w.writerow(["" if v is None or v != v else v for v in row])  # v != v: NaN
-    return k
+        kw.writerow(["pair_id", "suggested_label"])
+        for k, (cat, pair) in enumerate(flat, start=1):
+            row = [k, pair["record_id_a"], pair["record_id_b"]]
+            for c in content:
+                row += [pair["values_a"].get(c), pair["values_b"].get(c)]
+            row.append("")
+            w.writerow(["" if v is None or v != v else v for v in row])  # v != v: NaN
+            kw.writerow([k, cat])
+    return len(flat)
 
 
 def cmd_learn(args: argparse.Namespace) -> int:
@@ -165,18 +196,34 @@ def cmd_learn(args: argparse.Namespace) -> int:
             f"(seed {args.seed}) was analysed.")
     anchors = debug.get("reliability_debug", {}).get("anchor_count")
 
+    mask = {c.strip() for c in args.mask_columns.split(",") if c.strip()} if args.mask_columns else set()
+    known = (set(result["columns"]) | {e["name"] for e in result["columns_excluded"]}
+             | {result["record_id_column"]})
+    unknown = sorted(mask - known)
+    if unknown:
+        raise CliError("--mask-columns: no such column: " + ", ".join(unknown))
+    if args.no_pairs:
+        result["calibration_pairs"] = {cat: [] for cat in CATEGORY_ORDER}
+    mask_pairs(result, mask)
+
     out.mkdir(parents=True, exist_ok=True)
     (out / "rules.json").write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
     (out / "rules_report.md").write_text(
         build_report(result, src, n_original, anchors), encoding="utf-8")
-    n_pairs = write_calibration_csv(out / "calibration_pairs.csv", result)
-    written = ["rules.json", "rules_report.md", "calibration_pairs.csv"]
+    written = ["rules.json", "rules_report.md"]
+    n_pairs = 0
+    if not args.no_pairs:
+        n_pairs = write_calibration_csv(out / "calibration_pairs.csv",
+                                        out / "calibration_pairs_key.csv", result, args.seed)
+        written += ["calibration_pairs.csv", "calibration_pairs_key.csv"]
     if args.debug:
         (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
         written.append("debug.json")
     print(f"Learned rules for {len(records):,} rows, {len(result['columns'])} columns, "
           f"{n_pairs} calibration pairs.")
     print(f"Wrote {', '.join(written)} to {out}")
+    if not args.no_pairs:
+        print(PAIRS_NOTICE)
     return 0
 
 
@@ -189,6 +236,11 @@ def build_parser() -> argparse.ArgumentParser:
     learn.add_argument("--seed", type=int, default=DEFAULT_SEED, help="random seed (default 42)")
     learn.add_argument("--max-rows", type=int, default=DEFAULT_MAX_ROWS,
                        help="sample down to this many rows if the file is larger (default 20000)")
+    learn.add_argument("--mask-columns", metavar="COLS",
+                       help="comma-separated column names; their values become *** in the pairs "
+                            "(calibration_pairs.csv and rules.json)")
+    learn.add_argument("--no-pairs", action="store_true",
+                       help="write no calibration pairs files and leave calibration_pairs empty")
     learn.add_argument("--debug", action="store_true", help="also write debug.json")
     learn.set_defaults(func=cmd_learn)
     return p

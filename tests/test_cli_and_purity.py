@@ -52,7 +52,9 @@ def test_cli_learn_writes_three_files(tmp_path):
     rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
     assert "threshold" not in rules and "similarity_stats" not in rules
     header = next(csv.reader((out / "calibration_pairs.csv").open(encoding="utf-8")))
-    assert header[:4] == ["pair_id", "suggested_label", "record_id_a", "record_id_b"]
+    assert header[:3] == ["pair_id", "record_id_a", "record_id_b"]
+    assert "suggested_label" not in header
+    assert (out / "calibration_pairs_key.csv").is_file()
     assert header[-1] == "your_label"
 
 
