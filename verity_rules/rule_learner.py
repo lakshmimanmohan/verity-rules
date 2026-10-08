@@ -205,31 +205,6 @@ def proportion_street_address_like(values: list[Any]) -> float:
     return ok / len(nn)
 
 
-# Matches values that start with 1-5 digits (a street number) followed by at least
-# one alphabetic word — e.g. "123 Main St", "4 Rue de Rivoli", "10-12 High Street".
-# The leading digit block may be hyphenated (e.g. "10-12") and may have an optional
-# suffix letter ("123A"). Does NOT match pure numeric strings or PO Box patterns.
-_STREET_ADDRESS_RE = re.compile(
-    r"^\d{1,5}[A-Za-z]?(?:-\d{1,5})?[\s,]+[A-Za-z]",
-    re.IGNORECASE,
-)
-
-
-def proportion_street_address_like(values: list[Any]) -> float:
-    """
-    Fraction of non-null values that look like a street address:
-    starts with 1-5 digits (optionally hyphenated or letter-suffixed),
-    followed by whitespace/comma and at least one alphabetic character.
-    Examples that match: '123 Main St', '4B Elm Ave', '10-12 High Rd', '1, Park Lane'.
-    Examples that do not: '10001', 'P.O. Box 5', 'Suite 400', 'ACME Corp'.
-    """
-    nn = [clean_str(v) for v in values if not is_null(v)]
-    if not nn:
-        return 0.0
-    ok = sum(1 for s in nn if _STREET_ADDRESS_RE.match(s))
-    return ok / len(nn)
-
-
 def column_uniqueness_and_nulls(values: list[Any], n_rows: int) -> tuple[float, float]:
     keys = [token_key(v) for v in values]
     nulls = sum(1 for v in values if is_null(v))
