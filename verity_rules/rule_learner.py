@@ -14,7 +14,6 @@ from datetime import datetime
 from typing import Any
 
 import numpy as np
-from sklearn.cluster import KMeans
 
 
 RANDOM_SEED = 42
@@ -829,6 +828,7 @@ def learn_reliability_v2(
 
 
 def kmeans_gap_threshold(sim_array: np.ndarray) -> tuple[float, dict[str, float]]:
+    from sklearn.cluster import KMeans  # optional (extra "debug"); only the debug threshold uses it
     meta: dict[str, float] = {}
     X = sim_array.reshape(-1, 1)
     km = KMeans(n_clusters=2, n_init=10, random_state=RANDOM_SEED).fit(X)
