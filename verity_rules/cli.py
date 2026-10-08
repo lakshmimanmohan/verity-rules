@@ -16,6 +16,7 @@ from typing import Any
 
 import pandas as pd
 
+from . import __version__
 from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
 from .sampling import group_sample_indices
 
@@ -392,6 +393,7 @@ def cmd_learn(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="verity", description="Learn entity-matching rules from a CSV.")
+    p.add_argument("--version", action="version", version=f"verity {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
     learn = sub.add_parser("learn", help="learn column weights and rules from a CSV")
     learn.add_argument("csv", help="path to the input CSV")

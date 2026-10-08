@@ -74,3 +74,13 @@ def test_cli_friendly_errors(tmp_path, capsys):
     one.write_text("a,b\n1,2\n", encoding="utf-8")
     assert main(["learn", str(one), "--out", str(tmp_path / "o")]) == 1
     assert "at least 2" in capsys.readouterr().err
+
+
+def test_version_flag(capsys):
+    import pytest
+    from verity_rules import __version__
+    from verity_rules.cli import main
+    with pytest.raises(SystemExit) as e:
+        main(["--version"])
+    assert e.value.code == 0
+    assert capsys.readouterr().out.strip() == f"verity {__version__}"

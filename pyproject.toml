@@ -7,7 +7,16 @@ name = "verity-rules"
 version = "0.1.0"
 description = "Learn entity-matching rules (column weights and comparison methods) from any CSV."
 requires-python = ">=3.10"
-dependencies = ["pandas", "numpy", "scikit-learn"]
+readme = "README.md"
+authors = [{ name = "lmanmohan" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = ["pandas>=2.1", "numpy>=1.24"]
+
+[project.optional-dependencies]
+debug = ["scikit-learn>=1.1"]
 
 [project.scripts]
 verity = "verity_rules.cli:main"
