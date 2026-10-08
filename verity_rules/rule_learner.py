@@ -470,6 +470,7 @@ def weighted_pair_similarity(
     lo_hi_map: dict[str, tuple[float | None, float | None]],
     embeddings: dict[str, list[float]] | None = None,
     row_ids: tuple[str, str] | None = None,
+    weight_attr: str = "normalized_weight",
 ) -> float:
     record_emb_i: np.ndarray | None = None
     record_emb_j: np.ndarray | None = None
@@ -483,7 +484,7 @@ def weighted_pair_similarity(
         vi, vj = row_i.get(p.name), row_j.get(p.name)
         if is_null(vi) or is_null(vj):
             continue
-        w = p.normalized_weight
+        w = getattr(p, weight_attr)
         s = field_similarity(
             vi,
             vj,

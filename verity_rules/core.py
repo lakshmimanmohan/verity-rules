@@ -145,12 +145,6 @@ def learn_rules(
                 s.add((min(i, j), max(i, j)))
         pairs = list(s)
 
-    sims = np.array([
-        weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
-                                 embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]))
-        for i, j in pairs
-    ], dtype=np.float64)
-
     # Candidate pairs: random pairs are almost all non-matches.
     cand_map = _build_candidates(rows, profiles)
     cand_pairs = sorted(cand_map)
@@ -172,6 +166,14 @@ def learn_rules(
     for p, c in zip(profiles, comps):
         p.composite_weight = c / total_c
 
+    # Score with the published composite weights (reliability does not use these scores).
+    sims = np.array([
+        weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
+                                 embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]),
+                                 weight_attr="composite_weight")
+        for i, j in pairs
+    ], dtype=np.float64)
+
     try:
         threshold, meta = kmeans_gap_threshold(sims)
         method = "kmeans_midpoint"
@@ -180,7 +182,8 @@ def learn_rules(
 
     cand_sims = np.array([
         weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
-                                 embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]))
+                                 embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]),
+                                 weight_attr="composite_weight")
         for i, j in cand_pairs
     ], dtype=np.float64)
 

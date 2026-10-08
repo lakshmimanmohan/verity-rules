@@ -191,9 +191,9 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
               "distinctive column. This measures how clearly the best candidate pairs stand "
               "out from random pairs. It does not estimate how many true duplicates fall in "
               "between.", "",
-              "The scores in this check use each column's distinctiveness weight before the "
-              "reliability step, so they are not the same numbers you get from scoring with "
-              "the weights in the table above.", "",
+              "The scores in this check use the published weights from the table above, so "
+              "you can reproduce them by scoring pairs with those weights and the pair score "
+              "formula below.", "",
               f"Bands ({_BAND}):", "",
               "- Clear: gap 0.30 or more.",
               "- Moderate: gap 0.15 to 0.30.",
