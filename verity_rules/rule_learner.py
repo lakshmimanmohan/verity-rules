@@ -37,6 +37,7 @@ class ColumnProfile:
     normalized_weight: float = 0.0
     reliability_score: float = 1.0
     composite_weight: float = 0.0
+    inferred_kind: str = ""  # physical kind before the IDENTIFIER override; "" means physical_kind
 
 
 def is_null(v: Any) -> bool:
@@ -280,6 +281,7 @@ def build_profiles(
         colvals = [r.get(h, "") for r in rows]
         uq, nr = column_uniqueness_and_nulls(colvals, n)
         pk = infer_physical_kind(h, colvals)
+        inferred = pk
         sem = infer_semantic_type(h, colvals, uq, pk, is_metadata=h in meta)
         if str(sem).strip().upper() == "IDENTIFIER":
             pk = "STRING"
@@ -289,6 +291,7 @@ def build_profiles(
                 name=h,
                 semantic_type=sem,
                 physical_kind=pk,
+                inferred_kind=inferred,
                 values=colvals,
                 uniqueness_ratio=uq,
                 null_rate=nr,
@@ -418,6 +421,47 @@ def email_similarity(va: Any, vb: Any) -> float:
     return 0.5 * char_jaccard(la, lb) + 0.5 * char_jaccard(da, db)
 
 
+COMPARATOR_VARIANTS = ("v0", "v1", "v2", "v3", "v4")
+
+
+def check_comparator_variant(variant: str) -> str:
+    if variant not in COMPARATOR_VARIANTS:
+        raise ValueError(f"comparator_variant must be one of {COMPARATOR_VARIANTS}, got {variant!r}")
+    return variant
+
+
+def _alnum_norm(v: Any) -> str:
+    """Lowercase, letters and digits only."""
+    return re.sub(r"[^a-z0-9]", "", clean_str(v).lower())
+
+
+def _bigrams(s: str) -> set[str]:
+    """Adjacent character pairs; a one-character string is its own single gram."""
+    return {s[i:i + 2] for i in range(len(s) - 1)} if len(s) > 1 else ({s} if s else set())
+
+
+def bigram_jaccard(a: Any, b: Any) -> float:
+    """Jaccard similarity of the bigram sets of the alphanumeric-normalized values.
+    Two values that normalize to nothing are equal only if their stripped text is equal."""
+    na, nb = _alnum_norm(a), _alnum_norm(b)
+    if not na and not nb:
+        return 1.0 if clean_str(a) == clean_str(b) else 0.0
+    ga, gb = _bigrams(na), _bigrams(nb)
+    return len(ga & gb) / len(ga | gb)
+
+
+def identifier_similarity(va: Any, vb: Any, comparator_variant: str) -> float:
+    """IDENTIFIER columns that are not email or date, by variant (v1 exact, v2 normalized exact, v3+ bigram)."""
+    if comparator_variant in ("v0", "v1"):
+        return 1.0 if clean_str(va) == clean_str(vb) else 0.0
+    if comparator_variant == "v2":
+        na, nb = _alnum_norm(va), _alnum_norm(vb)
+        if not na and not nb:
+            return 1.0 if clean_str(va) == clean_str(vb) else 0.0
+        return 1.0 if na == nb else 0.0
+    return bigram_jaccard(va, vb)
+
+
 def field_similarity(
     va: Any,
     vb: Any,
@@ -426,13 +470,22 @@ def field_similarity(
     *,
     record_emb_i: np.ndarray | None = None,
     record_emb_j: np.ndarray | None = None,
+    comparator_variant: str = "v0",
 ) -> float:
     if is_null(va) or is_null(vb):
         return 0.0
     semantic_type = str(prof.semantic_type).strip().upper()
     physical_type = str(prof.physical_kind).strip().upper()
     if semantic_type == "IDENTIFIER":
-        return 1.0 if clean_str(va) == clean_str(vb) else 0.0
+        if comparator_variant == "v0":
+            return 1.0 if clean_str(va) == clean_str(vb) else 0.0
+        # v1+: email and date columns keep their own comparator even when classed IDENTIFIER.
+        detected = str(prof.inferred_kind or prof.physical_kind).strip().upper()
+        if detected == "EMAIL":
+            return email_similarity(va, vb)
+        if detected == "DATE":
+            return date_similarity(va, vb)
+        return identifier_similarity(va, vb, comparator_variant)
     if physical_type == "EMAIL":
         return email_similarity(va, vb)
     if physical_type == "DATE":
@@ -442,17 +495,28 @@ def field_similarity(
         if lo is None or hi is None:
             return char_jaccard(clean_str(va), clean_str(vb))
         return numeric_similarity(va, vb, lo, hi)
+    if comparator_variant == "v4" and (record_emb_i is None or record_emb_j is None):
+        # text_character columns (also the hybrid path when no embedding is available)
+        return bigram_jaccard(va, vb)
     if semantic_type in ("DESCRIPTIVE", "NAME", "STREET_ADDRESS") and physical_type == "STRING":
         return hybrid_field_similarity(va, vb, record_emb_i, record_emb_j)
     return char_jaccard(clean_str(va), clean_str(vb))
 
 
-def comparison_method(prof: ColumnProfile, embeddings_used: bool) -> str:
+def comparison_method(prof: ColumnProfile, embeddings_used: bool, comparator_variant: str = "v0") -> str:
     """Name the comparison field_similarity applies to this column. Keep in sync with it."""
     semantic_type = str(prof.semantic_type).strip().upper()
     physical_type = str(prof.physical_kind).strip().upper()
+    text = "text_bigram" if comparator_variant == "v4" else "text_character"
     if semantic_type == "IDENTIFIER":
-        return "exact"
+        if comparator_variant == "v0":
+            return "exact"
+        detected = str(prof.inferred_kind or prof.physical_kind).strip().upper()
+        if detected == "EMAIL":
+            return "email"
+        if detected == "DATE":
+            return "date"
+        return {"v1": "exact", "v2": "exact_normalized"}.get(comparator_variant, "bigram_jaccard")
     if physical_type == "EMAIL":
         return "email"
     if physical_type == "DATE":
@@ -460,8 +524,8 @@ def comparison_method(prof: ColumnProfile, embeddings_used: bool) -> str:
     if physical_type == "NUMBER":
         return "numeric_range"
     if semantic_type in ("DESCRIPTIVE", "NAME", "STREET_ADDRESS") and physical_type == "STRING":
-        return "text_hybrid" if embeddings_used else "text_character"
-    return "text_character"
+        return "text_hybrid" if embeddings_used else text
+    return text
 
 
 def weighted_pair_similarity(
@@ -472,6 +536,7 @@ def weighted_pair_similarity(
     embeddings: dict[str, list[float]] | None = None,
     row_ids: tuple[str, str] | None = None,
     weight_attr: str = "normalized_weight",
+    comparator_variant: str = "v0",
 ) -> float:
     record_emb_i: np.ndarray | None = None
     record_emb_j: np.ndarray | None = None
@@ -493,6 +558,7 @@ def weighted_pair_similarity(
             lo_hi_map[p.name],
             record_emb_i=record_emb_i,
             record_emb_j=record_emb_j,
+            comparator_variant=comparator_variant,
         )
         num += w * s
         den += w
@@ -638,6 +704,7 @@ def learn_reliability_v2(
     embeddings: dict[str, list[float]] | None = None,
     row_ids: list[str] | None = None,
     random_pairs: list[tuple[int, int]] | None = None,
+    comparator_variant: str = "v0",
 ) -> tuple[dict[str, float], dict[str, Any]]:
     """
     Chance-corrected reliability: how much more similar a column is on anchor pairs
@@ -688,7 +755,8 @@ def learn_reliability_v2(
             if is_null(vi) or is_null(vj):
                 continue
             obs[p.name].append((k, i, j, field_similarity(
-                vi, vj, p, lo_hi_map[p.name], record_emb_i=emb_i, record_emb_j=emb_j)))
+                vi, vj, p, lo_hi_map[p.name], record_emb_i=emb_i, record_emb_j=emb_j,
+                comparator_variant=comparator_variant)))
 
     notes: list[str] = []
     anchor_pairs: dict[str, list[tuple[int, int]]] = {}
@@ -731,7 +799,8 @@ def learn_reliability_v2(
                 if is_null(vi) or is_null(vj):
                     continue
                 rs[p.name].append(field_similarity(
-                    vi, vj, p, lo_hi_map[p.name], record_emb_i=emb_i, record_emb_j=emb_j))
+                    vi, vj, p, lo_hi_map[p.name], record_emb_i=emb_i, record_emb_j=emb_j,
+                    comparator_variant=comparator_variant))
         random_mean = {k: float(sum(v) / len(v)) for k, v in rs.items() if v}
     for name in list(raw):
         r = random_mean.get(name, 0.0)

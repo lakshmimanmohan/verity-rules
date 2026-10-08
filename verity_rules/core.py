@@ -12,7 +12,7 @@ from . import __version__
 from .column_classification import classify_columns
 from .rule_learner import (
     build_profiles, comparison_method, kmeans_gap_threshold, learn_reliability,
-    learn_reliability_v2,
+    learn_reliability_v2, check_comparator_variant,
     normalize_discriminative_weights, numeric_series_stats,
     is_null, record_id_from_row, weighted_pair_similarity,
 )
@@ -181,9 +181,11 @@ def learn_rules(
     reliability: str = "v2",
     exclude_columns: list[str] | None = None,
     keep_columns: list[str] | None = None,
+    comparator_variant: str = "v0",
 ) -> dict[str, Any]:
     if reliability not in ("v1", "v2"):
         raise ValueError(f"reliability must be 'v1' or 'v2', got {reliability!r}")
+    check_comparator_variant(comparator_variant)
     random.seed(seed)
     np.random.seed(seed)
 
@@ -232,7 +234,7 @@ def learn_rules(
     if reliability == "v2":
         rel, rel_info = learn_reliability_v2(
             cand_pairs, rows, profiles, lo_hi, embeddings=embeddings, row_ids=row_ids,
-            random_pairs=pairs)
+            random_pairs=pairs, comparator_variant=comparator_variant)
         notes.extend(rel_info["notes"])
     else:
         rel = learn_reliability(pairs, rows, profiles, lo_hi)
@@ -247,7 +249,8 @@ def learn_rules(
     sims = np.array([
         weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
                                  embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]),
-                                 weight_attr="composite_weight")
+                                 weight_attr="composite_weight",
+                                 comparator_variant=comparator_variant)
         for i, j in pairs
     ], dtype=np.float64)
 
@@ -260,7 +263,8 @@ def learn_rules(
     cand_sims = np.array([
         weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
                                  embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]),
-                                 weight_attr="composite_weight")
+                                 weight_attr="composite_weight",
+                                 comparator_variant=comparator_variant)
         for i, j in cand_pairs
     ], dtype=np.float64)
 
@@ -322,7 +326,7 @@ def learn_rules(
         "columns": {
             p.name: {
                 "semantic_type": p.semantic_type,
-                "comparison_method": comparison_method(p, bool(embeddings)),
+                "comparison_method": comparison_method(p, bool(embeddings), comparator_variant),
                 "uniqueness_ratio": round(p.uniqueness_ratio, 6),
                 "null_rate": round(p.null_rate, 6),
                 "reliability_score": round(p.reliability_score, 6),

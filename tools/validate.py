@@ -51,10 +51,11 @@ SCHEMES = ["learned", "equal", "v1", "uniqueness"]
 class Dataset:
     """Records, truth and a rebuilt scoring context (profiles, numeric ranges) for one CSV."""
 
-    def __init__(self, name: str, csv: Path, truth_csv: Path, columns: list[str] | None = None):
-        self.name, self.csv = name, csv
+    def __init__(self, name: str, csv: Path, truth_csv: Path, columns: list[str] | None = None,
+                 variant: str = "v0"):
+        self.name, self.csv, self.variant = name, csv, variant
         self.records, _ = load_records(csv, 20_000, SEED)
-        self.result = learn_rules(self.records, seed=SEED, debug=True)
+        self.result = learn_rules(self.records, seed=SEED, debug=True, comparator_variant=variant)
         self.columns = columns if columns is not None else list(self.result["columns"])
         df = pd.DataFrame(self.records)
         df.columns = [str(c).strip() for c in df.columns]
@@ -86,7 +87,8 @@ class Dataset:
 
     def score(self, pairs: list[tuple[int, int]]) -> list[float]:
         return [weighted_pair_similarity(self.rows[i], self.rows[j], self.profiles, self.lo_hi,
-                                         weight_attr="composite_weight") for i, j in pairs]
+                                         weight_attr="composite_weight",
+                                         comparator_variant=self.variant) for i, j in pairs]
 
     def random_non_dup(self, k: int, seed: int = SEED) -> list[tuple[int, int]]:
         rng, n, out = random.Random(seed), len(self.rows), set()
