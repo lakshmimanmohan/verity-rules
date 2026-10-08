@@ -612,6 +612,88 @@ def learn_reliability(
     return reliability
 
 
+ANCHOR_MIN_UNIQUENESS = 0.5
+ANCHOR_MIN_COUNT = 30
+
+
+def _alnum_key(v: Any) -> str:
+    """Lowercase, alphanumerics only. Empty string when null or nothing is left."""
+    if is_null(v):
+        return ""
+    return re.sub(r"[^a-z0-9]", "", clean_str(v).lower())
+
+
+def learn_reliability_v2(
+    candidate_pairs: list[tuple[int, int]],
+    rows: list[dict[str, Any]],
+    profiles: list[ColumnProfile],
+    lo_hi_map: dict[str, tuple[float | None, float | None]],
+    *,
+    min_agree: int = 1,
+    rescale: bool = True,
+    embeddings: dict[str, list[float]] | None = None,
+    row_ids: list[str] | None = None,
+) -> tuple[dict[str, float], dict[str, Any]]:
+    """
+    Reliability as mean field_similarity over anchor pairs.
+
+    An anchor for column C is a candidate pair that agrees (after lowercasing and
+    keeping only alphanumerics) on a value in at least `min_agree` columns other
+    than C, among columns with uniqueness_ratio >= ANCHOR_MIN_UNIQUENESS.
+    Columns with fewer than ANCHOR_MIN_COUNT usable anchors (both values non-null)
+    get 1.0 and a note. `rescale` applies the same 0.1-1.0 squash as v1, over the
+    columns that had enough anchors.
+
+    Returns (reliability, info). info has anchor_count, anchor_pairs (column ->
+    list of (i, j)), raw (mean before rescale) and notes.
+    """
+    anchor_cols = [p for p in profiles if p.uniqueness_ratio >= ANCHOR_MIN_UNIQUENESS]
+    keys = {p.name: [_alnum_key(r.get(p.name)) for r in rows] for p in anchor_cols}
+
+    sim_sum: dict[str, float] = defaultdict(float)
+    anchor_pairs: dict[str, list[tuple[int, int]]] = {p.name: [] for p in profiles}
+
+    for i, j in candidate_pairs:
+        agree = {p.name for p in anchor_cols
+                 if keys[p.name][i] and keys[p.name][i] == keys[p.name][j]}
+        if not agree:
+            continue
+        emb_i = emb_j = None
+        if embeddings and row_ids is not None:
+            emb_i = _embedding_for_record(embeddings, row_ids[i])
+            emb_j = _embedding_for_record(embeddings, row_ids[j])
+        ri, rj = rows[i], rows[j]
+        for p in profiles:
+            if len(agree - {p.name}) < min_agree:
+                continue
+            vi, vj = ri.get(p.name), rj.get(p.name)
+            if is_null(vi) or is_null(vj):
+                continue
+            sim_sum[p.name] += field_similarity(
+                vi, vj, p, lo_hi_map[p.name], record_emb_i=emb_i, record_emb_j=emb_j)
+            anchor_pairs[p.name].append((i, j))
+
+    notes: list[str] = []
+    anchor_count = {p.name: len(anchor_pairs[p.name]) for p in profiles}
+    raw: dict[str, float] = {}
+    for p in profiles:
+        n = anchor_count[p.name]
+        if n < ANCHOR_MIN_COUNT:
+            notes.append(f"{p.name}: only {n} anchor pairs (need {ANCHOR_MIN_COUNT}); "
+                         "reliability set to 1.0.")
+        else:
+            raw[p.name] = float(sim_sum[p.name] / n)
+
+    reliability = {p.name: raw.get(p.name, 1.0) for p in profiles}
+    if rescale and raw:
+        lo, hi = min(raw.values()), max(raw.values())
+        for k in raw:
+            reliability[k] = 0.1 + 0.9 * (raw[k] - lo) / (hi - lo) if hi > lo else 1.0
+    info = {"anchor_count": anchor_count, "anchor_pairs": anchor_pairs,
+            "raw": raw, "notes": notes}
+    return reliability, info
+
+
 def kmeans_gap_threshold(sim_array: np.ndarray) -> tuple[float, dict[str, float]]:
     meta: dict[str, float] = {}
     X = sim_array.reshape(-1, 1)

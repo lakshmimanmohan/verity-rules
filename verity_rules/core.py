@@ -10,6 +10,7 @@ import pandas as pd
 from .column_classification import classify_columns
 from .rule_learner import (
     build_profiles, comparison_method, kmeans_gap_threshold, learn_reliability,
+    learn_reliability_v2,
     normalize_discriminative_weights, numeric_series_stats,
     is_null, record_id_from_row, weighted_pair_similarity,
 )
@@ -94,7 +95,10 @@ def learn_rules(
     pair_sample: int = 1000,
     seed: int = 42,
     debug: bool = False,
+    reliability: str = "v1",
 ) -> dict[str, Any]:
+    if reliability not in ("v1", "v2"):
+        raise ValueError(f"reliability must be 'v1' or 'v2', got {reliability!r}")
     random.seed(seed)
     np.random.seed(seed)
 
@@ -136,7 +140,20 @@ def learn_rules(
         for i, j in pairs
     ], dtype=np.float64)
 
-    rel = learn_reliability(pairs, rows, profiles, lo_hi)
+    # Candidate pairs: random pairs are almost all non-matches.
+    cand_map = _build_candidates(rows, profiles)
+    cand_pairs = sorted(cand_map)
+    notes: list[str] = []
+    if len(cand_pairs) > CANDIDATE_CAP:
+        cand_pairs = sorted(random.sample(cand_pairs, CANDIDATE_CAP))
+        notes.append(f"Candidate pairs capped at {CANDIDATE_CAP} by sampling.")
+    rel_info: dict[str, Any] = {}
+    if reliability == "v2":
+        rel, rel_info = learn_reliability_v2(
+            cand_pairs, rows, profiles, lo_hi, embeddings=embeddings, row_ids=row_ids)
+        notes.extend(rel_info["notes"])
+    else:
+        rel = learn_reliability(pairs, rows, profiles, lo_hi)
     for p in profiles:
         p.reliability_score = float(rel.get(p.name, 1.0))
     comps = [max(1e-9, p.normalized_weight * p.reliability_score) for p in profiles]
@@ -150,13 +167,6 @@ def learn_rules(
     except Exception as exc:  # noqa: BLE001
         threshold, meta, method = float(np.median(sims)), {"error": str(exc)}, "median_fallback"
 
-    # Candidate pairs: random pairs are almost all non-matches.
-    cand_map = _build_candidates(rows, profiles)
-    cand_pairs = sorted(cand_map)
-    notes: list[str] = []
-    if len(cand_pairs) > CANDIDATE_CAP:
-        cand_pairs = sorted(random.sample(cand_pairs, CANDIDATE_CAP))
-        notes.append(f"Candidate pairs capped at {CANDIDATE_CAP} by sampling.")
     cand_sims = np.array([
         weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
                                  embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]))
@@ -231,6 +241,9 @@ def learn_rules(
     }
     result = _round_floats(result)
     if debug:
+        if reliability == "v2":
+            result["reliability_debug"] = {
+                "method": "v2", "anchor_count": rel_info["anchor_count"]}
         result["threshold"] = {
             "value": round(float(threshold), 6), "method": method,
             "details": {k: float(v) if isinstance(v, (int, float, np.floating)) else v

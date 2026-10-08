@@ -1,0 +1,193 @@
+====================================================================================================
+Dataset: data\customers.csv  records=4000  id column=customer_id  seed=42
+Content columns: ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'zip_code', 'SSN']
+Sampled pairs: 1000  candidate pairs: 3209  true duplicate pairs: 2678
+Cross-check against learn_rules(): v1 reliability OK, v1 composite OK, v2 rescaled reliability OK
+Ideal = mean field_similarity over true duplicate pairs, both values non-null.
+
+--- v1 (sampled pairs with at least one exact-matching column; 0.1-1.0 rescale) ---
+Anchor pairs: 8  purity vs truth: 0.0%
+column                     anchors   ideal  v1_rel
+first_name                       8  0.9656  1.0000
+last_name                        8  0.9617  0.8181
+email                            7  0.8318  0.1000
+phone                            6  0.7398  0.1000
+address                          8  0.9892  0.1000
+city                             8  0.9899  0.1000
+zip_code                         8  0.8816  0.1000
+SSN                              6  0.9817  0.1000
+Spearman vs ideal:  v1  0.016
+
+--- v2, agreement on at least 1 other column ---
+Anchor pairs (union over columns): 3209  purity vs truth: 82.9%
+column                     anchors  purity   ideal v2_rescaled  v2_raw
+first_name                    3089   0.828  0.9656      0.5655  0.8401
+last_name                     3090   0.828  0.9617      0.5280  0.8283
+email                         2921   0.830  0.8318      0.3349  0.7675
+phone                         2452   0.834  0.7398      0.1000  0.6935
+address                       3204   0.829  0.9892      0.7026  0.8833
+city                          2703   0.981  0.9899      1.0000  0.9769
+zip_code                      3156   0.839  0.8816      0.3792  0.7815
+SSN                           2871   0.825  0.9817      0.7382  0.8945
+Spearman vs ideal:  v2 rescaled  0.976   v2 no rescale  0.976
+composite weight             ideal      v1 v2_rescaled  v2_raw
+first_name                  0.0617  0.2788      0.0630  0.0588
+last_name                   0.0817  0.3033      0.0782  0.0771
+email                       0.1601  0.0840      0.1124  0.1618
+phone                       0.1231  0.0726      0.0290  0.1264
+address                     0.1529  0.0674      0.1893  0.1495
+city                        0.1348  0.0594      0.2373  0.1456
+zip_code                    0.1490  0.0738      0.1117  0.1446
+SSN                         0.1366  0.0607      0.1790  0.1363
+L1 distance of composite weights to ideal:  v1 0.8774   v2 rescaled 0.3653   v2 no rescale 0.0315
+
+v2 anchor purity is 82.9%, under 90%. Requiring agreement on at least 2 other columns.
+
+--- v2, agreement on at least 2 other columns ---
+Anchor pairs (union over columns): 2623  purity vs truth: 100.0%
+column                     anchors  purity   ideal v2_rescaled  v2_raw
+first_name                    2524   1.000  0.9656      0.9130  0.9655
+last_name                     2523   1.000  0.9617      0.9006  0.9620
+email                         2373   1.000  0.8318      0.4305  0.8314
+phone                         1991   1.000  0.7398      0.1000  0.7395
+address                       2513   1.000  0.9892      0.9991  0.9894
+city                          2476   1.000  0.9899      1.0000  0.9896
+zip_code                      2438   1.000  0.8816      0.6110  0.8815
+SSN                           2262   1.000  0.9817      0.9705  0.9814
+Spearman vs ideal:  v2 rescaled  1.000   v2 no rescale  1.000
+composite weight             ideal      v1 v2_rescaled  v2_raw
+first_name                  0.0617  0.2788      0.0764  0.0617
+last_name                   0.0817  0.3033      0.1003  0.0818
+email                       0.1601  0.0840      0.1086  0.1601
+phone                       0.1231  0.0726      0.0218  0.1231
+address                     0.1529  0.0674      0.2023  0.1530
+city                        0.1348  0.0594      0.1784  0.1348
+zip_code                    0.1490  0.0738      0.1353  0.1490
+SSN                         0.1366  0.0607      0.1769  0.1366
+L1 distance of composite weights to ideal:  v1 0.8774   v2 rescaled 0.3332   v2 no rescale 0.0002
+
+--- v1 anchor pairs (8 of 8) ---
+a1b41d82-3880-43ac-9ec7-f6f811c11019 / 22ab5867-d5ef-4a57-9eae-3015303407d3  true duplicates: False  exact-matching columns: ['first_name']
+    A: first_name='Joshua' | last_name='Roberts' | email='joshua3@example.net' | phone='+1.161.736.4296' | address='0509 Gilert Squares' | city='Garciaborough' | zip_code='16513' | SSN='308-57-6126'
+    B: first_name='Joshua' | last_name='wuerrero' | email='jgrant12@example.net' | phone='001-977-7515' | address='6991 Wendy Plains' | city='Tammyfurt' | zip_code='68394' | SSN='833-94-6952'
+fa287c6a-7e52-477c-b4e0-2dfe01761649 / 7d0be862-ce34-4cdf-a56d-9b905a581486  true duplicates: False  exact-matching columns: ['last_name']
+    A: first_name='Roy' | last_name='King' | email='CAROLYN76@EXAMPLE.COM' | phone='(238) 416-6496' | address='983l Davi Isle' | city='Nort hKyleberg' | zip_code='45865' | SSN='665-79-7180'
+    B: first_name='Sara' | last_name='King' | email='gary74@yahoo.com' | phone='4035594410' | address='351 Gutierrez Way Suite 741' | city='NORTH TARA' | zip_code='485 34' | SSN='414-30-7642'
+5fb47d5b-2c23-4e42-a865-d6be74aae0ed / b99d6c74-7e60-4353-b3dc-3a2b2653c8be  true duplicates: False  exact-matching columns: ['first_name']
+    A: first_name='Christopher' | last_name='Rice' | email='byrdsherry@example.net' | phone=nan | address='8085 Green Trail' | city='Jasonfort' | zip_code='18108' | SSN='708-88-8909'
+    B: first_name='Christopher' | last_name='Rivera' | email='HELENHORTON@EXAMPLE.ORG' | phone=nan | address='53950 Christopher Isle Apt. 558' | city='Davenportmouuth' | zip_code='58870 USA' | SSN='523-15-4625'
+f2d6040a-8e9b-4438-9773-7d0a2993ffbc / b031af0b-e6a5-4a4d-a023-2a3a0e3cbd62  true duplicates: False  exact-matching columns: ['last_name']
+    A: first_name='CCourtney' | last_name='Smith' | email='daniel9965@example.net' | phone='854466289735189' | address='2756 Adam Crossroad' | city='North David' | zip_code='38114' | SSN=nan
+    B: first_name='Jhn' | last_name='Smith' | email=nan | phone='+1.763.864.3159' | address='6634 Molina Well Suite 344' | city='Pork Peggyville' | zip_code='523 42' | SSN='870-67-4833'
+657db5bf-3b48-457e-ad0e-30b35e5bb2f4 / 7d020ac8-9b06-48e3-b85a-567bd8a9c712  true duplicates: False  exact-matching columns: ['first_name']
+    A: first_name='Daniel' | last_name='Dunlap' | email='qschwartz44@example.com' | phone=nan | address='20860 Kevin Summit' | city='Tylermouth' | zip_code='11775' | SSN='330-48-5735'
+    B: first_name='Daniel' | last_name='Hernandez' | email='LAURA04@EXAMPLE.NET' | phone='+1 481 998 7599' | address='928 Nicole Squares' | city='Clarkshire' | zip_code='128 40' | SSN='269-39-2263'
+d7e7cca2-934c-4df1-9482-ed21075b5a4a / a9ab8f69-68de-435f-8e88-eec1b088e8ce  true duplicates: False  exact-matching columns: ['first_name']
+    A: first_name='James' | last_name='Leonard PhD' | email='mjones9@example.net' | phone='(132) 535-9143' | address='45605 William Centers Apt. 861' | city='Casetown' | zip_code='69481' | SSN='112-96-4452'
+    B: first_name='James' | last_name='Trujillo' | email='BCALDWELL@EXAMPLE.ORG' | phone='+1 001 620 7514' | address='3470 Ellis Rds Suite 238' | city='Joystad' | zip_code='23052' | SSN='754-64-5097'
+2afe9446-1750-45af-a425-66bbd90321e7 / 26a3a61e-66bb-4ea3-b1d7-cda9c279b4cb  true duplicates: False  exact-matching columns: ['first_name']
+    A: first_name='Vanessa' | last_name='netersoP' | email='iharmon2@example.net' | phone='(986) 896-6096' | address='5121 Chrtstopher Highway' | city='South Frederick' | zip_code='18428' | SSN='843-99-4836'
+    B: first_name='Vanessa' | last_name='Reed' | email='caitlynday43@example.com' | phone='+1 001 960 7233' | address='5790 Gary Bridge' | city='Port Ryantown' | zip_code='79800' | SSN='650-46-3755'
+0a0a056b-1831-4028-a3d9-b386d14cec16 / 871a016e-25eb-465a-aca5-433b1589a2f8  true duplicates: False  exact-matching columns: ['last_name']
+    A: first_name='Jason' | last_name='Dawson' | email='patricia71@example.com' | phone='476-688-0294' | address='036 Cohen Ways' | city='EAST SAMUELHAVEN' | zip_code='508 52' | SSN='114-78-3073'
+    B: first_name='Jillian' | last_name='Dawson' | email='dawn34@example.org' | phone='+1.453.793.9224' | address='7277 Cox Spring Suite 021' | city='JACOBVILLE' | zip_code='37459' | SSN=nan
+
+====================================================================================================
+Dataset: data\products.csv  records=500  id column=product_id  seed=42
+Content columns: ['manufacturer_part_number', 'member_part_number', 'upc_ean', 'manufacturer_code', 'brand_code', 'member_id']
+Sampled pairs: 1000  candidate pairs: 331  true duplicate pairs: 401
+Cross-check against learn_rules(): v1 reliability OK, v1 composite OK, v2 rescaled reliability OK
+Ideal = mean field_similarity over true duplicate pairs, both values non-null.
+
+--- v1 (sampled pairs with at least one exact-matching column; 0.1-1.0 rescale) ---
+Anchor pairs: 190  purity vs truth: 1.1%
+column                     anchors   ideal  v1_rel
+manufacturer_part_number       190  0.9836  0.3898
+member_part_number             190  0.0948  0.1000
+upc_ean                        141  0.8522  0.1000
+manufacturer_code              190  1.0000  1.0000
+brand_code                     190  1.0000  0.9587
+member_id                      190  0.7463  0.6883
+Spearman vs ideal:  v1  0.765
+
+--- v2, agreement on at least 1 other column ---
+Anchor pairs (union over columns): 331  purity vs truth: 100.0%
+column                     anchors  purity   ideal v2_rescaled  v2_raw
+manufacturer_part_number       210   1.000  0.9836      0.9907  0.9908
+member_part_number             329   1.000  0.0948      0.1000  0.1094
+upc_ean                        235   1.000  0.8522      0.8557  0.8572
+manufacturer_code              331   1.000  1.0000      1.0000  1.0000
+brand_code                     331   1.000  1.0000      1.0000  1.0000
+member_id                      331   1.000  0.7463      0.7479  0.7505
+Spearman vs ideal:  v2 rescaled  1.000   v2 no rescale  1.000
+composite weight             ideal      v1 v2_rescaled  v2_raw
+manufacturer_part_number    0.4272  0.4648      0.4266  0.4232
+member_part_number          0.0723  0.2095      0.0756  0.0821
+upc_ean                     0.4303  0.1386      0.4283  0.4256
+manufacturer_code           0.0330  0.0907      0.0327  0.0325
+brand_code                  0.0248  0.0652      0.0246  0.0244
+member_id                   0.0123  0.0312      0.0122  0.0122
+L1 distance of composite weights to ideal:  v1 0.5834   v2 rescaled 0.0067   v2 no rescale 0.0196
+
+--- v1 anchor pairs (20 of 190) ---
+3ea6e5b2-0c76-4d28-9f49-5037b40a9181 / ac09bdb7-9908-4e47-b249-f62c08987462  true duplicates: True  exact-matching columns: ['manufacturer_part_number', 'manufacturer_code', 'brand_code']
+    A: manufacturer_part_number='UXF-62386-F' | member_part_number='RET-03-SKU-00131' | upc_ean='807935-978207' | manufacturer_code='MFG-11' | brand_code='BR-06' | member_id='RET-03'
+    B: manufacturer_part_number='Uxf-62386-F' | member_part_number='RET-05-SKU-00131' | upc_ean='EAN 807935978207' | manufacturer_code='MFG-11' | brand_code='BR-06' | member_id='RET-05'
+f4dbca07-e506-4670-b092-947dbe4969ec / ac09bdb7-9908-4e47-b249-f62c08987462  true duplicates: False  exact-matching columns: ['brand_code']
+    A: manufacturer_part_number='EZU-34738-U' | member_part_number='RET-03-SKU-00026' | upc_ean='909169985435' | manufacturer_code='MFG-06' | brand_code='BR-06' | member_id='RET-03'
+    B: manufacturer_part_number='Uxf-62386-F' | member_part_number='RET-05-SKU-00131' | upc_ean='EAN 807935978207' | manufacturer_code='MFG-11' | brand_code='BR-06' | member_id='RET-05'
+46426c45-8d03-417a-b4d3-75c1a29319fa / 54cc1e2a-5e4c-4287-8442-51dbd0d4ea67  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='MW-65414-N' | member_part_number='RET-10-SKU-00052' | upc_ean='298069901627' | manufacturer_code='MFG-12' | brand_code='BR-08' | member_id='RET-10'
+    B: manufacturer_part_number='RAZ-64641-T' | member_part_number='RET-10-SKU-00077' | upc_ean='874296717565' | manufacturer_code='MFG-17' | brand_code='BR-03' | member_id='RET-10'
+5da39a73-ba3d-47ff-83b4-7ee5e1e89e7e / 37fe032c-0257-4851-a6a9-e100b509109b  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='TCE-43455-E' | member_part_number='RET-03-SKU-00069' | upc_ean=nan | manufacturer_code='MFG-09' | brand_code='BR-07' | member_id='RET-03'
+    B: manufacturer_part_number='DZ-24026-C' | member_part_number='RET-03-SKU-00155' | upc_ean='275705964016' | manufacturer_code='MFG-15' | brand_code='BR-09' | member_id='RET-03'
+094d916d-eb6d-4fed-af15-8d5b2d007d05 / 12f5131a-da52-42ee-a2bf-18f51f652a87  true duplicates: False  exact-matching columns: ['manufacturer_code', 'brand_code']
+    A: manufacturer_part_number='EEU-67190-K' | member_part_number='RET-02-SKU-00099' | upc_ean='EAN 481754965137' | manufacturer_code='MFG-19' | brand_code='BR-07' | member_id='RET-02'
+    B: manufacturer_part_number='UDC-51079-T' | member_part_number='RET-05-SKU-00039' | upc_ean='EAN 608835615951' | manufacturer_code='MFG-19' | brand_code='BR-07' | member_id='RET-05'
+84f2fd0f-7947-4bfa-8dd0-b4d4554227de / 3240d7a1-4027-4b7d-9430-29a9d88f1c94  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='Evt-65627-A' | member_part_number='RET-08-SKU-00074' | upc_ean='210249947174' | manufacturer_code='MFG-14' | brand_code='BR-12' | member_id='RET-08'
+    B: manufacturer_part_number='hax-37543-g' | member_part_number='RET-08-SKU-00051' | upc_ean='373467-065627' | manufacturer_code='MFG-11' | brand_code='BR-01' | member_id='RET-08'
+94f79dba-c581-4d2d-9a89-b71ea0d572c8 / 233ffc82-92ec-49af-93ae-c376c359810a  true duplicates: False  exact-matching columns: ['brand_code']
+    A: manufacturer_part_number='CTE-39117-E' | member_part_number='RET-08-SKU-00021' | upc_ean='624731781080' | manufacturer_code='MFG-01' | brand_code='BR-01' | member_id='RET-08'
+    B: manufacturer_part_number='huv-13619-b' | member_part_number='RET-04-SKU-00036' | upc_ean='433036541458' | manufacturer_code='MFG-16' | brand_code='BR-01' | member_id='RET-04'
+b1a8b71f-491b-40e9-9ca3-fbb3ff11c8ba / 98d00c2c-17d3-4f32-8de1-596c5a9a206a  true duplicates: False  exact-matching columns: ['manufacturer_code']
+    A: manufacturer_part_number='DUC-51079-T' | member_part_number='RET-04-SKU-00039' | upc_ean='6 08835 615951' | manufacturer_code='MFG-19' | brand_code='BR-07' | member_id='RET-04'
+    B: manufacturer_part_number='YWP-59696-K' | member_part_number='RET-06-SKU-00179' | upc_ean='949588-879470' | manufacturer_code='MFG-19' | brand_code='BR-12' | member_id='RET-06'
+c1836315-330f-4be1-a689-b4247a3a10e1 / c4829b71-ae84-481c-ae0f-b5b38bae591e  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='EJB-52408-B' | member_part_number='RET-10-SKU-00096' | upc_ean='104709521456' | manufacturer_code='MFG-16' | brand_code='BR-01' | member_id='RET-10'
+    B: manufacturer_part_number='BHY-15182-Q' | member_part_number='RET-10-SKU-00191' | upc_ean='240049915478' | manufacturer_code='MFG-11' | brand_code='BR-06' | member_id='RET-10'
+adc29178-a041-4612-acd5-8759e95d2761 / f7bf5244-7db2-47aa-a205-e54fb1e8c09d  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='Nrd-64743-H' | member_part_number='RET-01-SKU-00135' | upc_ean=nan | manufacturer_code='MFG-15' | brand_code='BR-04' | member_id='RET-01'
+    B: manufacturer_part_number='TZB-98679-Q' | member_part_number='RET-01-SKU-00189' | upc_ean='1 20826 773454' | manufacturer_code='MFG-09' | brand_code='BR-07' | member_id='RET-01'
+2de46e91-e8e6-4840-b090-f5a0ce610199 / e61599c8-cbf8-4f86-8ec3-f970956d80e4  true duplicates: False  exact-matching columns: ['manufacturer_code']
+    A: manufacturer_part_number='CCL-66177-v' | member_part_number='RET-03-SKU-00158' | upc_ean='285654310278' | manufacturer_code='MFG-18' | brand_code='BR-15' | member_id='RET-03'
+    B: manufacturer_part_number='AHG-05310-A' | member_part_number='RET-10-SKU-00078' | upc_ean='512567468071' | manufacturer_code='MFG-18' | brand_code='BR-10' | member_id='RET-10'
+45d8a6ad-77d0-459e-8114-14f8d9df0d0e / a43afb7a-c40d-4874-a2ab-7752c4db5a62  true duplicates: False  exact-matching columns: ['manufacturer_code']
+    A: manufacturer_part_number='WGJ-9091-X' | member_part_number='RET-02-SKU-00102' | upc_ean='EAN 869261796405' | manufacturer_code='MFG-02' | brand_code='BR-13' | member_id='RET-02'
+    B: manufacturer_part_number='Rml-97278-T' | member_part_number='RET-08-SKU-00122' | upc_ean='244510-762268' | manufacturer_code='MFG-02' | brand_code='BR-03' | member_id='RET-08'
+cdbc2c1c-a4af-47bd-ae45-5cc6b88e830f / 77a7e8b7-5e70-465f-9280-c5aa8dd4595b  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='lhc-77694-j' | member_part_number='RET-01-SKU-00086' | upc_ean='360576627028' | manufacturer_code='MFG-06' | brand_code='BR-06' | member_id='RET-01'
+    B: manufacturer_part_number='CWP-48740-J' | member_part_number='RET-01-SKU-00044' | upc_ean='917693676320' | manufacturer_code='MFG-04' | brand_code='BR-12' | member_id='RET-01'
+114b9547-c9dc-42b8-9b6a-810204287378 / 5efeef4f-d8dd-4bc0-b325-3aa3ec170298  true duplicates: False  exact-matching columns: ['manufacturer_code', 'brand_code']
+    A: manufacturer_part_number='MKH-95701-B' | member_part_number='RET-01-SKU-00020' | upc_ean='010651-333872' | manufacturer_code='MFG-20' | brand_code='BR-09' | member_id='RET-01'
+    B: manufacturer_part_number='FGE-21456-T' | member_part_number='RET-04-SKU-00140' | upc_ean='774688-623924' | manufacturer_code='MFG-20' | brand_code='BR-09' | member_id='RET-04'
+0b95017c-5dae-4201-a73b-a8bdc38c1dec / 7930ba20-8b04-4f49-90be-73eefd372539  true duplicates: False  exact-matching columns: ['brand_code']
+    A: manufacturer_part_number='TCE-43455-E' | member_part_number='RET-07-SKU-00069' | upc_ean='902294131869' | manufacturer_code='MFG-09' | brand_code='BR-07' | member_id='RET-07'
+    B: manufacturer_part_number='THUS31509-H' | member_part_number='RET-03-SKU-00024' | upc_ean='980500978820' | manufacturer_code='MFG-04' | brand_code='BR-07' | member_id='RET-03'
+d35ac07a-aa02-47d0-8d4f-8b2b899ac252 / 80773e33-690e-4e62-b432-3ec6b0c4a01c  true duplicates: False  exact-matching columns: ['brand_code']
+    A: manufacturer_part_number='Qcl-74680-J' | member_part_number='RET-01-SKU-00113' | upc_ean=nan | manufacturer_code='MFG-13' | brand_code='BR-15' | member_id='RET-01'
+    B: manufacturer_part_number='TPX-91905-M' | member_part_number='RET-10-SKU-00083' | upc_ean='378263-982146' | manufacturer_code='MFG-03' | brand_code='BR-15' | member_id='RET-10'
+b787ef8d-3495-411e-ae27-d4321dc1e7eb / 507b9072-65e5-4f34-9df0-6e8c878aaed9  true duplicates: False  exact-matching columns: ['manufacturer_code']
+    A: manufacturer_part_number='TATT-09324-P' | member_part_number='RET-03-SKU-00117' | upc_ean='445502296120' | manufacturer_code='MFG-17' | brand_code='BR-13' | member_id='RET-03'
+    B: manufacturer_part_number='SLJ-g1699-G' | member_part_number='RET-01-SKU-00037' | upc_ean='685014294019' | manufacturer_code='MFG-17' | brand_code='BR-08' | member_id='RET-01'
+31ab0b56-d5c9-4dc7-a76a-dca978116802 / b34191b8-ed65-42b4-b5a5-f8e6b6391f04  true duplicates: False  exact-matching columns: ['manufacturer_code']
+    A: manufacturer_part_number='ACG-81960-H' | member_part_number='RET-10-SKU-00002' | upc_ean='013389083863' | manufacturer_code='MFG-02' | brand_code='BR-03' | member_id='RET-10'
+    B: manufacturer_part_number='DDZ-84124--T' | member_part_number='RET-06-SKU-00042' | upc_ean='9 57773 872148' | manufacturer_code='MFG-02' | brand_code='BR-13' | member_id='RET-06'
+a7edc8d8-713f-4f8c-ac8b-e53758ab4778 / 4c9d6907-13b2-4cec-adca-bf9465f6ba53  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='YHK-014366-X' | member_part_number='RET-09-SKU-00091' | upc_ean=nan | manufacturer_code='MFG-11' | brand_code='BR-11' | member_id='RET-09'
+    B: manufacturer_part_number='UHP-58514-T' | member_part_number='RET-09-SKU-00167' | upc_ean='995900109439' | manufacturer_code='MFG-07' | brand_code='BR-03' | member_id='RET-09'
+49ac9087-4601-4028-b8be-ff3dcb9faf6d / f6ba745b-a558-41e3-bab2-b77dfa740cc8  true duplicates: False  exact-matching columns: ['member_id']
+    A: manufacturer_part_number='GCH-94808-Z' | member_part_number='RET-01-SKU-00089' | upc_ean='0 91343 161172' | manufacturer_code='MFG-09' | brand_code='BR-12' | member_id='RET-01'
+    B: manufacturer_part_number='rml-97278-t' | member_part_number='RET-01-SKU-00122' | upc_ean=nan | manufacturer_code='MFG-02' | brand_code='BR-03' | member_id='RET-01'
+
