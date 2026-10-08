@@ -15,8 +15,8 @@ from pathlib import Path
 from faker import Faker
 
 SOURCES = ["CRM", "ERP", "Billing"]
-TOTAL_ROWS = 10000
-NUM_ENTITIES = 100
+TOTAL_ROWS = 4000
+NUM_ENTITIES = 2000
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "data" / "customers_raw.csv"
 
 
@@ -212,13 +212,16 @@ def main(output_path: Path | None = None) -> None:
         "city",
         "zip_code",
         "SSN",
-        "source_system"
-        
+        "source_system",
+        "true_entity_id",
     ]
 
     rows: list[dict] = []
-    for base, k in zip(canon, counts):
-        rows.extend(source_row(base, fake) for _ in range(k))
+    for entity_id, (base, k) in enumerate(zip(canon, counts), start=1):
+        for _ in range(k):
+            row = source_row(base, fake)
+            row["true_entity_id"] = entity_id
+            rows.append(row)
     random.shuffle(rows)
 
     with path.open("w", newline="", encoding="utf-8") as f:
