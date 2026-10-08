@@ -231,7 +231,8 @@ def learn_rules(
     rel_info: dict[str, Any] = {}
     if reliability == "v2":
         rel, rel_info = learn_reliability_v2(
-            cand_pairs, rows, profiles, lo_hi, embeddings=embeddings, row_ids=row_ids)
+            cand_pairs, rows, profiles, lo_hi, embeddings=embeddings, row_ids=row_ids,
+            random_pairs=pairs)
         notes.extend(rel_info["notes"])
     else:
         rel = learn_reliability(pairs, rows, profiles, lo_hi)
@@ -335,7 +336,8 @@ def learn_rules(
         if reliability == "v2":
             result["reliability_debug"] = {
                 "method": "v2", "anchor_count": rel_info["anchor_count"],
-                "min_agree_used": rel_info["min_agree_used"]}
+                "min_agree_used": rel_info["min_agree_used"],
+                "anchor_mean": rel_info["anchor_mean"], "random_mean": rel_info["random_mean"]}
         result["candidate_pairs"] = len(cand_pairs)
         result["threshold"] = {
             "value": round(float(threshold), 6), "method": method,

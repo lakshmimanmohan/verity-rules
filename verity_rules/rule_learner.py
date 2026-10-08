@@ -616,6 +616,7 @@ def learn_reliability(
 
 ANCHOR_MIN_UNIQUENESS = 0.5
 ANCHOR_MIN_COUNT = 30
+RANDOM_MEAN_CEILING = 0.999
 
 
 def _alnum_key(v: Any) -> str:
@@ -636,9 +637,20 @@ def learn_reliability_v2(
     relax: bool = True,
     embeddings: dict[str, list[float]] | None = None,
     row_ids: list[str] | None = None,
+    random_pairs: list[tuple[int, int]] | None = None,
 ) -> tuple[dict[str, float], dict[str, Any]]:
     """
-    Reliability as mean field_similarity over anchor pairs.
+    Chance-corrected reliability: how much more similar a column is on anchor pairs
+    than on random pairs.
+
+        reliability = clip((anchor_mean - random_mean) / (1 - random_mean), 0, 1)
+
+    anchor_mean is the mean field_similarity over the column's anchors; random_mean is
+    the mean over `random_pairs` where both values are non-null. If random_mean is
+    RANDOM_MEAN_CEILING or more the column agrees on almost any pair, so reliability is 0.
+    With random_pairs=None the correction is off (random_mean = 0, the raw anchor mean).
+    If every column with enough anchors ends at 0, all reliabilities are set to 1.0
+    (uniqueness-only weights) and a note says so.
 
     An anchor for column C is a candidate pair that agrees (after lowercasing and
     keeping only alphanumerics) on a value in at least `min_agree` columns other
@@ -649,8 +661,8 @@ def learn_reliability_v2(
     0.1-1.0 squash over the columns that had enough anchors.
 
     Returns (reliability, info). info has anchor_count, min_agree_used and
-    anchor_pairs (column -> list of (i, j)) at the level used, raw (mean before
-    rescale) and notes.
+    anchor_pairs (column -> list of (i, j)) at the level used, anchor_mean and
+    random_mean (per column), raw (the chance-corrected value before rescale) and notes.
     """
     anchor_cols = [p for p in profiles if p.uniqueness_ratio >= ANCHOR_MIN_UNIQUENESS]
     keys = {p.name: [_alnum_key(r.get(p.name)) for r in rows] for p in anchor_cols}
@@ -704,6 +716,37 @@ def learn_reliability_v2(
                          f"{p.name}: only {len(sel)} anchor pairs (need {ANCHOR_MIN_COUNT}); "
                          "reliability set to 1.0.")
 
+    random_mean: dict[str, float] = {}
+    anchor_mean = dict(raw)
+    if random_pairs:
+        rs: dict[str, list[float]] = {p.name: [] for p in profiles}
+        for i, j in random_pairs:
+            emb_i = emb_j = None
+            if embeddings and row_ids is not None:
+                emb_i = _embedding_for_record(embeddings, row_ids[i])
+                emb_j = _embedding_for_record(embeddings, row_ids[j])
+            ri, rj = rows[i], rows[j]
+            for p in profiles:
+                vi, vj = ri.get(p.name), rj.get(p.name)
+                if is_null(vi) or is_null(vj):
+                    continue
+                rs[p.name].append(field_similarity(
+                    vi, vj, p, lo_hi_map[p.name], record_emb_i=emb_i, record_emb_j=emb_j))
+        random_mean = {k: float(sum(v) / len(v)) for k, v in rs.items() if v}
+    for name in list(raw):
+        r = random_mean.get(name, 0.0)
+        if r >= RANDOM_MEAN_CEILING:
+            raw[name] = 0.0
+            notes.append(f"{name}: values already agree on random pairs (mean similarity {r:.3f}); "
+                         "reliability set to 0.")
+        else:
+            raw[name] = float(min(1.0, max(0.0, (anchor_mean[name] - r) / (1.0 - r))))
+    if raw and all(v == 0.0 for v in raw.values()):
+        raw = {}
+        notes.append("Every column's similarity on likely duplicates is no better than on random "
+                     "pairs; reliability set to 1.0 for all columns, so weights come from "
+                     "uniqueness only.")
+
     reliability = {p.name: raw.get(p.name, 1.0) for p in profiles}
     if rescale and raw:
         lo, hi = min(raw.values()), max(raw.values())
@@ -711,6 +754,7 @@ def learn_reliability_v2(
             reliability[k] = 0.1 + 0.9 * (raw[k] - lo) / (hi - lo) if hi > lo else 1.0
     info = {"anchor_count": {k: len(v) for k, v in anchor_pairs.items()},
             "min_agree_used": used, "anchor_pairs": anchor_pairs,
+            "anchor_mean": anchor_mean, "random_mean": random_mean,
             "raw": raw, "notes": notes}
     return reliability, info
 

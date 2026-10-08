@@ -166,8 +166,9 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     L += ["", "## How to use these rules", "",
           "- **Weights** show how much each column should count. They sum to 1. They "
           "describe the data, so you can use them in any matching tool.",
-          "- **Reliability** is how similar a column's values stay across records that likely "
-          "refer to the same thing.",
+          "- **Reliability** is how much more alike a column's values are across records that "
+          "likely refer to the same thing than across random pairs of records. 0 means no better "
+          "than chance and 1 means the values are always the same.",
           "- **Comparison method** says how to compare two values of that column. Each "
           "comparison gives a similarity from 0 (different) to 1 (the same).", "",
           "### Pair score", "",
