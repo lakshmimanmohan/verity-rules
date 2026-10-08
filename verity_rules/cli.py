@@ -6,9 +6,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.metadata
 import json
 import random
+import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +21,7 @@ from .core import learn_rules
 
 DEFAULT_SEED = 42
 DEFAULT_MAX_ROWS = 20_000
-DEBUG_KEYS = ("reliability_debug", "threshold", "similarity_stats")
+DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_stats")
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
 MASK = "***"
 PAIRS_NOTICE = ("Note: calibration_pairs.csv and rules.json contain values from the source data. "
@@ -52,24 +55,83 @@ def _md_cell(text: Any) -> str:
     return str(text).replace("|", "\\|").replace("\n", " ")
 
 
-SEPARABILITY_TEXT = {
-    "clear": ("Likely duplicates score far above random pairs. Few pairs should land in "
-              "the grey zone, so manual review effort is low."),
-    "moderate": ("Likely duplicates score above random pairs, but the two groups overlap "
-                 "somewhat. Expect to review a real band of in-between pairs when you "
-                 "choose a cutoff."),
-    "weak": ("Likely duplicates score only slightly above random pairs. Many pairs will "
-             "sit near any cutoff, so expect heavy review effort and treat the weights as "
-             "a rough guide."),
+_BAND = "rule of thumb, not yet validated"
+
+_EXCLUDED_SENTENCES = {
+    "reserved_name": "Its name marks it as a label, target or internal column.",
+    "primary_key": "Almost every value is different, so it identifies a row rather than an entity.",
+    "answer_key": "Most values look like generated labels (WORD_number or UNKNOWN_...).",
+    "boolean_flag": "It has two or three values and its name suggests a yes/no flag.",
+    "degenerate_field": "Every record has the same value, so it cannot tell records apart.",
+    "near_constant_field": "It has very few distinct values, so it cannot tell records apart.",
+    "record_id_column": "It is the record id column.",
+}
+
+_METHOD_GLOSSARY = {
+    "exact": ("1 if the two values are identical after trimming spaces (capitals "
+              "matter), otherwise 0."),
+    "email": ("Lower-cases both, reads `(at)` as `@`, then scores the part before the `@` and "
+              "the domain separately with text_character and averages the two. If either "
+              "value has no `@`, it scores the whole values with text_character."),
+    "date": ("1 minus the number of days apart divided by 3,650 (ten years), never below 0. "
+             "A value that cannot be read as a date scores 0."),
+    "numeric_range": ("Both numbers are placed on a 0 to 1 scale using the smallest and largest "
+                      "value in the column. The score is 1 minus the difference. A value that "
+                      "is not a number scores 0."),
+    "text_character": ("The share of distinct characters the two values have in common, "
+                       "ignoring capitals and order. It is a rough measure: the same letters "
+                       "in a different order score 1."),
+    "text_hybrid": ("A blend of text embedding similarity (cosine) and the text_character "
+                    "score."),
 }
 
 
+def _excluded_sentence(raw: str) -> str:
+    """Turn the classifier's raw reason ('[tag] detail | [tag] detail') into plain sentences."""
+    out: list[str] = []
+    for part in raw.split(" | "):
+        m = re.match(r"\[(\w+)\]\s*(.*)", part.strip())
+        if not m:
+            out.append(part.strip().rstrip(".") + ".")
+            continue
+        tag, detail = m.groups()
+        if tag == "system_process_field":
+            words = re.search(r"name contains: ([^;)]*)", detail)
+            if "100% unique" in detail:
+                sentence = (f"Its name contains {words.group(1).strip() if words else 'id/key/code'}"
+                            " and every value is different.")
+            else:
+                sentence = ("Its name suggests a system or process field"
+                            + (f" (it contains: {words.group(1).strip()})" if words else "") + ".")
+            out.append(sentence)
+        else:
+            out.append(_EXCLUDED_SENTENCES.get(tag, detail.rstrip(".") + "."))
+    return " ".join(out)
+
+
+def _plain_reason(reason: str) -> str:
+    """The column reason without its leading 'High weight:' style prefix."""
+    text = re.sub(r"^\w+ weight:\s*", "", reason)
+    return text[:1].upper() + text[1:]
+
+
+def _verity_version() -> str:
+    try:
+        return importlib.metadata.version("verity-rules")
+    except importlib.metadata.PackageNotFoundError:
+        return "unknown"
+
+
 def build_report(result: dict[str, Any], source: Path, n_original: int,
-                 anchor_counts: dict[str, int] | None) -> str:
+                 debug: dict[str, Any], seed: int, n_pairs_written: int,
+                 pairs_written: bool, masked: set[str]) -> str:
     cols = result["columns"]
     ordered = sorted(cols.items(), key=lambda kv: (-kv[1]["composite_weight"], kv[0]))
+    anchor_counts = debug.get("reliability_debug", {}).get("anchor_count")
     sep = result["separability"]
     n = result["n_records"]
+    n_cand = debug.get("candidate_pairs")
+    embeddings_used = result["embeddings_used"]
     L: list[str] = []
     L += [f"# Verity rules report: {source.name}", "",
           "## What is Verity?", "",
@@ -80,37 +142,62 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           f"- Source file: `{source.name}`",
           f"- Rows in file: {n_original:,}",
           f"- Rows analysed: {n:,}" + (" (a random sample; see Notes)" if n < n_original else ""),
-          f"- Record id column: `{result['record_id_column']}`",
-          f"- Record pairs sampled: {result['n_pairs_sampled']:,}", "",
+          f"- Record id column: `{result['record_id_column']}`", "",
+          "## Run details", "",
+          f"- Verity version: {_verity_version()}",
+          f"- Seed: {seed}",
+          f"- Run date (UTC): {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}",
+          f"- Contract version: {result['contract_version']}",
+          f"- Embeddings used: {'yes' if embeddings_used else 'no'}",
+          f"- Random pairs sampled: {result['n_pairs_sampled']:,}",
+          f"- Candidate pairs found: {n_cand:,}" if n_cand is not None
+          else "- Candidate pairs found: not recorded",
+          f"- Calibration pairs: {n_pairs_written}", "",
           "## Columns, by weight", "",
-          "| Column | Type | Comparison method | Weight | Reliability | Anchors | Reason |",
-          "|---|---|---|---|---|---|---|"]
+          "| Column | Comparison method | Weight | Reliability | Anchors | Reason |",
+          "|---|---|---|---|---|---|"]
     for name, c in ordered:
         anchors = "n/a" if anchor_counts is None else anchor_counts.get(name, 0)
-        L.append(f"| {_md_cell(name)} | {c['semantic_type']} | {c['comparison_method']} | "
+        L.append(f"| {_md_cell(name)} | {c['comparison_method']} | "
                  f"{c['composite_weight']:.3f} | {c['reliability_score']:.3f} | {anchors} | "
-                 f"{_md_cell(c['reason'])} |")
-    L += ["", "Anchors are the likely-duplicate pairs used to measure that column's reliability.", "",
-          "## Excluded columns", ""]
+                 f"{_md_cell(_plain_reason(c['reason']))} |")
+    L += ["",
+          "Anchors are the pairs used to measure that column's reliability: candidate pairs "
+          "that agree on at least two other columns, or on one when too few pairs qualify.", "",
+          "**Caution:** a weight is how distinctive the column is in this dataset, times its "
+          "reliability, scaled so all weights sum to 1. A column that is generally a weak "
+          "identifier can still score high here if it happens to be distinctive and "
+          "consistent in this data. Read the weights together with the reasons.", "",
+          "### Comparison methods", ""]
+    methods = sorted({c["comparison_method"] for c in cols.values()})
+    L += [f"- **{m}**: {_METHOD_GLOSSARY.get(m, 'See the Verity documentation.')}" for m in methods]
+    if not embeddings_used:
+        L += ["", "Text similarity is character-based in this run because no embeddings were used."]
+    L += ["", "## Excluded columns", ""]
     if result["columns_excluded"]:
-        L += ["| Column | Reason |", "|---|---|"]
-        L += [f"| {_md_cell(e['name'])} | {_md_cell(e['reason'])} |"
+        L += [f"- `{e['name']}`: {_excluded_sentence(e['reason'])}"
               for e in result["columns_excluded"]]
     else:
         L.append("No columns were excluded.")
     L += ["", "## Separability", ""]
     if sep["label"] is None:
-        L.append("Separability could not be computed because no likely-duplicate candidate "
-                 "pairs were found.")
+        L.append("Separability could not be computed because no candidate pairs were found.")
     else:
-        L += [f"**{sep['label'].capitalize()}** (gap {sep['gap']:.3f}).", "",
-              "Separability compares how alike likely duplicates look with how alike random "
-              "pairs look, using the learned weights. The gap is the difference between those "
-              "two averages.", "",
-              f"- Clear (gap 0.30 or more): groups are well apart, little review effort.",
-              f"- Moderate (0.15 to 0.30): some overlap, moderate review effort.",
-              f"- Weak (under 0.15): little separation, heavy review effort.", "",
-              SEPARABILITY_TEXT[sep["label"]]]
+        L += [f"**{sep['label'].capitalize()}.**", "",
+              f"- Top 10% of candidate pairs, mean score: {sep['candidate_top_decile_mean']:.3f}",
+              f"- Random pairs, mean score: {sep['random_pair_mean']:.3f}",
+              f"- Gap: {sep['gap']:.3f}", "",
+              "Candidate pairs are pairs of records that share an identical value in a highly "
+              "distinctive column. This measures how clearly the best candidate pairs stand "
+              "out from random pairs. It does not estimate how many true duplicates fall in "
+              "between.", "",
+              "The scores in this check use each column's distinctiveness weight before the "
+              "reliability step, so they are not the same numbers you get from scoring with "
+              "the weights in the table above.", "",
+              f"Bands ({_BAND}):", "",
+              "- Clear: gap 0.30 or more.",
+              "- Moderate: gap 0.15 to 0.30.",
+              "- Weak: gap under 0.15."]
     L += ["", "## Notes", ""]
     L += [f"- {_md_cell(t)}" for t in result["notes"]] or ["None."]
     L += ["", "## How to use these rules", "",
@@ -118,11 +205,41 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "describe the data, so you can use them in any matching tool.",
           "- **Reliability** is how similar a column's values stay across records that likely "
           "refer to the same thing.",
-          "- **Comparison method** says how to compare two values of that column.",
-          "- **Match cutoff:** set your own in your own tool. Score the pairs in "
-          "`calibration_pairs.csv` there, fill in the `your_label` column, and pick the "
-          "cutoff that best separates your labels. Verity does not provide one.", "",
-          "## Limits", "",
+          "- **Comparison method** says how to compare two values of that column. Each "
+          "comparison gives a similarity from 0 (different) to 1 (the same).", "",
+          "### Pair score", "",
+          "For two records, score = sum of (weight x similarity) over the columns that have a "
+          "value in both records, divided by the sum of the weights of those same columns.", "",
+          "Missing values: a column is skipped when either record has no value (blank, or the "
+          "text nan, none, null or n/a). The skipped column leaves both the top and the bottom "
+          "of the fraction, so the remaining weights are scaled up to fill its place. If no "
+          "column has a value in both records, the score is 0. A pair compared on only a few "
+          "columns can therefore score high on little evidence.", "",
+          "### Choosing a match cutoff", "",
+          "Verity does not provide a cutoff. To set your own:", ""]
+    if pairs_written:
+        L += ["1. Open `calibration_pairs.csv` and fill in `your_label` for each pair: match "
+              "or not a match. Label at least 30 pairs of each kind. If the file does not "
+              "have 30 of a kind, add pairs from your own data. Leave "
+              "`calibration_pairs_key.csv` unopened until you finish; it holds Verity's "
+              "guesses, which are not the truth."]
+    else:
+        L += ["1. Take pairs from your own data and label each as a match or not a match. "
+              "Label at least 30 pairs of each kind. (No pairs files were written because "
+              "`--no-pairs` was used.)"]
+    L += ["2. Score every labelled pair in your tool, using the formula above.",
+          "3. Sort the pairs by score.",
+          "4. For each candidate cutoff, count the wrong calls: matches that score below it "
+          "plus non-matches that score at or above it.",
+          "5. Pick the cutoff with the fewest wrong calls.",
+          "6. If a false merge costs you more than a missed match, move the cutoff up."]
+    if pairs_written:
+        L += ["", "### Handling the pairs files", "",
+              "`calibration_pairs.csv`, `calibration_pairs_key.csv` and the pairs inside "
+              "`rules.json` contain values from the source data"
+              + (f" (masked columns: {', '.join(sorted(masked))})" if masked else "")
+              + ". Handle them like the source data."]
+    L += ["", "## Limits", "",
           "- Verity does not match or clean records.",
           "- The weights come from one run on a sample of the data. Rerun if the data changes.",
           ""]
@@ -208,14 +325,15 @@ def cmd_learn(args: argparse.Namespace) -> int:
 
     out.mkdir(parents=True, exist_ok=True)
     (out / "rules.json").write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
-    (out / "rules_report.md").write_text(
-        build_report(result, src, n_original, anchors), encoding="utf-8")
     written = ["rules.json", "rules_report.md"]
     n_pairs = 0
     if not args.no_pairs:
         n_pairs = write_calibration_csv(out / "calibration_pairs.csv",
                                         out / "calibration_pairs_key.csv", result, args.seed)
         written += ["calibration_pairs.csv", "calibration_pairs_key.csv"]
+    (out / "rules_report.md").write_text(
+        build_report(result, src, n_original, debug, args.seed, n_pairs,
+                     not args.no_pairs, mask), encoding="utf-8")
     if args.debug:
         (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
         written.append("debug.json")

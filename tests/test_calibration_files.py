@@ -99,3 +99,19 @@ def test_no_pairs(tmp_path, capsys):
 def test_notice_printed_when_pairs_written(tmp_path, capsys):
     _learn(tmp_path, "o")
     assert "contain values from the source data" in capsys.readouterr().out
+
+
+def test_report_sections(tmp_path):
+    out = _learn(tmp_path, "r")
+    text = (out / "rules_report.md").read_text(encoding="utf-8")
+    for heading in ("## Run details", "### Comparison methods", "### Pair score",
+                    "### Choosing a match cutoff", "### Handling the pairs files"):
+        assert heading in text
+    assert "rule of thumb, not yet validated" in text
+    assert "review effort" not in text and "grey zone" not in text
+    assert "| Type |" not in text and "\|" not in text
+    assert " weight:" not in text.split("## Columns")[1].split("**Caution")[0]
+    assert "[primary_key]" not in text
+    assert "Text similarity is character-based" in text
+    rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
+    assert all("[" in e["reason"] for e in rules["columns_excluded"])  # raw reason kept

@@ -256,6 +256,7 @@ def learn_rules(
             result["reliability_debug"] = {
                 "method": "v2", "anchor_count": rel_info["anchor_count"],
                 "min_agree_used": rel_info["min_agree_used"]}
+        result["candidate_pairs"] = len(cand_pairs)
         result["threshold"] = {
             "value": round(float(threshold), 6), "method": method,
             "details": {k: float(v) if isinstance(v, (int, float, np.floating)) else v
