@@ -1,0 +1,81 @@
+Reliability v2 as default (min_agree=2, no rescale, per-column relaxation to 1, then 1.0 under 30 anchors)
+Reason bands: >=0.85 agrees well; 0.65-0.85 usually agrees; <0.65 often disagrees
+
+##### PART 1: ranked columns by composite_weight (learn_rules defaults, debug anchors)
+====================================================================================================
+data\customers.csv  records=4000  separability=clear (gap 0.623589)
+
+1. email  [QUASI_IDENTIFIER, email]
+   composite_weight=0.160069  reliability=0.831367  anchors=2373 (min_agree=2)
+   Moderate weight: highly distinctive values (82% unique), rarely empty (4% null), and usually agrees across likely duplicates (reliability 0.83).
+2. address  [STREET_ADDRESS, text_character]
+   composite_weight=0.152971  reliability=0.989372  anchors=2513 (min_agree=2)
+   Moderate weight: moderately distinctive values (63% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 0.99).
+3. zip_code  [QUASI_IDENTIFIER, text_character]
+   composite_weight=0.149048  reliability=0.881524  anchors=2438 (min_agree=2)
+   Moderate weight: moderately distinctive values (69% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 0.88).
+4. SSN  [QUASI_IDENTIFIER, text_character]
+   composite_weight=0.136583  reliability=0.981431  anchors=2262 (min_agree=2)
+   Moderate weight: moderately distinctive values (60% unique), rarely empty (5% null), and agrees well across likely duplicates (reliability 0.98).
+5. city  [NAME, text_character]
+   composite_weight=0.134767  reliability=0.989625  anchors=2476 (min_agree=2)
+   Moderate weight: moderately distinctive values (56% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 0.99).
+6. phone  [QUASI_IDENTIFIER, text_character]
+   composite_weight=0.123084  reliability=0.739523  anchors=1991 (min_agree=2)
+   Moderate weight: highly distinctive values (78% unique), sometimes empty (12% null), and usually agrees across likely duplicates (reliability 0.74).
+7. last_name  [DESCRIPTIVE, text_character]
+   composite_weight=0.081767  reliability=0.962001  anchors=2523 (min_agree=2)
+   Moderate weight: moderately distinctive values (35% unique), rarely empty (2% null), and agrees well across likely duplicates (reliability 0.96).
+8. first_name  [DESCRIPTIVE, text_character]
+   composite_weight=0.061711  reliability=0.965453  anchors=2524 (min_agree=2)
+   Low weight: many repeated values (27% unique), rarely empty (2% null), and agrees well across likely duplicates (reliability 0.97).
+
+Notes:
+
+====================================================================================================
+data\products.csv  records=500  separability=clear (gap 0.769689)
+
+1. upc_ean  [QUASI_IDENTIFIER, text_character]
+   composite_weight=0.427209  reliability=0.857211  anchors=235 (min_agree=1)
+   High weight: moderately distinctive values (70% unique), sometimes empty (12% null), and agrees well across likely duplicates (reliability 0.86).
+2. manufacturer_part_number  [DESCRIPTIVE, text_character]
+   composite_weight=0.424781  reliability=0.990801  anchors=210 (min_agree=1)
+   High weight: moderately distinctive values (53% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 0.99).
+3. member_part_number  [IDENTIFIER, exact]
+   composite_weight=0.078360  reliability=0.104046  anchors=173 (min_agree=2)
+   Low weight: highly distinctive values (92% unique), rarely empty (0% null), and often disagrees across likely duplicates (reliability 0.10).
+4. manufacturer_code  [DESCRIPTIVE, text_character]
+   composite_weight=0.032603  reliability=1.000000  anchors=191 (min_agree=2)
+   Low weight: many repeated values (4% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 1.00).
+5. brand_code  [DESCRIPTIVE, text_character]
+   composite_weight=0.024452  reliability=1.000000  anchors=191 (min_agree=2)
+   Low weight: many repeated values (3% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 1.00).
+6. member_id  [DESCRIPTIVE, text_character]
+   composite_weight=0.012595  reliability=0.772625  anchors=191 (min_agree=2)
+   Low weight: many repeated values (2% unique), rarely empty (0% null), and usually agrees across likely duplicates (reliability 0.77).
+
+Notes:
+  manufacturer_part_number: anchor rule relaxed from 2 to 1 agreeing columns (210 anchor pairs).
+  upc_ean: anchor rule relaxed from 2 to 1 agreeing columns (235 anchor pairs).
+
+##### PART 2: products strict min_agree=2 anchor count and purity vs truth (compare_reliability.py --min-agree 2)
+--- v2, agreement on at least 2 other column(s), no relaxation ---
+Anchor pairs (union over columns): 191  purity vs truth: 100.0%
+column                     anchors  purity   ideal v2_rescaled  v2_raw
+manufacturer_part_number        21   1.000  0.9836      1.0000  1.0000
+member_part_number             173   1.000  0.0948      0.1000  0.1040
+upc_ean                         23   1.000  0.8522      1.0000  1.0000
+manufacturer_code              191   1.000  1.0000      1.0000  1.0000
+brand_code                     191   1.000  1.0000      1.0000  1.0000
+member_id                      191   1.000  0.7463      0.7716  0.7726
+  note: manufacturer_part_number: only 21 anchor pairs (need 30); reliability set to 1.0.
+  note: upc_ean: only 23 anchor pairs (need 30); reliability set to 1.0.
+Spearman vs ideal:  v2 rescaled  0.857   v2 no rescale  0.857
+composite weight             ideal      v1 v2_rescaled  v2_raw
+manufacturer_part_number    0.4272  0.4648      0.3999  0.3988
+member_part_number          0.0723  0.2095      0.0703  0.0729
+upc_ean                     0.4303  0.1386      0.4649  0.4636
+manufacturer_code           0.0330  0.0907      0.0304  0.0303
+brand_code                  0.0248  0.0652      0.0228  0.0227
+member_id                   0.0123  0.0312      0.0117  0.0117
+L1 distance of composite weights to ideal:  v1 0.5834   v2 rescaled 0.0691   v2 no rescale 0.0676

@@ -22,6 +22,7 @@ CANDIDATE_GROUP_MIN, CANDIDATE_GROUP_MAX = 2, 10
 CANDIDATE_CAP = 20_000
 N_LIKELY_MATCH, N_UNCLEAR, N_LIKELY_NON_MATCH = 30, 40, 30
 MAX_PER_GROUP = 2
+RELIABILITY_HIGH, RELIABILITY_MID = 0.85, 0.65  # reason wording bands
 
 
 def _build_candidates(rows, profiles) -> dict[tuple[int, int], tuple[str, str]]:
@@ -65,8 +66,8 @@ def _column_reason(p) -> str:
     nulls = ("rarely empty" if p.null_rate < 0.1
              else "sometimes empty" if p.null_rate < 0.4
              else "often empty")
-    rel = ("agrees well across likely duplicates" if p.reliability_score >= 0.7
-           else "agrees only partly across likely duplicates" if p.reliability_score >= 0.4
+    rel = ("agrees well across likely duplicates" if p.reliability_score >= RELIABILITY_HIGH
+           else "usually agrees across likely duplicates" if p.reliability_score >= RELIABILITY_MID
            else "often disagrees across likely duplicates")
     weight = ("high" if p.composite_weight >= 0.2
               else "moderate" if p.composite_weight >= 0.08
@@ -95,7 +96,7 @@ def learn_rules(
     pair_sample: int = 1000,
     seed: int = 42,
     debug: bool = False,
-    reliability: str = "v1",
+    reliability: str = "v2",
 ) -> dict[str, Any]:
     if reliability not in ("v1", "v2"):
         raise ValueError(f"reliability must be 'v1' or 'v2', got {reliability!r}")
@@ -243,7 +244,8 @@ def learn_rules(
     if debug:
         if reliability == "v2":
             result["reliability_debug"] = {
-                "method": "v2", "anchor_count": rel_info["anchor_count"]}
+                "method": "v2", "anchor_count": rel_info["anchor_count"],
+                "min_agree_used": rel_info["min_agree_used"]}
         result["threshold"] = {
             "value": round(float(threshold), 6), "method": method,
             "details": {k: float(v) if isinstance(v, (int, float, np.floating)) else v

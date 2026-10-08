@@ -10,7 +10,8 @@ Per dataset, prints:
   - final composite weights (normalized_weight * reliability, renormalized) for each variant
   - anchor counts per column and anchor purity against truth
   - if v2 purity is under 90 percent, the v2 report again with agreement required
-    on at least 2 other columns
+    on at least 2 other columns (skipped when --min-agree is given: then only that
+    level is reported, with no per-column relaxation)
   - the v1 anchor pairs (sampled pairs with at least one exact-matching column)
 
 Reads truth files, so it lives in tools/ and is not shipped.
@@ -107,9 +108,9 @@ def v2_section(label: str, min_agree: int, ctx: dict) -> float:
     names = [p.name for p in profiles]
 
     rel_rs, info = learn_reliability_v2(cand, rows, profiles, lo_hi,
-                                        min_agree=min_agree, rescale=True)
+                                        min_agree=min_agree, rescale=True, relax=False)
     rel_raw, _ = learn_reliability_v2(cand, rows, profiles, lo_hi,
-                                      min_agree=min_agree, rescale=False)
+                                      min_agree=min_agree, rescale=False, relax=False)
     union = sorted({pr for lst in info["anchor_pairs"].values() for pr in lst})
     n_union, pur_union = purity(union, ids, truth)
 
@@ -138,7 +139,7 @@ def v2_section(label: str, min_agree: int, ctx: dict) -> float:
     return pur_union
 
 
-def run_dataset(data_path: Path, truth_path: Path, id_col: str) -> None:
+def run_dataset(data_path: Path, truth_path: Path, id_col: str, min_agree: int | None) -> None:
     df = pd.read_csv(data_path, dtype=str, keep_default_na=False).replace("", None)
     tdf = pd.read_csv(truth_path, dtype=str, keep_default_na=False)
     truth = dict(zip(tdf[id_col], tdf[TRUTH_COLUMN]))
@@ -181,7 +182,7 @@ def run_dataset(data_path: Path, truth_path: Path, id_col: str) -> None:
     c_v1 = composite(profiles, rel_v1)
     api = {v: learn_rules(records, reliability=v)["columns"] for v in ("v1", "v2")}
     ok_v1 = all(abs(api["v1"][n]["reliability_score"] - rel_v1[n]) < 1e-6 for n in names)
-    rel_v2_rs, _ = learn_reliability_v2(cand_pairs, rows, profiles, lo_hi)
+    rel_v2_rs, _ = learn_reliability_v2(cand_pairs, rows, profiles, lo_hi)  # library defaults
     ok_v2 = all(abs(api["v2"][n]["reliability_score"] - rel_v2_rs[n]) < 1e-6 for n in names)
     ok_c = all(abs(api["v1"][n]["composite_weight"] - c_v1[n]) < 1e-6 for n in names)
 
@@ -194,7 +195,7 @@ def run_dataset(data_path: Path, truth_path: Path, id_col: str) -> None:
          f"{' (CAPPED: tool and learn_rules sample differently)' if capped else ''}  "
          f"true duplicate pairs: {len(dups)}")
     emit(f"Cross-check against learn_rules(): v1 reliability {'OK' if ok_v1 else 'MISMATCH'}, "
-         f"v1 composite {'OK' if ok_c else 'MISMATCH'}, v2 rescaled reliability "
+         f"v1 composite {'OK' if ok_c else 'MISMATCH'}, v2 default reliability "
          f"{'OK' if ok_v2 else 'MISMATCH'}")
     emit("Ideal = mean field_similarity over true duplicate pairs, both values non-null.")
     emit()
@@ -218,7 +219,11 @@ def run_dataset(data_path: Path, truth_path: Path, id_col: str) -> None:
     ctx = dict(profiles=profiles, rows=rows, lo_hi=lo_hi, ids=ids, truth=truth,
                ideal=ideal, cand_pairs=cand_pairs, c_ideal=c_ideal, c_v1=c_v1,
                l1_v1=sum(abs(c_v1[n] - c_ideal[n]) for n in names))
-    pur2 = v2_section("v2, agreement on at least 1 other column", 1, ctx)
+    if min_agree is not None:
+        v2_section(f"v2, agreement on at least {min_agree} other column(s), no relaxation", min_agree, ctx)
+        pur2 = 1.0
+    else:
+        pur2 = v2_section("v2, agreement on at least 1 other column", 1, ctx)
     if pur2 != pur2 or pur2 < PURITY_FLOOR:
         emit(f"v2 anchor purity is {'undefined' if pur2 != pur2 else f'{pur2:.1%}'}, "
              f"under {PURITY_FLOOR:.0%}. Requiring agreement on at least 2 other columns.")
@@ -240,10 +245,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dataset", nargs=3, action="append", required=True,
                     metavar=("DATA_CSV", "TRUTH_CSV", "ID_COLUMN"))
+    ap.add_argument("--min-agree", type=int, default=None,
+                    help="report v2 only at this min_agree (strict, no per-column relaxation)")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
     for data, truth, idc in a.dataset:
-        run_dataset(Path(data), Path(truth), idc)
+        run_dataset(Path(data), Path(truth), idc, a.min_agree)
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)
         a.out.write_text("\n".join(OUT) + "\n", encoding="utf-8")

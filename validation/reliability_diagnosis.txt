@@ -1,0 +1,87 @@
+Dataset: data\customers.csv  records=4000  id column=customer_id  seed=42
+Sampled pairs: 1000  anchor pairs used by learn_reliability: 8
+True duplicate pairs: 2678
+Content columns: ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'zip_code', 'SSN']
+
+column                    type               raw_rel col_anchors both_nonnull exact_eq eq|both mean_jacc
+--------------------------------------------------------------------------------------------------------
+first_name                DESCRIPTIVE         0.5562           8        0.962    0.674   0.701     0.966
+last_name                 DESCRIPTIVE         0.4438           8        0.962    0.643   0.668     0.962
+email                     QUASI_IDENTIFIER    0.0000           7        0.913    0.222   0.243     0.794
+phone                     QUASI_IDENTIFIER    0.0000           6        0.769    0.156   0.202     0.740
+address                   STREET_ADDRESS      0.0000           8        1.000    0.696   0.696     0.989
+city                      NAME                0.0000           8        1.000    0.785   0.785     0.990
+zip_code                  QUASI_IDENTIFIER    0.0000           8        1.000    0.543   0.543     0.882
+SSN                       QUASI_IDENTIFIER    0.0000           6        0.893    0.634   0.710     0.982
+
+raw_rel      = support/(support+conflict) before the 0.1-1.0 rescale
+col_anchors  = anchor pairs where this column was non-null on both sides
+both_nonnull / exact_eq = share of ALL true duplicate pairs; exact_eq is after lowercase+trim
+eq|both      = exact_eq among pairs where both values are non-null
+mean_jacc    = mean char_jaccard over pairs where both values are non-null
+
+Examples for 'phone' (lowest exact agreement; true duplicates with both values non-null)
+  07934dde-42f8-4233-be60-f05e03b7e27c / 48162609-ab4e-4fdb-8a8d-0a7bd34d976a  entity=1782
+    A: '+1 376 319 4561'
+    B: '(376) 319-4561'
+  7145d996-9f7e-4e4b-875f-70e5e35de789 / f4628d95-bab4-419a-9e05-9b78daac65bc  entity=1877
+    A: '385-355-5505'
+    B: '385-355-5505'
+  317b06fe-0f59-4e0a-91b6-a149594104cb / c07d9baf-4dab-4ef2-979a-5da25c1d4ad6  entity=1607
+    A: '(658) 643-4231'
+    B: '658-643-4231'
+
+Examples for 'email' (lowest exact agreement; true duplicates with both values non-null)
+  a23ee239-eeb3-4a7a-b0af-2ac07d71f733 / cb6c5299-7942-4d9a-9a9d-165b89ee7ca5  entity=780
+    A: 'matthewcrane@example.org'
+    B: 'MATTHEWCRANE@EXAMPLE.ORG'
+  1c631069-1f66-4424-838e-f8f9aa22e0d1 / e3ed4ae0-6862-499a-b1ab-54cdeeb050e0  entity=917
+    A: 'melissa114@example.net'
+    B: 'diane07(at)example.net'
+  b6c4f6b2-9b0d-481d-b019-d6e83e6bb776 / 90045eea-db67-4419-9da7-bdd9e0b91320  entity=1785
+    A: 'taramccullough26@example.org'
+    B: 'taramccullough@example.org'
+
+==========================================
+
+Dataset: data\products.csv  records=500  id column=product_id  seed=42
+Sampled pairs: 1000  anchor pairs used by learn_reliability: 190
+True duplicate pairs: 401
+Content columns: ['manufacturer_part_number', 'member_part_number', 'upc_ean', 'manufacturer_code', 'brand_code', 'member_id']
+
+column                    type               raw_rel col_anchors both_nonnull exact_eq eq|both mean_jacc
+--------------------------------------------------------------------------------------------------------
+manufacturer_part_number  DESCRIPTIVE         0.1705         190        1.000    0.758   0.758     0.984
+member_part_number        IDENTIFIER          0.0000         190        1.000    0.095   0.095     0.889
+upc_ean                   QUASI_IDENTIFIER    0.0000         141        0.763    0.242   0.317     0.852
+manufacturer_code         DESCRIPTIVE         0.5295         190        1.000    1.000   1.000     1.000
+brand_code                DESCRIPTIVE         0.5051         190        1.000    1.000   1.000     1.000
+member_id                 DESCRIPTIVE         0.3461         190        1.000    0.095   0.095     0.746
+
+raw_rel      = support/(support+conflict) before the 0.1-1.0 rescale
+col_anchors  = anchor pairs where this column was non-null on both sides
+both_nonnull / exact_eq = share of ALL true duplicate pairs; exact_eq is after lowercase+trim
+eq|both      = exact_eq among pairs where both values are non-null
+mean_jacc    = mean char_jaccard over pairs where both values are non-null
+
+Examples for 'member_part_number' (lowest exact agreement; true duplicates with both values non-null)
+  f780ef2f-664d-4922-a590-fd3cad6ecc57 / cbd5cc86-f739-46e9-94e3-8579c0afd193  entity=199
+    A: 'RET-10-SKU-00199'
+    B: 'RET-07-SKU-00199'
+  7781321e-83c5-41cb-bef7-d9ea7f8e5483 / 28caaa1d-c35b-4c2c-b098-f7b2500e15c0  entity=65
+    A: 'RET-08-SKU-00065'
+    B: 'RET-01-SKU-00065'
+  56ab087a-8bc7-4e81-9a30-45280b599562 / 2227219f-551f-4086-81b5-b5cabc3536df  entity=21
+    A: 'RET-05-SKU-00021'
+    B: 'RET-10-SKU-00021'
+
+Examples for 'member_id' (lowest exact agreement; true duplicates with both values non-null)
+  37fe032c-0257-4851-a6a9-e100b509109b / 0f79a8a7-5f8a-44bd-b4bd-0c938177b661  entity=155
+    A: 'RET-03'
+    B: 'RET-04'
+  55d596af-a663-42cd-b6f6-dbf1d6d441cc / 195d82f8-ee4a-4b5d-9195-54e307374c86  entity=10
+    A: 'RET-09'
+    B: 'RET-07'
+  2ea9c542-a1b9-40d0-ba81-04deb20507bb / d49405f0-2cd2-4404-a48e-40f1d0421dfa  entity=22
+    A: 'RET-07'
+    B: 'RET-09'
