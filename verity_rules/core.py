@@ -348,7 +348,7 @@ def learn_rules(
         "contract_version": CONTRACT_VERSION,
         "n_records": n,
         "n_pairs_sampled": len(pairs),
-        "expected_pair_coverage": sum(p.composite_weight * (1 - p.null_rate) for p in profiles),
+        "expected_pair_coverage": sum(p.composite_weight * (1 - p.null_rate) ** 2 for p in profiles),
         "record_id_column": rid_col,
         "embeddings_used": bool(embeddings),
         "run": {"verity_version": __version__, "seed": seed,

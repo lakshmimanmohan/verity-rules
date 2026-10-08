@@ -112,6 +112,7 @@ def test_report_sections(tmp_path):
                     "### Choosing a match cutoff", "### Handling the pairs files"):
         assert heading in text
     assert "## Expected pair coverage" in text and "synthetic tests" in text
+    assert "the chance that both records of a pair have a value" in text
     assert "## Separability" not in text and "Bands" not in text and "Gap" not in text
     assert "### Pair coverage" in text and "pick the middle of the tied range" in text
     assert "at least half the values are distinct" in text
@@ -125,7 +126,7 @@ def test_report_sections(tmp_path):
     assert all("[" not in e["reason"] and e["rule"] for e in rules["columns_excluded"])
     assert set(rules["run"]) == {"verity_version", "seed", "n_candidate_pairs"}
     assert "separability" not in rules
-    expected = sum(c["composite_weight"] * (1 - c["null_rate"]) for c in rules["columns"].values())
+    expected = sum(c["composite_weight"] * (1 - c["null_rate"]) ** 2 for c in rules["columns"].values())
     assert rules["expected_pair_coverage"] == pytest.approx(expected, abs=1e-4)
 
 

@@ -42,6 +42,8 @@ Options:
 | `calibration_pairs.csv` | Sample pairs to label by hand, in random order and without Verity's labels. Fill in `your_label` |
 | `calibration_pairs_key.csv` | `pair_id` and `suggested_label` (Verity's guess) for each pair. Open it after you label |
 
+`expected_pair_coverage` is the sum over kept columns of weight x (1 - null_rate)^2, the chance that both records of a pair have a value in that column. Low values mean many pairs share few columns.
+
 Set your own match cutoff in your own tool by scoring `calibration_pairs.csv` there. Verity does not return one.
 
 The pairs files and the pairs inside `rules.json` contain values from the source data. Handle them like the source data, or use `--mask-columns` or `--no-pairs`.

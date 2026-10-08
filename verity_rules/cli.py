@@ -168,11 +168,11 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     coverage = result["expected_pair_coverage"]
     L += ["", "## Expected pair coverage", "",
           f"**{coverage:.3f}**", "",
-          "Expected pair coverage is the sum of each kept column's weight times the share of "
-          "records that have a value in it (1 minus its null rate). It runs from 0 to 1. A high "
-          "number means a typical record has values in most of the columns that carry weight, so "
-          "most pairs can be compared on most of the evidence. A low number means many pairs "
-          "will share only a few columns.", "",
+          "Expected pair coverage is the sum, over the kept columns, of the column's weight times "
+          "the chance that both records of a pair have a value in it. That chance is (1 minus the "
+          "column's null rate) squared, because both records need a value. It runs from 0 to 1. "
+          "A high number means a typical pair can be compared on most of the evidence. A low "
+          "number means many pairs will share only a few columns.", "",
           f"Rule of thumb: below about {COVERAGE_LOW}, many true duplicates will share too few "
           "columns to be decided, so send low-coverage pairs to review instead of deciding them "
           "automatically. This rule of thumb comes from synthetic tests, not from your data."]
