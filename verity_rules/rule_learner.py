@@ -7,20 +7,16 @@ from __future__ import annotations
 
 import hashlib
 import math
-import pickle
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 import numpy as np
 from sklearn.cluster import KMeans
 
-EMBEDDINGS_STORE_META_KEY = "__embeddings_store_meta__"
 
-PAIR_SAMPLE = 1000
 RANDOM_SEED = 42
 HYBRID_EMBED_WEIGHT = 0.65
 HYBRID_CHAR_WEIGHT = 0.35
@@ -318,29 +314,6 @@ def char_jaccard(a: str, b: str) -> float:
     inter = len(sa & sb)
     uni = len(sa | sb)
     return inter / uni if uni else 1.0
-
-
-def load_global_embeddings(path: Path) -> dict[str, list[float]]:
-    """Load record embeddings from ``embeddings_global.pkl`` (skip reserved meta key)."""
-    if not path.is_file():
-        return {}
-    with path.open("rb") as f:
-        raw = pickle.load(f)
-    if not isinstance(raw, dict):
-        return {}
-    out: dict[str, list[float]] = {}
-    for k, v in raw.items():
-        sk = str(k).strip()
-        if not sk or sk == EMBEDDINGS_STORE_META_KEY:
-            continue
-        if isinstance(v, list) and all(isinstance(x, (int, float)) for x in v):
-            out[sk] = [float(x) for x in v]
-        elif hasattr(v, "__iter__") and not isinstance(v, (str, bytes, dict)):
-            try:
-                out[sk] = [float(x) for x in v]  # type: ignore[arg-type]
-            except (TypeError, ValueError):
-                continue
-    return out
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
