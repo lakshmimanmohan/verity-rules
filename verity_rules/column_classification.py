@@ -100,13 +100,6 @@ _SYSTEM_NAME_BOUNDARY_TOKENS = frozenset(
     }
 )
 
-# Column names always metadata regardless of value patterns (belt-and-suspenders).
-ALWAYS_METADATA_NAMES = frozenset({"source_system"})
-_ALWAYS_METADATA_RE = re.compile(
-    r"^(source[_\s]?system|source)$",
-    re.IGNORECASE,
-)
-
 # Synthetic label value patterns (answer key).
 _WORD_NUMBER_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*_\d+$")
 
@@ -240,7 +233,7 @@ def classify_columns(df: pd.DataFrame) -> dict[str, Any]:
       4) Boolean flag — 2–3 distinct values and name suggests is_/has_/…;
       5) Degenerate field — exactly one distinct value (no discriminative power);
       6) Near-constant field — fewer than 5 distinct values, **or** (fewer than 10 distinct
-         and uniqueness ratio < 5%); or reserved / always-metadata name pattern.
+         and uniqueness ratio < 5%); or reserved name pattern.
 
     Rules 5–6 are evaluated with other metadata rules before the human-readable text
     content signal, so they take priority over ``proportion_human_text``.
@@ -271,15 +264,6 @@ def classify_columns(df: pd.DataFrame) -> dict[str, Any]:
                 (
                     "reserved_name",
                     "reserved column name (_prefix, _truth/_gold, label/target/y, …)",
-                )
-            )
-
-        col_lower = str(col).strip().lower()
-        if _ALWAYS_METADATA_RE.match(col_lower):
-            rule_hits.append(
-                (
-                    "always_metadata_name",
-                    f"column name {col_lower!r} is always metadata (system lineage / provenance)",
                 )
             )
 

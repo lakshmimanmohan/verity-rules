@@ -9,7 +9,7 @@ import pandas as pd
 
 from .column_classification import classify_columns
 from .rule_learner import (
-    build_profiles, kmeans_gap_threshold, learn_reliability,
+    build_profiles, comparison_method, kmeans_gap_threshold, learn_reliability,
     normalize_discriminative_weights, numeric_series_stats,
     is_null, record_id_from_row, weighted_pair_similarity,
 )
@@ -54,6 +54,30 @@ def _round_floats(obj: Any) -> Any:
     if isinstance(obj, (list, tuple)):
         return [_round_floats(v) for v in obj]
     return obj
+
+
+def _column_reason(p) -> str:
+    """One sentence explaining a kept column's weight from uniqueness, nulls and reliability."""
+    uniq = ("highly distinctive values" if p.uniqueness_ratio >= 0.7
+            else "moderately distinctive values" if p.uniqueness_ratio >= 0.3
+            else "many repeated values")
+    nulls = ("rarely empty" if p.null_rate < 0.1
+             else "sometimes empty" if p.null_rate < 0.4
+             else "often empty")
+    rel = ("agrees well across likely duplicates" if p.reliability_score >= 0.7
+           else "agrees only partly across likely duplicates" if p.reliability_score >= 0.4
+           else "often disagrees across likely duplicates")
+    weight = ("high" if p.composite_weight >= 0.2
+              else "moderate" if p.composite_weight >= 0.08
+              else "low")
+    return (f"{weight.capitalize()} weight: {uniq} "
+            f"({p.uniqueness_ratio:.0%} unique), {nulls} ({p.null_rate:.0%} null), "
+            f"and {rel} (reliability {p.reliability_score:.2f}).")
+
+
+def _excluded_reason(text: str) -> str:
+    """Tidy the classifier's reasoning string into the public reason."""
+    return text.removeprefix("excluded: ").strip()
 
 
 def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
@@ -186,17 +210,22 @@ def learn_rules(
         "n_pairs_sampled": len(pairs),
         "record_id_column": rid_col,
         "embeddings_used": bool(embeddings),
-        "columns_excluded": sorted(cls["metadata_columns"]),
+        "columns_excluded": [
+            {"name": c, "reason": _excluded_reason(cls["reasoning"].get(c, "excluded as metadata"))}
+            for c in sorted(cls["metadata_columns"])
+        ],
         "separability": separability,
         "calibration_pairs": calibration,
         "notes": notes,
         "columns": {
             p.name: {
                 "semantic_type": p.semantic_type,
+                "comparison_method": comparison_method(p, bool(embeddings)),
                 "uniqueness_ratio": round(p.uniqueness_ratio, 6),
                 "null_rate": round(p.null_rate, 6),
                 "reliability_score": round(p.reliability_score, 6),
                 "composite_weight": round(p.composite_weight, 6),
+                "reason": _column_reason(p),
             } for p in profiles
         },
     }

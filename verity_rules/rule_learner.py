@@ -446,6 +446,23 @@ def field_similarity(
     return char_jaccard(clean_str(va), clean_str(vb))
 
 
+def comparison_method(prof: ColumnProfile, embeddings_used: bool) -> str:
+    """Name the comparison field_similarity applies to this column. Keep in sync with it."""
+    semantic_type = str(prof.semantic_type).strip().upper()
+    physical_type = str(prof.physical_kind).strip().upper()
+    if semantic_type == "IDENTIFIER":
+        return "exact"
+    if physical_type == "EMAIL":
+        return "email"
+    if physical_type == "DATE":
+        return "date"
+    if physical_type == "NUMBER":
+        return "numeric_range"
+    if semantic_type in ("DESCRIPTIVE", "NAME", "STREET_ADDRESS") and physical_type == "STRING":
+        return "text_hybrid" if embeddings_used else "text_character"
+    return "text_character"
+
+
 def weighted_pair_similarity(
     row_i: dict[str, Any],
     row_j: dict[str, Any],
