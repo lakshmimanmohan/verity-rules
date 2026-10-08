@@ -12,8 +12,11 @@ Row order, record ids and the truth file are untouched, so the same truth applie
                        a random other row (taken from the column as it was before scrambling).
 --noise-cols N:        append N columns of random 8-letter lowercase words (noise_word_1..N) and
                        N columns of random 10-digit strings (noise_digits_1..N).
+--noise-pool-cols N:   like --noise-cols, but each of the 2N columns draws with replacement from its own
+                       fixed pool of --pool-size random values (default 3000), so values repeat and the
+                       columns are not 100% unique. The pool is built first, then drawn from, per column.
 COLS is a comma-separated list, or ALL for every column except those in --except.
-The flags may be repeated. Order of operations: blank, typo, scramble, noise columns.
+The flags may be repeated. Order of operations: blank, typo, scramble, noise columns, pooled noise columns.
 """
 from __future__ import annotations
 
@@ -57,7 +60,7 @@ def resolve_cols(spec: str, columns: list[str], skip: set[str]) -> list[str]:
 
 def degrade(df: pd.DataFrame, seed: int, blank: list[tuple[str, float]], typos: list[tuple[str, float]],
             skip: set[str], scramble: list[tuple[str, float]] | None = None,
-            noise_cols: int = 0) -> pd.DataFrame:
+            noise_cols: int = 0, noise_pool_cols: int = 0, pool_size: int = 3000) -> pd.DataFrame:
     rng = random.Random(seed)
     out = df.copy()
     n = len(out)
@@ -81,6 +84,11 @@ def degrade(df: pd.DataFrame, seed: int, blank: list[tuple[str, float]], typos: 
         out[f"noise_word_{k}"] = ["".join(rng.choices(string.ascii_lowercase, k=8)) for _ in range(n)]
     for k in range(1, noise_cols + 1):
         out[f"noise_digits_{k}"] = ["".join(rng.choices(string.digits, k=10)) for _ in range(n)]
+    for prefix, alphabet, length in (("noise_pool_word", string.ascii_lowercase, 8),
+                                     ("noise_pool_digits", string.digits, 10)):
+        for k in range(1, noise_pool_cols + 1):
+            pool = ["".join(rng.choices(alphabet, k=length)) for _ in range(pool_size)]
+            out[f"{prefix}_{k}"] = rng.choices(pool, k=n)
     return out
 
 
@@ -94,6 +102,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--scramble", nargs=2, action="append", default=[], metavar=("COLS", "FRACTION"))
     ap.add_argument("--noise-cols", type=int, default=0, metavar="N",
                     help="append N random 8-letter-word columns and N random 10-digit columns")
+    ap.add_argument("--noise-pool-cols", type=int, default=0, metavar="N",
+                    help="append N 8-letter-word columns and N 10-digit columns, each drawn with "
+                         "replacement from its own fixed pool")
+    ap.add_argument("--pool-size", type=int, default=3000, metavar="K",
+                    help="pool size for --noise-pool-cols (default 3000)")
     ap.add_argument("--except", dest="skip", default="", help="columns ALL leaves alone (comma-separated)")
     args = ap.parse_args(argv)
     df = pd.read_csv(args.csv, dtype=str, keep_default_na=False)
@@ -103,10 +116,13 @@ def main(argv: list[str] | None = None) -> int:
     scramble = [(c, float(f)) for c, f in args.scramble]
     if args.noise_cols < 0:
         raise SystemExit("--noise-cols must be 0 or more")
+    if args.noise_pool_cols < 0 or args.pool_size < 1:
+        raise SystemExit("--noise-pool-cols must be 0 or more and --pool-size at least 1")
     for _, f in blank + typos + scramble:
         if not 0 <= f <= 1:
             raise SystemExit("fractions must be between 0 and 1")
-    out = degrade(df, args.seed, blank, typos, skip, scramble, args.noise_cols)
+    out = degrade(df, args.seed, blank, typos, skip, scramble, args.noise_cols,
+                  args.noise_pool_cols, args.pool_size)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(args.out, index=False)
     changed = int((out[list(df.columns)] != df).sum().sum())

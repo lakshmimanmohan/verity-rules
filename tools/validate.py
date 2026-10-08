@@ -124,6 +124,58 @@ def auc(ds: Dataset, weights: dict[str, float], neg: list[tuple[int, int]]) -> f
     return float(roc_auc_score([1] * len(pos) + [0] * len(ng), pos + ng))
 
 
+def best_cutoff(pos: list[float], neg: list[float]) -> dict[str, int]:
+    """Scan every cutoff (a pair is merged when its score >= cutoff, over every distinct score plus one
+    above the maximum) and return the one with the fewest errors: missed duplicates (positives below the
+    cutoff) plus false merges (negatives at or above it). Counts of pairs. Ties go to the higher cutoff."""
+    p, g = np.sort(np.asarray(pos, dtype=float)), np.sort(np.asarray(neg, dtype=float))
+    cuts = np.unique(np.concatenate([p, g, [np.inf]]))
+    missed = np.searchsorted(p, cuts, side="left")
+    false = len(g) - np.searchsorted(g, cuts, side="left")
+    k = int(np.argmin((missed + false)[::-1]))  # reversed, so argmin returns the highest cutoff on ties
+    k = len(cuts) - 1 - k
+    return {"errors": int(missed[k] + false[k]), "missed": int(missed[k]), "false_merges": int(false[k]),
+            "n_pos": len(p), "n_neg": len(g)}
+
+
+def cutoff_rows(ds: "Dataset", schemes: dict[str, dict[str, float]], neg_hard: list[tuple[int, int]],
+                neg_rand: list[tuple[int, int]]) -> list[list[Any]]:
+    """One row per weighting: AUC and best-cutoff errors against hard and random negatives."""
+    rows = []
+    for name, w in schemes.items():
+        ds.set_weights(w)
+        pos = ds.score(ds.dup_pairs)
+        cells = [name]
+        for neg in (neg_hard, neg_rand):
+            ng = ds.score(neg)
+            a = float(roc_auc_score([1] * len(pos) + [0] * len(ng), pos + ng)) if pos and ng else float("nan")
+            b = best_cutoff(pos, ng)
+            cells += [f"{a:.6f}", b["errors"], b["missed"], b["false_merges"]]
+        rows.append(cells)
+    return rows
+
+
+CUTOFF_HEADER = ["Weighting", "AUC (hard)", "Best-cutoff errors (hard)", "missed (hard)", "false merges (hard)",
+                 "AUC (random)", "Best-cutoff errors (random)", "missed (random)", "false merges (random)"]
+
+
+def best_cutoff_section(ds: "Dataset") -> list[str]:
+    """Best-cutoff report for learned, equal, uniqueness-only and v1 weights on one dataset."""
+    v1 = {c: v["composite_weight"] for c, v in learn_rules(ds.records, seed=SEED, reliability="v1")["columns"].items()}
+    learned = {c: ds.result["columns"][c]["composite_weight"] for c in ds.columns}
+    schemes = ds.weight_schemes(learned, v1)
+    schemes = {k: schemes[k] for k in SCHEMES}
+    neg_hard, n_cand, n_all = ds.hard_negatives()
+    neg_rand = ds.random_non_dup(N_RANDOM_NEG)
+    rows = cutoff_rows(ds, schemes, neg_hard, neg_rand)
+    L = [f"### Best cutoff, {ds.name}", "",
+         f"Positives: {len(ds.dup_pairs)} true duplicate pairs. Hard negatives: {len(neg_hard)} candidate pairs "
+         f"that are not true duplicates (of {n_cand} candidates, {n_all} non-duplicate"
+         + (f"; capped at {HARD_NEG_CAP}" if n_all > HARD_NEG_CAP else "") + f"). Random negatives: {len(neg_rand)}. "
+         "Errors = missed duplicates + false merges at the best cutoff, in pairs.", ""]
+    return L + table(CUTOFF_HEADER, rows)
+
+
 def pct(x: float | None) -> str:
     return "n/a" if x is None else f"{100 * x:.1f}%"
 
@@ -318,8 +370,20 @@ def baseline(datasets: list[Dataset]) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=ROOT / "validation" / "step7_results.md")
+    ap.add_argument("--best-cutoff", nargs="+", metavar="NAME=CSV", default=None,
+                    help="only write the best-cutoff section for these datasets (name=path to a customers-style CSV, "
+                         "truth from data/customers_truth.csv) to --out, then exit")
     args = ap.parse_args(argv)
     data = ROOT / "data"
+    if args.best_cutoff:
+        L = ["# Best cutoff", ""]
+        for spec in args.best_cutoff:
+            name, csv = spec.split("=", 1)
+            L += best_cutoff_section(Dataset(name, Path(csv), data / "customers_truth.csv"))
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text("\n".join(L), encoding="utf-8")
+        print(f"wrote {args.out}")
+        return 0
     checks: list[tuple[str, bool | None, str]] = []
     body: list[str] = []
     datasets = []
