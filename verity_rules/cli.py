@@ -17,9 +17,11 @@ from typing import Any
 import pandas as pd
 
 from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
+from .sampling import group_sample_indices
 
 DEFAULT_SEED = 42
 DEFAULT_MAX_ROWS = 20_000
+SAMPLE_MODES = ("groups", "random")
 DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_stats", "separability")
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
 MASK = "***"
@@ -31,9 +33,8 @@ class CliError(Exception):
     """A user-facing problem; printed as one line, no traceback."""
 
 
-def load_records(path: Path, max_rows: int, seed: int) -> tuple[list[dict[str, Any]], int]:
-    """Read a CSV as strings (empty cells become None). Returns (records, original row count).
-    Above max_rows, a fixed-seed sample is taken and original row order is kept."""
+def read_records(path: Path) -> list[dict[str, Any]]:
+    """Read a CSV as strings (empty cells become None)."""
     if not path.is_file():
         raise CliError(f"file not found: {path}")
     try:
@@ -42,12 +43,33 @@ def load_records(path: Path, max_rows: int, seed: int) -> tuple[list[dict[str, A
         raise CliError(f"{path} is empty.") from None
     except (pd.errors.ParserError, UnicodeDecodeError) as exc:
         raise CliError(f"could not read {path} as CSV: {exc}") from None
-    n_original = len(df)
-    if n_original < 2:
-        raise CliError(f"{path} has {n_original} data rows; Verity needs at least 2.")
-    if n_original > max_rows:
-        df = df.sample(n=max_rows, random_state=seed).sort_index()
-    return df.to_dict(orient="records"), n_original
+    if len(df) < 2:
+        raise CliError(f"{path} has {len(df)} data rows; Verity needs at least 2.")
+    return df.to_dict(orient="records")
+
+
+def sample_records(records: list[dict[str, Any]], max_rows: int, seed: int,
+                   mode: str = "groups") -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Cut records down to max_rows, keeping original row order. mode "groups" keeps rows that
+    share a distinctive value together; "random" draws rows uniformly. Returns (records, info)."""
+    n = len(records)
+    info: dict[str, Any] = {"mode": mode, "rows_in_file": n, "rows_analysed": min(n, max_rows),
+                            "groups_kept": 0}
+    if n <= max_rows:
+        return records, info
+    if mode == "random":
+        keep = sorted(pd.DataFrame(index=range(n)).sample(n=max_rows, random_state=seed).index)
+    else:
+        keep, gi = group_sample_indices(records, max_rows, seed)
+        info["groups_kept"] = gi["groups_kept"]
+    return [records[i] for i in keep], info
+
+
+def load_records(path: Path, max_rows: int, seed: int,
+                 mode: str = "groups") -> tuple[list[dict[str, Any]], int]:
+    """Read and sample a CSV. Returns (records, original row count)."""
+    records = read_records(path)
+    return sample_records(records, max_rows, seed, mode)[0], len(records)
 
 
 def _md_cell(text: Any) -> str:
@@ -94,7 +116,8 @@ _METHOD_GLOSSARY = {
 def build_report(result: dict[str, Any], source: Path, n_original: int,
                  debug: dict[str, Any], seed: int, n_pairs_written: int,
                  pairs_written: bool, masked: set[str],
-                 exclude: list[str] = (), keep: list[str] = ()) -> str:
+                 exclude: list[str] = (), keep: list[str] = (),
+                 sampling: dict[str, Any] | None = None) -> str:
     cols = result["columns"]
     ordered = sorted(cols.items(), key=lambda kv: (-kv[1]["composite_weight"], kv[0]))
     anchor_counts = debug.get("reliability_debug", {}).get("anchor_count")
@@ -111,7 +134,11 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "## Dataset", "",
           f"- Source file: `{source.name}`",
           f"- Rows in file: {n_original:,}",
-          f"- Rows analysed: {n:,}" + (" (a random sample; see Notes)" if n < n_original else ""),
+          f"- Rows analysed: {n:,}" + (" (a sample; see Limits)" if n < n_original else ""),
+          *([f"- Sample mode: {sampling['mode']}"
+             + (f"; groups of linked rows kept: {sampling['groups_kept']:,}"
+                if sampling["mode"] == "groups" else "")]
+            if sampling and n < n_original else []),
           f"- Record id column: `{result['record_id_column']}`", "",
           "## Run details", "",
           f"- Verity version: {result['run']['verity_version']}",
@@ -235,9 +262,13 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           ("- The weights come from one run. " + (
               f"All {n:,} rows analysed were used; only pairs of records are sampled."
               if n >= n_original else
-              f"A random sample of {n:,} of the {n_original:,} rows was analysed; "
-              "within it, only pairs of records are sampled.")
+              f"{n:,} of the {n_original:,} rows were analysed (sample mode: "
+              f"{(sampling or {}).get('mode', 'groups')}); within them, only pairs of records are sampled.")
            + " Rerun if the data changes."),
+          *(["- Rows that share an identical value in a distinctive column were kept together when "
+             "choosing the rows. Duplicates that share no identical value in a distinctive column "
+             "can still be split by the sampling."]
+            if n < n_original and (sampling or {}).get("mode") == "groups" else []),
           ""]
     return "\n".join(L)
 
@@ -302,7 +333,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
     both = sorted(set(exclude) & set(keep))
     if both:
         raise CliError("--exclude-columns and --keep-columns both list: " + ", ".join(both))
-    records, n_original = load_records(src, args.max_rows, args.seed)
+    records, sampling = sample_records(read_records(src), args.max_rows, args.seed, args.sample_mode)
+    n_original = sampling["rows_in_file"]
     try:
         result = learn_rules(records, seed=args.seed, debug=True,
                              exclude_columns=exclude, keep_columns=keep)
@@ -318,8 +350,9 @@ def cmd_learn(args: argparse.Namespace) -> int:
     debug = {k: result.pop(k) for k in DEBUG_KEYS if k in result}
     if n_original > len(records):
         result["notes"].append(
-            f"Dataset has {n_original:,} rows; a random sample of {len(records):,} "
-            f"(seed {args.seed}) was analysed.")
+            f"Dataset has {n_original:,} rows; {len(records):,} were analysed "
+            f"(sample mode {sampling['mode']}, seed {args.seed}).")
+    result["run"]["sampling"] = sampling
     anchors = debug.get("reliability_debug", {}).get("anchor_count")
 
     mask = {c.strip() for c in args.mask_columns.split(",") if c.strip()} if args.mask_columns else set()
@@ -342,7 +375,7 @@ def cmd_learn(args: argparse.Namespace) -> int:
         written += ["calibration_pairs.csv", "calibration_pairs_key.csv"]
     (out / "rules_report.md").write_text(
         build_report(result, src, n_original, debug, args.seed, n_pairs,
-                     not args.no_pairs, mask, exclude, keep), encoding="utf-8")
+                     not args.no_pairs, mask, exclude, keep, sampling), encoding="utf-8")
     if args.debug:
         (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
         written.append("debug.json")
@@ -364,7 +397,10 @@ def build_parser() -> argparse.ArgumentParser:
     learn.add_argument("--out", required=True, help="output folder (created if missing)")
     learn.add_argument("--seed", type=int, default=DEFAULT_SEED, help="random seed (default 42)")
     learn.add_argument("--max-rows", type=int, default=DEFAULT_MAX_ROWS,
-                       help="sample down to this many rows if the file is larger (default 20000)")
+                       help="analyse at most this many rows if the file is larger (default 20000)")
+    learn.add_argument("--sample-mode", choices=SAMPLE_MODES, default="groups",
+                       help="how rows are chosen above --max-rows: groups keeps rows that share a "
+                            "distinctive value together, random draws rows uniformly (default groups)")
     learn.add_argument("--mask-columns", metavar="COLS",
                        help="comma-separated column names; their values become *** in the pairs "
                             "(calibration_pairs.csv and rules.json)")

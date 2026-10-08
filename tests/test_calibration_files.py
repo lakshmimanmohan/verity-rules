@@ -124,7 +124,7 @@ def test_report_sections(tmp_path):
     assert "text columns are compared by adjacent character pairs" in text
     rules = json.loads((out / "rules.json").read_text(encoding="utf-8"))
     assert all("[" not in e["reason"] and e["rule"] for e in rules["columns_excluded"])
-    assert set(rules["run"]) == {"verity_version", "seed", "n_candidate_pairs"}
+    assert set(rules["run"]) == {"verity_version", "seed", "n_candidate_pairs", "sampling"}
     assert "separability" not in rules
     expected = sum(c["composite_weight"] * (1 - c["null_rate"]) ** 2 for c in rules["columns"].values())
     assert rules["expected_pair_coverage"] == pytest.approx(expected, abs=1e-4)

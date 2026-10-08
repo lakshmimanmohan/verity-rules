@@ -28,7 +28,8 @@ Options:
 |---|---|---|
 | `--out DIR` | required | Output folder, created if missing |
 | `--seed N` | 42 | Random seed. Same input and seed give the same output |
-| `--max-rows N` | 20000 | Larger files are sampled down to N rows (fixed seed) and the original row count is noted |
+| `--max-rows N` | 20000 | Larger files are cut down to N rows (fixed seed); the report and `rules.json` show rows in file, rows analysed, sample mode and groups kept |
+| `--sample-mode groups\|random` | groups | `groups` keeps rows that share an identical value in a distinctive column together (groups of 2 to 50 rows), then fills with single rows. `random` draws rows uniformly |
 | `--mask-columns A,B` | none | Replace the values of these columns with `***` in `calibration_pairs.csv` and in the pairs in `rules.json` (empty values stay empty) |
 | `--no-pairs` | off | Write no pairs files and leave `calibration_pairs` empty in `rules.json` |
 | `--debug` | off | Also write `debug.json` (internal scores and threshold; not part of the public rules) |
