@@ -22,9 +22,12 @@ def _normalize(v: Any) -> str:
     return "".join(ch for ch in str(v).lower() if ch.isalnum())
 
 
-def source_columns(df: pd.DataFrame) -> list[str]:
-    """Non-metadata columns whose distinct non-null values / non-null count is at least 0.5."""
-    metadata = set(classify_columns(df)["metadata_columns"])
+def source_columns(df: pd.DataFrame, exclude: list[str] = (), keep: list[str] = ()) -> list[str]:
+    """Non-metadata columns whose distinct non-null values / non-null count is at least 0.5.
+    exclude and keep are the user's lists: excluded columns never count, and kept columns are
+    not dropped as metadata (the record id column stays out), as in learn_rules."""
+    cls = classify_columns(df)
+    metadata = (set(cls["metadata_columns"]) | set(exclude)) - (set(keep) - {cls["record_id_column"]})
     n = len(df)
     return [c for c in df.columns if c not in metadata
             and column_uniqueness_and_nulls(df[c].tolist(), n)[0] >= SOURCE_MIN_UNIQUENESS]
@@ -61,20 +64,21 @@ def build_groups(records: list[dict[str, Any]], columns: list[str]) -> list[list
     return sorted(comps.values(), key=lambda g: g[0])
 
 
-def group_sample_indices(records: list[dict[str, Any]], max_rows: int,
-                         seed: int = 42) -> tuple[list[int], dict[str, Any]]:
+def group_sample_indices(records: list[dict[str, Any]], max_rows: int, seed: int = 42,
+                         exclude: list[str] = (), keep: list[str] = ()) -> tuple[list[int], dict[str, Any]]:
     """Row indices (ascending) of at most max_rows rows, keeping linked rows together.
 
     Groups over MAX_GROUP_ROWS rows count as single rows. Groups (single rows included) are
     shuffled with the seed and added whole until the next one would exceed max_rows; the rest is
     filled with single rows. Returns (indices, info); info has the number of rows linked into
-    groups, groups of 2+ rows kept, and groups treated as single rows because they were too big."""
+    groups, groups of 2+ rows kept, and groups treated as single rows because they were too big.
+    exclude and keep are the final column lists (see source_columns)."""
     n = len(records)
     if n <= max_rows:
         return list(range(n)), {"groups_kept": 0, "oversized_groups": 0, "source_columns": []}
     df = pd.DataFrame(records)
     df.columns = [str(c).strip() for c in df.columns]
-    cols = source_columns(df.where(pd.notna(df), None))
+    cols = source_columns(df.where(pd.notna(df), None), exclude, keep)
     groups = build_groups(records, cols)
     oversized = [g for g in groups if len(g) > MAX_GROUP_ROWS]
     blocks = [g for g in groups if len(g) <= MAX_GROUP_ROWS] + [[i] for g in oversized for i in g]

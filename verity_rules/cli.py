@@ -49,7 +49,7 @@ def read_records(path: Path) -> list[dict[str, Any]]:
 
 
 def sample_records(records: list[dict[str, Any]], max_rows: int, seed: int,
-                   mode: str = "groups") -> tuple[list[dict[str, Any]], dict[str, Any]]:
+                   mode: str = "groups", exclude: list[str] = (), keep: list[str] = ()) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Cut records down to max_rows, keeping original row order. mode "groups" keeps rows that
     share a distinctive value together; "random" draws rows uniformly. Returns (records, info)."""
     n = len(records)
@@ -60,7 +60,7 @@ def sample_records(records: list[dict[str, Any]], max_rows: int, seed: int,
     if mode == "random":
         keep = sorted(pd.DataFrame(index=range(n)).sample(n=max_rows, random_state=seed).index)
     else:
-        keep, gi = group_sample_indices(records, max_rows, seed)
+        keep, gi = group_sample_indices(records, max_rows, seed, exclude, keep)
         info["groups_kept"] = gi["groups_kept"]
     return [records[i] for i in keep], info
 
@@ -333,7 +333,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
     both = sorted(set(exclude) & set(keep))
     if both:
         raise CliError("--exclude-columns and --keep-columns both list: " + ", ".join(both))
-    records, sampling = sample_records(read_records(src), args.max_rows, args.seed, args.sample_mode)
+    records, sampling = sample_records(read_records(src), args.max_rows, args.seed, args.sample_mode,
+                                       exclude, keep)
     n_original = sampling["rows_in_file"]
     try:
         result = learn_rules(records, seed=args.seed, debug=True,

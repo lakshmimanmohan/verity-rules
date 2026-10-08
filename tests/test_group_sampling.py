@@ -87,3 +87,35 @@ def test_cli_random_and_groups_modes(tmp_path):
     assert out["random"]["run"]["sampling"]["groups_kept"] == 0
     rep = (tmp_path / "groups" / "rules_report.md").read_text(encoding="utf-8")
     assert "can still be split by the sampling" in rep
+
+
+def test_excluded_columns_never_drive_grouping():
+    import pandas as pd
+    from verity_rules.sampling import source_columns
+    recs = _records()
+    df = pd.DataFrame(recs)
+    assert "alt" in source_columns(df)
+    assert "alt" not in source_columns(df, exclude=["alt"])
+    _, info = group_sample_indices(recs, 200, seed=42)
+    _, info_ex = group_sample_indices(recs, 200, seed=42, exclude=["alt"])
+    assert "alt" in info["source_columns"] and "alt" not in info_ex["source_columns"]
+
+
+def test_cli_passes_exclude_to_sampling(tmp_path, monkeypatch):
+    import verity_rules.cli as cli
+    seen = {}
+    real = cli.group_sample_indices
+
+    def spy(records, max_rows, seed, exclude=(), keep=()):
+        seen["exclude"], seen["keep"] = list(exclude), list(keep)
+        return real(records, max_rows, seed, exclude, keep)
+    monkeypatch.setattr(cli, "group_sample_indices", spy)
+    recs = _records()
+    src = tmp_path / "in.csv"
+    with src.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(recs[0]))
+        w.writeheader()
+        w.writerows(recs)
+    assert main(["learn", str(src), "--out", str(tmp_path / "o"), "--max-rows", "200",
+                 "--exclude-columns", "alt", "--keep-columns", "town"]) == 0
+    assert seen == {"exclude": ["alt"], "keep": ["town"]}
