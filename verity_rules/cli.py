@@ -166,13 +166,13 @@ def cmd_learn(args: argparse.Namespace) -> int:
     anchors = debug.get("reliability_debug", {}).get("anchor_count")
 
     out.mkdir(parents=True, exist_ok=True)
-    (out / "rules.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    (out / "rules.json").write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
     (out / "rules_report.md").write_text(
         build_report(result, src, n_original, anchors), encoding="utf-8")
     n_pairs = write_calibration_csv(out / "calibration_pairs.csv", result)
     written = ["rules.json", "rules_report.md", "calibration_pairs.csv"]
     if args.debug:
-        (out / "debug.json").write_text(json.dumps(debug, indent=2), encoding="utf-8")
+        (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
         written.append("debug.json")
     print(f"Learned rules for {len(records):,} rows, {len(result['columns'])} columns, "
           f"{n_pairs} calibration pairs.")

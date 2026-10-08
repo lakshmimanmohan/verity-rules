@@ -47,10 +47,21 @@ def _build_candidates(rows, profiles) -> dict[tuple[int, int], tuple[str, str]]:
     return cands
 
 
+def _clean_value(v: Any) -> Any:
+    """Plain Python value for the public result: NaN, Infinity, None and pandas NA become None."""
+    if v is None or v is pd.NA or v is pd.NaT:
+        return None
+    if hasattr(v, "item") and not isinstance(v, (str, bytes)):
+        v = v.item()
+    if isinstance(v, float) and not np.isfinite(v):
+        return None
+    return v
+
+
 def _round_floats(obj: Any) -> Any:
-    """Round every float in a nested structure to six decimals."""
+    """Round every float in a nested structure to six decimals; non-finite values become None."""
     if isinstance(obj, (float, np.floating)):
-        return round(float(obj), 6)
+        return _clean_value(round(float(obj), 6))
     if isinstance(obj, dict):
         return {k: _round_floats(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
@@ -84,8 +95,7 @@ def _excluded_reason(text: str) -> str:
 
 def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
     def vals(k):
-        return {c: (v.item() if hasattr(v, "item") else v)
-                for c, v in ((c, rows[k].get(c)) for c in content)}
+        return {c: _clean_value(rows[k].get(c)) for c in content}
     return {"record_id_a": row_ids[i], "record_id_b": row_ids[j],
             "values_a": vals(i), "values_b": vals(j)}
 
