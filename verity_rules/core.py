@@ -11,10 +11,46 @@ from .column_classification import classify_columns
 from .rule_learner import (
     build_profiles, kmeans_gap_threshold, learn_reliability,
     normalize_discriminative_weights, numeric_series_stats,
-    record_id_from_row, weighted_pair_similarity,
+    is_null, record_id_from_row, weighted_pair_similarity,
 )
 
 CONTRACT_VERSION = "1.0"
+
+CANDIDATE_MIN_UNIQUENESS = 0.5
+CANDIDATE_GROUP_MIN, CANDIDATE_GROUP_MAX = 2, 10
+CANDIDATE_CAP = 20_000
+N_LIKELY_MATCH, N_UNCLEAR, N_LIKELY_NON_MATCH = 30, 40, 30
+MAX_PER_GROUP = 2
+
+
+def _build_candidates(rows, profiles) -> dict[tuple[int, int], tuple[str, str]]:
+    """Pairs of rows that share a value in a high-uniqueness content column.
+    Maps (i, j) -> group key (column, value); the first group found wins."""
+    cands: dict[tuple[int, int], tuple[str, str]] = {}
+    for p in profiles:
+        if p.uniqueness_ratio < CANDIDATE_MIN_UNIQUENESS:
+            continue
+        groups: dict[str, list[int]] = {}
+        for idx, v in enumerate(p.values):
+            if is_null(v):
+                continue
+            groups.setdefault(str(v).strip().lower(), []).append(idx)
+        for key in sorted(groups):
+            members = groups[key]
+            if not CANDIDATE_GROUP_MIN <= len(members) <= CANDIDATE_GROUP_MAX:
+                continue
+            for a in range(len(members)):
+                for b in range(a + 1, len(members)):
+                    cands.setdefault((members[a], members[b]), (p.name, key))
+    return cands
+
+
+def _pair_view(i, j, rows, row_ids, content) -> dict[str, Any]:
+    def vals(k):
+        return {c: (v.item() if hasattr(v, "item") else v)
+                for c, v in ((c, rows[k].get(c)) for c in content)}
+    return {"record_id_a": row_ids[i], "record_id_b": row_ids[j],
+            "values_a": vals(i), "values_b": vals(j)}
 
 
 def learn_rules(
@@ -22,6 +58,7 @@ def learn_rules(
     embeddings: dict[str, list[float]] | None = None,
     pair_sample: int = 1000,
     seed: int = 42,
+    debug: bool = False,
 ) -> dict[str, Any]:
     random.seed(seed)
     np.random.seed(seed)
@@ -78,18 +115,70 @@ def learn_rules(
     except Exception as exc:  # noqa: BLE001
         threshold, meta, method = float(np.median(sims)), {"error": str(exc)}, "median_fallback"
 
-    return {
+    # Candidate pairs: random pairs are almost all non-matches.
+    cand_map = _build_candidates(rows, profiles)
+    cand_pairs = sorted(cand_map)
+    notes: list[str] = []
+    if len(cand_pairs) > CANDIDATE_CAP:
+        cand_pairs = sorted(random.sample(cand_pairs, CANDIDATE_CAP))
+        notes.append(f"Candidate pairs capped at {CANDIDATE_CAP} by sampling.")
+    cand_sims = np.array([
+        weighted_pair_similarity(rows[i], rows[j], profiles, lo_hi,
+                                 embeddings=embeddings, row_ids=(row_ids[i], row_ids[j]))
+        for i, j in cand_pairs
+    ], dtype=np.float64)
+
+    rand_mean = float(sims.mean())
+    separability: dict[str, Any] = {"label": None, "cluster_center_high": None,
+                                    "cluster_center_low": None}
+    calibration: dict[str, list] = {"likely_match": [], "unclear": [], "likely_non_match": []}
+    if len(cand_pairs) == 0:
+        notes.append("No candidate pairs found; likely_match and unclear are empty "
+                     "and separability could not be computed.")
+    else:
+        floor = float(np.percentile(cand_sims, 90))
+        top = cand_sims >= floor
+        high_mean = float(cand_sims[top].mean())
+        gap = high_mean - rand_mean
+        label = "clear" if gap >= 0.30 else "moderate" if gap >= 0.15 else "weak"
+        separability = {"label": label, "cluster_center_high": round(high_mean, 6),
+                        "cluster_center_low": round(rand_mean, 6)}
+
+        order = list(range(len(cand_pairs)))
+        random.shuffle(order)
+        per_group: dict[tuple[str, str], int] = {}
+        for k in order:
+            if not top[k] or len(calibration["likely_match"]) >= N_LIKELY_MATCH:
+                continue
+            g = cand_map[cand_pairs[k]]
+            if per_group.get(g, 0) >= MAX_PER_GROUP:
+                continue
+            per_group[g] = per_group.get(g, 0) + 1
+            calibration["likely_match"].append(cand_pairs[k])
+        mid = [k for k in order if rand_mean <= cand_sims[k] < floor]
+        calibration["unclear"] = [cand_pairs[k] for k in mid[:N_UNCLEAR]]
+
+    low = [pairs[k] for k in range(len(pairs)) if sims[k] < rand_mean]
+    random.shuffle(low)
+    calibration["likely_non_match"] = low[:N_LIKELY_NON_MATCH]
+
+    want = {"likely_match": N_LIKELY_MATCH, "unclear": N_UNCLEAR,
+            "likely_non_match": N_LIKELY_NON_MATCH}
+    for cat, pl in calibration.items():
+        if len(pl) < want[cat]:
+            notes.append(f"{cat}: only {len(pl)} of {want[cat]} requested pairs available.")
+        calibration[cat] = [_pair_view(i, j, rows, row_ids, content) for i, j in pl]
+
+    result = {
         "contract_version": CONTRACT_VERSION,
         "n_records": n,
         "n_pairs_sampled": len(pairs),
         "record_id_column": rid_col,
         "embeddings_used": bool(embeddings),
         "columns_excluded": sorted(cls["metadata_columns"]),
-        "threshold": {"value": round(float(threshold), 6), "method": method,
-                      "details": {k: float(v) if isinstance(v, (int, float, np.floating)) else v
-                                  for k, v in meta.items()}},
-        "similarity_stats": {"min": float(sims.min()), "max": float(sims.max()),
-                             "mean": float(sims.mean()), "std": float(sims.std())},
+        "separability": separability,
+        "calibration_pairs": calibration,
+        "notes": notes,
         "columns": {
             p.name: {
                 "semantic_type": p.semantic_type,
@@ -100,3 +189,12 @@ def learn_rules(
             } for p in profiles
         },
     }
+    if debug:
+        result["threshold"] = {
+            "value": round(float(threshold), 6), "method": method,
+            "details": {k: float(v) if isinstance(v, (int, float, np.floating)) else v
+                        for k, v in meta.items()}}
+        result["similarity_stats"] = {
+            "min": float(sims.min()), "max": float(sims.max()),
+            "mean": rand_mean, "std": float(sims.std())}
+    return result
