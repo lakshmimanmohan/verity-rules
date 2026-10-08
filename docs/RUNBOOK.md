@@ -8,7 +8,9 @@ Use it when you have a table that probably holds duplicates and you need to know
 
 ## Install
 
-Needs Python 3.10 or newer. In a fresh virtual environment:
+Needs Python 3.10 or newer. Wheel location: <ADD PATH>
+
+In a fresh virtual environment:
 
 ```
 pip install verity_rules-0.1.0-py3-none-any.whl
@@ -24,6 +26,18 @@ verity learn customers.csv --out out/customers
 ```
 
 It writes four files to the folder: `rules.json`, `rules_report.md`, `calibration_pairs.csv`, `calibration_pairs_key.csv`. Same file and seed give the same output.
+
+Run time and memory: about 1 minute and 200 MB for 20,000 rows; about 90 seconds and 350 MB for 100,000 rows with `--max-rows 100000`.
+
+### The file needs a unique id column
+
+Verity does not stop when there is no unique id column. It takes the column with the most distinct values as the record id and leaves that column out of the weights, with no error or warning. On a customers file with `customer_id` removed, it chose `email` (82% unique); the report lists `email` as excluded with the reason "It is the record id column." The pair files then use email values as record ids, and email is not weighted. If your file has no id column, add a row-number column first:
+
+```
+python -c "import pandas as pd; d=pd.read_csv('in.csv',dtype=str,keep_default_na=False); d.insert(0,'row_id',range(1,len(d)+1)); d.to_csv('in_with_id.csv',index=False)"
+```
+
+Names ending in `_id` (and `id`) are preferred as the record id. After the run, check that the "Record id column" line near the top of `rules_report.md` names the column you expect.
 
 ## Options
 
@@ -53,7 +67,7 @@ A weight describes how distinctive and consistent a column is in this data. Read
 
 1. Open `calibration_pairs.csv` and fill `your_label` (match or not a match) for each pair. Label at least 30 of each kind; add pairs from your own data if the file has fewer.
 2. Do not open `calibration_pairs_key.csv` until you finish. It holds Verity's guesses and the pair sources, which are not the truth.
-3. In your matching tool, score every labelled pair with the report's formula: sum of weight x similarity over columns present in both records, divided by the sum of those columns' weights.
+3. Check first whether your tool can use these weights. In your matching tool, score every labelled pair with the report's formula: sum of weight x similarity over columns present in both records, divided by the sum of those columns' weights. The similarity for each column is your tool's nearest comparator for the method named in the report (edit distance or Jaro-Winkler for text, exact for ids), so the cutoff belongs to that tool.
 4. Sort by score. For each candidate cutoff count wrong calls (matches below it plus non-matches at or above it). Pick the cutoff with the fewest; on a tie, the middle of the tied range. Move it up if a false merge costs more than a missed match.
 5. Check whether low-coverage pairs are decided worse than the rest; if so, route them to review.
 

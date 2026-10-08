@@ -9,12 +9,16 @@ Tested (synthetic customers 4,000 rows, products 500 rows, degraded copies, cust
 
 Not tested or weak:
 - No real customer data, no other domains or languages, no embeddings run.
-- 50% row subsets move weights by up to 0.006 on customers; products (250 rows) by up to 0.04. Top 3 columns held, order did not always.
-- Below about 1,000 rows weights are unstable (a 400-row subset moved weights by up to 0.16).
+- Small files: random 400-row subsets of a 4,000-row file moved weights by up to 0.16 and group-aware ones by 0.04; no genuine small real file has been tested; products (500 rows) moved up to 0.04 on 250-row random subsets. 50% subsets of customers moved weights by up to 0.006.
 - Above --max-rows (20,000) only 20% of true duplicate pairs stay with groups sampling (4% random) on the 100k file.
 - Expected pair coverage cutoff of 0.3 is a rule of thumb from synthetic tests.
 - Products: no hard negatives existed, so the hard-negative AUC checks were not evaluable.
 - 18 of 2,678 customer duplicates and 70 of 401 product duplicates had no shared value (not candidates).
 - Unclear pairs: 37.5% true duplicates on customers, 100% on products; do not treat as labels.
 - Comparator choice (v4) was tuned on these same datasets.
+- likely_non_match pairs are random pairs, not hard negatives. Weights depend on the seed only through the random pair sample.
+- With half of every column blank (Copy C), hard negatives score about as high as duplicates (AUC 0.76).
+- member_part_number has the third-largest products weight, but its duplicate and random similarities overlap.
+- Learned versus equal or v1 weights was compared under the v0 comparator; the v4 comparison is below (validation/weighting_v4.md):
+  learned made 2 and 1 errors on Copy H and H2 (equal 37 and 97, v1 417 and 502), but did not beat equal on Copy C (AUC 0.755 vs 0.760) or Copy C25 (22 errors vs 20; v1 44).
 - Hosted action, skill text and MCP server are not updated and not validated.
