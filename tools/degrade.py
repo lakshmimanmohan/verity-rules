@@ -8,8 +8,12 @@ Row order, record ids and the truth file are untouched, so the same truth applie
 --blank COLS FRACTION: blank that share of ALL rows in each listed column (rows chosen at random).
 --typo  COLS FRACTION: change that share of the NON-EMPTY values left in each listed column
                        (after blanking) by one random edit: swap, drop, insert or replace a letter.
+--scramble COLS FRACTION: replace that share of ALL rows in each listed column with the value from
+                       a random other row (taken from the column as it was before scrambling).
+--noise-cols N:        append N columns of random 8-letter lowercase words (noise_word_1..N) and
+                       N columns of random 10-digit strings (noise_digits_1..N).
 COLS is a comma-separated list, or ALL for every column except those in --except.
-Both flags may be repeated. Blanking is applied before typos.
+The flags may be repeated. Order of operations: blank, typo, scramble, noise columns.
 """
 from __future__ import annotations
 
@@ -52,7 +56,8 @@ def resolve_cols(spec: str, columns: list[str], skip: set[str]) -> list[str]:
 
 
 def degrade(df: pd.DataFrame, seed: int, blank: list[tuple[str, float]], typos: list[tuple[str, float]],
-            skip: set[str]) -> pd.DataFrame:
+            skip: set[str], scramble: list[tuple[str, float]] | None = None,
+            noise_cols: int = 0) -> pd.DataFrame:
     rng = random.Random(seed)
     out = df.copy()
     n = len(out)
@@ -66,6 +71,16 @@ def degrade(df: pd.DataFrame, seed: int, blank: list[tuple[str, float]], typos: 
             filled = [i for i in range(n) if out.at[i, c] != ""]
             for i in sorted(rng.sample(filled, round(frac * len(filled)))):
                 out.at[i, c] = typo(out.at[i, c], rng)
+    for spec, frac in scramble or []:
+        for c in resolve_cols(spec, cols, skip):
+            before = list(out[c])
+            for i in sorted(rng.sample(range(n), round(frac * n))):
+                j = rng.randrange(n - 1)
+                out.at[i, c] = before[j if j < i else j + 1]
+    for k in range(1, noise_cols + 1):
+        out[f"noise_word_{k}"] = ["".join(rng.choices(string.ascii_lowercase, k=8)) for _ in range(n)]
+    for k in range(1, noise_cols + 1):
+        out[f"noise_digits_{k}"] = ["".join(rng.choices(string.digits, k=10)) for _ in range(n)]
     return out
 
 
@@ -76,19 +91,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--blank", nargs=2, action="append", default=[], metavar=("COLS", "FRACTION"))
     ap.add_argument("--typo", nargs=2, action="append", default=[], metavar=("COLS", "FRACTION"))
+    ap.add_argument("--scramble", nargs=2, action="append", default=[], metavar=("COLS", "FRACTION"))
+    ap.add_argument("--noise-cols", type=int, default=0, metavar="N",
+                    help="append N random 8-letter-word columns and N random 10-digit columns")
     ap.add_argument("--except", dest="skip", default="", help="columns ALL leaves alone (comma-separated)")
     args = ap.parse_args(argv)
     df = pd.read_csv(args.csv, dtype=str, keep_default_na=False)
     skip = {c.strip() for c in args.skip.split(",") if c.strip()}
     blank = [(c, float(f)) for c, f in args.blank]
     typos = [(c, float(f)) for c, f in args.typo]
-    for _, f in blank + typos:
+    scramble = [(c, float(f)) for c, f in args.scramble]
+    if args.noise_cols < 0:
+        raise SystemExit("--noise-cols must be 0 or more")
+    for _, f in blank + typos + scramble:
         if not 0 <= f <= 1:
             raise SystemExit("fractions must be between 0 and 1")
-    out = degrade(df, args.seed, blank, typos, skip)
+    out = degrade(df, args.seed, blank, typos, skip, scramble, args.noise_cols)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(args.out, index=False)
-    changed = int((out != df).sum().sum())
+    changed = int((out[list(df.columns)] != df).sum().sum())
     print(f"Wrote {args.out} ({len(out)} rows, {changed} cells changed)")
     return 0
 

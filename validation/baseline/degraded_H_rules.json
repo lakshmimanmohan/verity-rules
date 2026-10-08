@@ -1,0 +1,2546 @@
+{
+  "contract_version": "1.0",
+  "n_records": 4000,
+  "n_pairs_sampled": 1000,
+  "record_id_column": "customer_id",
+  "embeddings_used": false,
+  "run": {
+    "verity_version": "0.1.0",
+    "seed": 42,
+    "n_candidate_pairs": 7265
+  },
+  "columns_excluded": [
+    {
+      "name": "customer_id",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity. Its name contains id and every value is different.",
+      "rule": [
+        "primary_key",
+        "system_process_field"
+      ]
+    },
+    {
+      "name": "noise_digits_1",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity.",
+      "rule": [
+        "primary_key"
+      ]
+    },
+    {
+      "name": "noise_digits_2",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity.",
+      "rule": [
+        "primary_key"
+      ]
+    },
+    {
+      "name": "noise_word_1",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity.",
+      "rule": [
+        "primary_key"
+      ]
+    },
+    {
+      "name": "noise_word_2",
+      "reason": "Almost every value is different, so it identifies a row rather than an entity.",
+      "rule": [
+        "primary_key"
+      ]
+    },
+    {
+      "name": "source_system",
+      "reason": "It has very few distinct values, so it cannot tell records apart.",
+      "rule": [
+        "near_constant_field"
+      ]
+    }
+  ],
+  "separability": {
+    "label": "clear",
+    "candidate_top_decile_mean": 0.911854,
+    "random_pair_mean": 0.329996,
+    "gap": 0.581859
+  },
+  "calibration_pairs": {
+    "likely_match": [
+      {
+        "record_id_a": "0dbbdff9-3336-42f7-87a7-55bb0246b083",
+        "record_id_b": "57d71afc-31a4-4f0a-9f19-4bdc1a72fd70",
+        "values_a": {
+          "first_name": "Tina",
+          "last_name": "Sexton",
+          "email": null,
+          "phone": null,
+          "address": "706 Rodriguez Trail",
+          "city": "EMILYCHESTER",
+          "zip_code": "668 81",
+          "SSN": "243-41-5537"
+        },
+        "values_b": {
+          "first_name": "Tina",
+          "last_name": "Sexton",
+          "email": null,
+          "phone": "67833239593601",
+          "address": "706 Rodriguez Trail",
+          "city": "NORTH EMILY",
+          "zip_code": "05001",
+          "SSN": "243-41-5573"
+        }
+      },
+      {
+        "record_id_a": "2e1ec4ba-5732-4f79-b7d3-447f4fe26f04",
+        "record_id_b": "b68a5b7e-618b-4586-9183-da2f2f1067d4",
+        "values_a": {
+          "first_name": "David",
+          "last_name": "Obiren",
+          "email": "sherry444@example.net",
+          "phone": "154-932-0954",
+          "address": "9494 Blankenship Ferry",
+          "city": "Edwinoprt",
+          "zip_code": "96968",
+          "SSN": "505-41-1146"
+        },
+        "values_b": {
+          "first_name": "David",
+          "last_name": "Obriien",
+          "email": "sherry44@example.net",
+          "phone": null,
+          "address": "9494 Blankenshpi Ferry",
+          "city": "Nichloasbury",
+          "zip_code": "756 45",
+          "SSN": "505-41-1146"
+        }
+      },
+      {
+        "record_id_a": "1a657306-4810-4809-821d-4ddeeb102e8c",
+        "record_id_b": "eb38bf6d-2474-42aa-a57a-4e6ed453bd4d",
+        "values_a": {
+          "first_name": "Sheena",
+          "last_name": "Marshall",
+          "email": null,
+          "phone": null,
+          "address": "328 Schultz Viewsg Apt. 746",
+          "city": "South Lynnborougu",
+          "zip_code": "68083",
+          "SSN": "608-28-6425"
+        },
+        "values_b": {
+          "first_name": "Sheena",
+          "last_name": "MYrshall",
+          "email": "belldana72@example.com",
+          "phone": "+1 580 963 1905",
+          "address": "328 Schultz Views pAt. 746",
+          "city": "Rossview",
+          "zip_code": "68083",
+          "SSN": "608-28-6425"
+        }
+      },
+      {
+        "record_id_a": "54ed8b69-4a35-4d63-b51e-e6002b515b74",
+        "record_id_b": "ed98833e-f364-4eb4-9d44-89f47398bc20",
+        "values_a": {
+          "first_name": "Janeet",
+          "last_name": "Peterson",
+          "email": null,
+          "phone": null,
+          "address": "1919 Murpy Rue Apt. 132",
+          "city": "PORT DWAYNEBERG",
+          "zip_code": "59873",
+          "SSN": "434-61-5844"
+        },
+        "values_b": {
+          "first_name": "Jante",
+          "last_name": "Peterson",
+          "email": null,
+          "phone": "+1.983.421.9719",
+          "address": "1919 Murphy Rue Apt. 132",
+          "city": "Port Dwayneberg",
+          "zip_code": "59873",
+          "SSN": "434-61-5844"
+        }
+      },
+      {
+        "record_id_a": "434d83fe-2058-4d24-9bcd-14276157cb13",
+        "record_id_b": "7d827cd6-e7b7-4c61-b8fe-0392d62d4ee2",
+        "values_a": {
+          "first_name": "Allison",
+          "last_name": "Hill",
+          "email": null,
+          "phone": null,
+          "address": "79402 Peterson Drives Apt. 511",
+          "city": "MCKAYFORT",
+          "zip_code": "79632",
+          "SSN": "754-24-1409"
+        },
+        "values_b": {
+          "first_name": "Allison",
+          "last_name": null,
+          "email": "donaldgarcia@example.net",
+          "phone": "+1.121.956.0013",
+          "address": "79402 Peterson Drives Apt. 511",
+          "city": "Port Markside",
+          "zip_code": "796 32",
+          "SSN": "754-2-41409"
+        }
+      },
+      {
+        "record_id_a": "9bfeee66-c83a-4dfe-8d03-8911613a2070",
+        "record_id_b": "434c9707-9f20-448d-b055-55371a8d2f09",
+        "values_a": {
+          "first_name": "Gina",
+          "last_name": "Moina",
+          "email": "adaniels(at)example.com",
+          "phone": null,
+          "address": "11245 Miller Harbor",
+          "city": "Carrhaven",
+          "zip_code": "787 83",
+          "SSN": "560-475-314"
+        },
+        "values_b": {
+          "first_name": "Gina",
+          "last_name": "Moina",
+          "email": null,
+          "phone": "(857) 286-6673",
+          "address": "11245 Miller Harbor",
+          "city": "East Nicholasside",
+          "zip_code": "508 52",
+          "SSN": "560-47-5314"
+        }
+      },
+      {
+        "record_id_a": "c98158d3-0f61-45b9-b3f8-92d16feebae4",
+        "record_id_b": "e95ad260-536e-4f7b-8bd8-631b9bea2b80",
+        "values_a": {
+          "first_name": "Antonio",
+          "last_name": "Middleton",
+          "email": "nicholas0067@example.com",
+          "phone": "+1 931 266 7752",
+          "address": "27971 Jordan Streets Suite 064",
+          "city": "East Amanda",
+          "zip_code": "509 26",
+          "SSN": "222-11-3248"
+        },
+        "values_b": {
+          "first_name": "Antonio",
+          "last_name": "Middleton",
+          "email": null,
+          "phone": "+1.931.266.7752",
+          "address": "27971 Jordan Streets Suite 064",
+          "city": "Lake Jessica",
+          "zip_code": "75142",
+          "SSN": "222-11-3248"
+        }
+      },
+      {
+        "record_id_a": "641c3afc-40bd-42b7-b25d-41fc03ff2305",
+        "record_id_b": "ba3e2e3f-8c5c-413a-8ec2-5fdcccddf721",
+        "values_a": {
+          "first_name": "Joseph",
+          "last_name": "Smith",
+          "email": "griffinbrandy(at)example.com",
+          "phone": null,
+          "address": "21711 Payne Logde Suite 658",
+          "city": "NEW CHRISTINEVILLE",
+          "zip_code": "01734",
+          "SSN": "866-47-1613"
+        },
+        "values_b": {
+          "first_name": "Joseph",
+          "last_name": "mSith",
+          "email": null,
+          "phone": "+1 190 725 7898",
+          "address": "21711 Payne Lodge Suite 658",
+          "city": "New Christineville",
+          "zip_code": "66099",
+          "SSN": "866-47-1613"
+        }
+      },
+      {
+        "record_id_a": "5a7df488-f571-4955-82cd-b371d6e23074",
+        "record_id_b": "7f3f150b-7e5d-4967-9f43-4275fc20f221",
+        "values_a": {
+          "first_name": "zNatalie",
+          "last_name": "Whitehead",
+          "email": "morenomatthew@example.org",
+          "phone": "462-997-2669",
+          "address": "468 Thomas Centers",
+          "city": "Sarahburgh",
+          "zip_code": "88577",
+          "SSN": "742-63-7146"
+        },
+        "values_b": {
+          "first_name": "Natalie",
+          "last_name": "Whitehead",
+          "email": null,
+          "phone": null,
+          "address": "468 Thomas Center",
+          "city": "SHAWNCHESTER",
+          "zip_code": "88577",
+          "SSN": "742-63-7146"
+        }
+      },
+      {
+        "record_id_a": "be0636e3-e3e9-4379-9df2-a4f4d43f3ee2",
+        "record_id_b": "4d02f44c-e448-4af9-a3d2-b1016ebe0406",
+        "values_a": {
+          "first_name": "BoYby",
+          "last_name": "Chan",
+          "email": null,
+          "phone": null,
+          "address": "331 Sawa Mill",
+          "city": "Wattsmouth",
+          "zip_code": "87856",
+          "SSN": "282-84-5349"
+        },
+        "values_b": {
+          "first_name": "Bobyb",
+          "last_name": "Chna",
+          "email": "waynejacobs@example.net",
+          "phone": "(165) 286-7722",
+          "address": "331 Sara Mill",
+          "city": "Wattsmouth",
+          "zip_code": "328 47",
+          "SSN": "282-84-5349"
+        }
+      },
+      {
+        "record_id_a": "d8986d02-33a5-4565-a2a2-886be7f1ba43",
+        "record_id_b": "f601281a-62eb-4322-8f76-5fa876bb32c2",
+        "values_a": {
+          "first_name": "kBetty",
+          "last_name": "Hernandeo",
+          "email": null,
+          "phone": null,
+          "address": "592 Warren Point",
+          "city": "Port Dominiqueview",
+          "zip_code": "93398",
+          "SSN": "451-97-1793"
+        },
+        "values_b": {
+          "first_name": "Betty",
+          "last_name": "Hernande",
+          "email": null,
+          "phone": null,
+          "address": "592W arren Point",
+          "city": "Bowersstad",
+          "zip_code": "93398",
+          "SSN": "451-97-1793"
+        }
+      },
+      {
+        "record_id_a": "97525bcb-7365-406c-bb07-925e56e8e2bf",
+        "record_id_b": "6e31e4d7-c661-4a57-8f3a-e5734cc939dc",
+        "values_a": {
+          "first_name": "Sean",
+          "last_name": "Kin",
+          "email": "bkim@example.org",
+          "phone": null,
+          "address": "9135 Emily Gateway",
+          "city": "Kerrport",
+          "zip_code": "22068",
+          "SSN": "774-18-1717"
+        },
+        "values_b": {
+          "first_name": "Sean",
+          "last_name": "King",
+          "email": "bkim84@example.org",
+          "phone": "+1.001.898.7628",
+          "address": "9135 Emily Gatewa",
+          "city": "Kerrport",
+          "zip_code": "590 40",
+          "SSN": "774-18-1717"
+        }
+      },
+      {
+        "record_id_a": "de1430d7-d9f9-4f16-934d-eacf6cafe9a4",
+        "record_id_b": "99f03efa-d987-40ac-b4f7-09e173938cc3",
+        "values_a": {
+          "first_name": "Heather",
+          "last_name": "Daviss",
+          "email": "jenniferpeters(at)example.com",
+          "phone": null,
+          "address": "096 CoxnTurnpike Suite 240",
+          "city": "CHRISTOPHERBURGH",
+          "zip_code": "067 34",
+          "SSN": "605-27-9261"
+        },
+        "values_b": {
+          "first_name": "Heather",
+          "last_name": "Daivs",
+          "email": "JENNIFERPETERS@EXAMPLE.COM",
+          "phone": null,
+          "address": "096 Cox Turnpike Suite 240",
+          "city": "SOUTH JASONCHESTER",
+          "zip_code": "489 86-0000",
+          "SSN": "605-27-9261"
+        }
+      },
+      {
+        "record_id_a": "a8e62563-df77-43b7-ad85-9d4d12e4ed31",
+        "record_id_b": "67369dc4-6d73-42e8-8c9c-ab9d63191138",
+        "values_a": {
+          "first_name": "Michael",
+          "last_name": "Williams",
+          "email": null,
+          "phone": null,
+          "address": "24562 Dylan Brooks Apt. 540",
+          "city": "Port Julia",
+          "zip_code": "751 05",
+          "SSN": "367-32-7670"
+        },
+        "values_b": {
+          "first_name": "Michael",
+          "last_name": "Williams",
+          "email": null,
+          "phone": null,
+          "address": "24562 Dylan Brooks Apt. 540",
+          "city": "Lake Christinehaven",
+          "zip_code": "90801-0000",
+          "SSN": "67-32-7670"
+        }
+      },
+      {
+        "record_id_a": "8cc93a5a-63e6-446e-8041-14e1dc82340b",
+        "record_id_b": "d0f1b51e-298b-4604-8a67-bd7b6e9cd53b",
+        "values_a": {
+          "first_name": "Dvaid",
+          "last_name": "Hamilton",
+          "email": null,
+          "phone": null,
+          "address": "68866 William Plaza",
+          "city": "Port Brentchester",
+          "zip_code": "49186",
+          "SSN": "271-91-6527"
+        },
+        "values_b": {
+          "first_name": "David",
+          "last_name": "Hamilton",
+          "email": "ashley31@outlook.com",
+          "phone": null,
+          "address": "68866 William Plaza",
+          "city": "East Eddie",
+          "zip_code": "82142",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "54af1a28-b15e-4798-8653-09bf32e46e4b",
+        "record_id_b": "26a3a61e-66bb-4ea3-b1d7-cda9c279b4cb",
+        "values_a": {
+          "first_name": "Vanessa",
+          "last_name": null,
+          "email": "caitlynday@example.com",
+          "phone": "+1 001 960 7233",
+          "address": "5790 Gary Bridge",
+          "city": "Port Ryantown",
+          "zip_code": "79800",
+          "SSN": "650-46-3755"
+        },
+        "values_b": {
+          "first_name": "Vanessa",
+          "last_name": "Red",
+          "email": "caitlynday43@example.com",
+          "phone": null,
+          "address": "z790 Gary Bridge",
+          "city": "Port Ryantown",
+          "zip_code": "98116",
+          "SSN": "650-46-3755"
+        }
+      },
+      {
+        "record_id_a": "c322f6bb-ca72-4672-bb18-7acd2a2c03e8",
+        "record_id_b": "d518eb5f-d0f7-4a8c-bad8-01115e8e6d7a",
+        "values_a": {
+          "first_name": "Chistopher",
+          "last_name": "Baker",
+          "email": null,
+          "phone": null,
+          "address": "4464 Thomas Views Apt.041",
+          "city": "Geoffreyberg",
+          "zip_code": "15978",
+          "SSN": "492-21-2678"
+        },
+        "values_b": {
+          "first_name": "Christopher",
+          "last_name": "Baker",
+          "email": "vargaspamela(at)example.net",
+          "phone": null,
+          "address": "4464 Thomas Views Apt. 041",
+          "city": "Geoffreyberg",
+          "zip_code": "56600",
+          "SSN": "492-21-26778"
+        }
+      },
+      {
+        "record_id_a": "f2240e4b-4c0e-43af-94d2-db9452ef6d50",
+        "record_id_b": "e33027bb-31b4-49a3-afaa-069d1dfd1b1c",
+        "values_a": {
+          "first_name": "Angelica",
+          "last_name": "Conrad",
+          "email": null,
+          "phone": "9253902035",
+          "address": "3240 MccarthyF all",
+          "city": "outh Jennifer",
+          "zip_code": "97618 USA",
+          "SSN": "389-48-9022"
+        },
+        "values_b": {
+          "first_name": "Anelica",
+          "last_name": "Conrad",
+          "email": null,
+          "phone": null,
+          "address": "324 0Mccarthy Fall",
+          "city": "North Beth",
+          "zip_code": "49947-0000",
+          "SSN": "389-48-9022"
+        }
+      },
+      {
+        "record_id_a": "c7543893-3351-47d3-bf5d-12b472b30e23",
+        "record_id_b": "641c3afc-40bd-42b7-b25d-41fc03ff2305",
+        "values_a": {
+          "first_name": "Jqoseph",
+          "last_name": "Smith",
+          "email": "griffinbrandy73@example.com",
+          "phone": "(190) 725-7898",
+          "address": "21711 Payne Lodge Suite 658",
+          "city": "South Jessicaland",
+          "zip_code": "23537",
+          "SSN": "866-47-1613"
+        },
+        "values_b": {
+          "first_name": "Joseph",
+          "last_name": "Smith",
+          "email": "griffinbrandy(at)example.com",
+          "phone": null,
+          "address": "21711 Payne Logde Suite 658",
+          "city": "NEW CHRISTINEVILLE",
+          "zip_code": "01734",
+          "SSN": "866-47-1613"
+        }
+      },
+      {
+        "record_id_a": "658aa777-02a3-4282-8d8d-5a25e9d34b1e",
+        "record_id_b": "bcca38a6-a1df-4370-989f-91b5f174188a",
+        "values_a": {
+          "first_name": "Michael",
+          "last_name": "Arnold",
+          "email": null,
+          "phone": "(549) 310-8853",
+          "address": "2778 Keith Parks",
+          "city": "EAST SHELBY",
+          "zip_code": "13062",
+          "SSN": "686-86-7456"
+        },
+        "values_b": {
+          "first_name": "Michael",
+          "last_name": "Arnold",
+          "email": "orichardson(at)example.org",
+          "phone": null,
+          "address": "2778 Keith Parks",
+          "city": "East Shelby",
+          "zip_code": "91821",
+          "SSN": "686-86-7456"
+        }
+      },
+      {
+        "record_id_a": "e980ff94-9bfd-42c7-9c27-93759b98882f",
+        "record_id_b": "79ca245e-82ea-4277-bac4-92579492a6b8",
+        "values_a": {
+          "first_name": "Chrzistopher",
+          "last_name": "Ayers",
+          "email": null,
+          "phone": null,
+          "address": "378 Brian Forest Suite 384",
+          "city": "Derekshire",
+          "zip_code": "54442",
+          "SSN": "201-99-2874"
+        },
+        "values_b": {
+          "first_name": "Chritopher",
+          "last_name": "Ayers",
+          "email": "christopherjackson24@example.net",
+          "phone": null,
+          "address": "378 Brian Forest Suite 384",
+          "city": "Reginaldhaven",
+          "zip_code": "54442",
+          "SSN": "201-99-2874"
+        }
+      },
+      {
+        "record_id_a": "7da358c8-7462-4dd2-8831-0ab1b88a9c95",
+        "record_id_b": "ef722124-80ea-43f5-92fd-4b1a267abe05",
+        "values_a": {
+          "first_name": "Elizabeth",
+          "last_name": "Huhges",
+          "email": "kevinharvey@example.com",
+          "phone": null,
+          "address": "706 Sydney Trace Apt. 748",
+          "city": "Alexanderchester",
+          "zip_code": "989 37",
+          "SSN": "322-66-8285"
+        },
+        "values_b": {
+          "first_name": "Elizabeth",
+          "last_name": "Hughes",
+          "email": "elizabeth4(at)example.com",
+          "phone": null,
+          "address": "706 Sydney Trace Apt. 748",
+          "city": "North Vickie",
+          "zip_code": "600 97",
+          "SSN": "322-668-285"
+        }
+      },
+      {
+        "record_id_a": "8b13577a-beee-47f7-8694-605f48ef6305",
+        "record_id_b": "5dc3e101-88d4-4e51-9887-0e2812221f30",
+        "values_a": {
+          "first_name": "Jessica",
+          "last_name": "Geren",
+          "email": null,
+          "phone": null,
+          "address": "061 Barr Trafficway",
+          "city": "Lake Brandonborough",
+          "zip_code": "46303",
+          "SSN": "826-30-6091"
+        },
+        "values_b": {
+          "first_name": "Jessica",
+          "last_name": "Green",
+          "email": "adamsjessica@example.com",
+          "phone": null,
+          "address": "061 Barr Trafficway",
+          "city": "Lake Brandonborough",
+          "zip_code": "08916",
+          "SSN": "826-30-6091"
+        }
+      },
+      {
+        "record_id_a": "d951301c-cf4f-4fdb-9663-c48dfb0472f6",
+        "record_id_b": "92849b75-745d-42b8-beb6-0a32cb963e91",
+        "values_a": {
+          "first_name": "Melanie",
+          "last_name": "Jones",
+          "email": "JLIU@EXAMPLE.ORG",
+          "phone": null,
+          "address": "358 Case Lane",
+          "city": "Kaylaqown",
+          "zip_code": "85594",
+          "SSN": "891-61-9413"
+        },
+        "values_b": {
+          "first_name": "Melanie",
+          "last_name": "Jones",
+          "email": null,
+          "phone": "495-256-5749",
+          "address": "358 Caseb Lane",
+          "city": "Fordside",
+          "zip_code": "85594",
+          "SSN": "891-61-9431"
+        }
+      },
+      {
+        "record_id_a": "919567ba-7c27-46bd-9233-e57920a43682",
+        "record_id_b": "f89afed7-c0f0-4402-a4d4-9e572f8e4a66",
+        "values_a": {
+          "first_name": "Saraah",
+          "last_name": "Brooks",
+          "email": "stewarttammy@example.net",
+          "phone": "(157) 779-1743",
+          "address": "115 Bell Walks",
+          "city": "THOMASLAND",
+          "zip_code": "81621",
+          "SSN": "438-81-7985"
+        },
+        "values_b": {
+          "first_name": "arSah",
+          "last_name": "Brooks",
+          "email": null,
+          "phone": "+1.157.779.1743",
+          "address": "115 Bell Walks",
+          "city": "New Michael",
+          "zip_code": "816 21 USA",
+          "SSN": "438-81-7985"
+        }
+      },
+      {
+        "record_id_a": "045d2151-c9b7-4e47-8e28-2dbd1784e70c",
+        "record_id_b": "8eba5ba9-4c65-43d2-a73b-ffac851de0f1",
+        "values_a": {
+          "first_name": "Catherine",
+          "last_name": "Cloeman",
+          "email": null,
+          "phone": "4616655806",
+          "address": "5526 Bentlqy Center Apt. 670",
+          "city": "outh Jennifer",
+          "zip_code": "15277",
+          "SSN": "594-23-5840"
+        },
+        "values_b": {
+          "first_name": "Cftherine",
+          "last_name": "Coleman",
+          "email": "raymond02@example.org",
+          "phone": null,
+          "address": "5526 Bentley Center Apt. 670",
+          "city": "South Jennifer",
+          "zip_code": "152 77",
+          "SSN": "594-23-5840"
+        }
+      },
+      {
+        "record_id_a": "0e7f5bae-16fb-436a-8b30-7c7cf07be8d5",
+        "record_id_b": "fd1acb8f-fbcb-42e4-8daf-2dae8209a8a7",
+        "values_a": {
+          "first_name": "Casandra",
+          "last_name": "artin",
+          "email": "ldavis(at)example.org",
+          "phone": "+1.800.360.8277",
+          "address": "76264 Jeanne Station Suite009",
+          "city": "Jeremyburgh",
+          "zip_code": "26700 USA",
+          "SSN": "630-59-2929"
+        },
+        "values_b": {
+          "first_name": "Casasndra",
+          "last_name": "Marti",
+          "email": null,
+          "phone": "80036082770564",
+          "address": "76264 Jeanne Station Suite 009",
+          "city": "Jeremyburgh",
+          "zip_code": "267 00",
+          "SSN": "630-59-2929"
+        }
+      },
+      {
+        "record_id_a": "310adbd8-1bed-49ca-8c3d-c9aa0a7440d6",
+        "record_id_b": "82ffb3e3-62e9-426e-a9b4-adc17d888e18",
+        "values_a": {
+          "first_name": "Bryan",
+          "last_name": "Jones",
+          "email": "shawna3782@example.net",
+          "phone": null,
+          "address": "9741 Rhonad Ville Apt. 483",
+          "city": "West Jennyberg",
+          "zip_code": "17454",
+          "SSN": "264-52-7744"
+        },
+        "values_b": {
+          "first_name": "Brryan",
+          "last_name": "Jones",
+          "email": null,
+          "phone": "(001) 353-2745",
+          "address": "9741 Rhonda Ville Apt. 483",
+          "city": "Wet Jennyberg",
+          "zip_code": "73089",
+          "SSN": "264-52-7744"
+        }
+      },
+      {
+        "record_id_a": "db135ce8-dec8-451f-9ab4-4100fc6cfd4d",
+        "record_id_b": "ad75a56a-3b69-4342-bb4c-8db0eeaec9df",
+        "values_a": {
+          "first_name": "aJime",
+          "last_name": "Edwards",
+          "email": null,
+          "phone": null,
+          "address": "39080 Javier Lakes Apt. 305",
+          "city": "NEW KEITH",
+          "zip_code": "14513",
+          "SSN": "561-98-8699"
+        },
+        "values_b": {
+          "first_name": "Jaime",
+          "last_name": "Edwards",
+          "email": "lstokes44@example.com",
+          "phone": null,
+          "address": "39080 Javier Lakes Apt. 305",
+          "city": "Reginaldhaven",
+          "zip_code": "91150",
+          "SSN": "561-98-8699"
+        }
+      },
+      {
+        "record_id_a": "95dfb7be-dd9b-4547-bcf0-6884f21222b2",
+        "record_id_b": "c46a71c7-6606-4df3-b482-5f98b35205fd",
+        "values_a": {
+          "first_name": null,
+          "last_name": "Mcdonadl",
+          "email": "lopezchristian9@example.com",
+          "phone": null,
+          "address": "92788 WiseO val",
+          "city": "New Angelaborough",
+          "zip_code": "550 64",
+          "SSN": "485-33-9813"
+        },
+        "values_b": {
+          "first_name": "James",
+          "last_name": "Mcdonald",
+          "email": null,
+          "phone": null,
+          "address": "92788 Wise Oval",
+          "city": "New Angelaborough",
+          "zip_code": "05304",
+          "SSN": "485-33-9813"
+        }
+      }
+    ],
+    "unclear": [
+      {
+        "record_id_a": "5d9f8105-0ced-4ad1-a262-02cecfa6f711",
+        "record_id_b": "3365cc20-30dc-48c7-84ba-505c09dba2bb",
+        "values_a": {
+          "first_name": "Patrick",
+          "last_name": "Simons",
+          "email": "eharrison@example.com",
+          "phone": null,
+          "address": "9395 Joy Vista",
+          "city": "WilliamssRde",
+          "zip_code": "96634",
+          "SSN": "623-36-3545"
+        },
+        "values_b": {
+          "first_name": "Jason",
+          "last_name": "Cannon",
+          "email": "inewton(at)example.org",
+          "phone": null,
+          "address": "991 Charles Knoll Suite 676",
+          "city": "Katherineberg",
+          "zip_code": "96634",
+          "SSN": "292-76-6927"
+        }
+      },
+      {
+        "record_id_a": "95b9d167-c474-4f84-8143-bee062db78bc",
+        "record_id_b": "ee3442d4-0f54-47eb-a828-e6a892d304b6",
+        "values_a": {
+          "first_name": "Joeeph",
+          "last_name": "Robers",
+          "email": null,
+          "phone": "585-631-4198",
+          "address": "22339 David Port",
+          "city": "Zamorahven",
+          "zip_code": "669 17",
+          "SSN": "404-14-8368"
+        },
+        "values_b": {
+          "first_name": "Stephanie",
+          "last_name": "King",
+          "email": "dowens@example.com",
+          "phone": "+1 772 260 3214",
+          "address": "6619 Kelly Passage Suite 071",
+          "city": "EAST MIRANDACHESTER",
+          "zip_code": "669 17",
+          "SSN": "116-32-5347"
+        }
+      },
+      {
+        "record_id_a": "eb77deed-e05c-4c55-ac9a-5d9343f23966",
+        "record_id_b": "6259cae3-b46d-465e-a886-9693459a4785",
+        "values_a": {
+          "first_name": "Katherine",
+          "last_name": "Oconnor",
+          "email": "steven97@outlook.com",
+          "phone": "2498179461",
+          "address": "95180 Stac yTrack",
+          "city": "PORT CYNTHIA",
+          "zip_code": "24942",
+          "SSN": "875-63-1761"
+        },
+        "values_b": {
+          "first_name": "Sarah",
+          "last_name": "Hawkins",
+          "email": null,
+          "phone": null,
+          "address": "37215 Brad Mountain",
+          "city": "EAST SANDRACHESTER",
+          "zip_code": "24942",
+          "SSN": "270-62-8956"
+        }
+      },
+      {
+        "record_id_a": "c8062af4-92fb-4fd8-94ff-7e4cc2dfaf6f",
+        "record_id_b": "4004b62d-de49-42e7-9ebd-7bfa51b8181f",
+        "values_a": {
+          "first_name": "James",
+          "last_name": "Aguirre",
+          "email": "renee774@example.com",
+          "phone": "+1.001.401.8475",
+          "address": "96762 Phillip Cae",
+          "city": "Port Eric",
+          "zip_code": "64608",
+          "SSN": "545-32-9548"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "Flowers",
+          "email": "morrisannette@example.com",
+          "phone": null,
+          "address": "811 Lyons Ln Apt. 028",
+          "city": "STEPHENSLAND",
+          "zip_code": "64608",
+          "SSN": "610-47-9337"
+        }
+      },
+      {
+        "record_id_a": "4d5721e9-6cff-4fb2-a0c7-e78f74c5f38f",
+        "record_id_b": "899d710a-0a47-4309-8488-e8176fb180ba",
+        "values_a": {
+          "first_name": "Amanida",
+          "last_name": "Santos",
+          "email": "wwilliams(at)example.org",
+          "phone": "+1.374.402.5883",
+          "address": "9572 Glover Shoasl",
+          "city": "Shannonberg",
+          "zip_code": "798 64",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Christopher",
+          "last_name": "Santos",
+          "email": null,
+          "phone": "+1 628 822 0220",
+          "address": "2652 Stephanie Wells",
+          "city": "Bowersville",
+          "zip_code": "65261",
+          "SSN": "513-12-47G2"
+        }
+      },
+      {
+        "record_id_a": "7d0be862-ce34-4cdf-a56d-9b905a581486",
+        "record_id_b": "61193d0a-60b8-418b-9b29-d8813e599718",
+        "values_a": {
+          "first_name": "Sara",
+          "last_name": "Kintg",
+          "email": null,
+          "phone": null,
+          "address": "351 Gutierrez Way Suite 741",
+          "city": "Rebeccabury",
+          "zip_code": "251 89",
+          "SSN": "414-30-7642"
+        },
+        "values_b": {
+          "first_name": "Carlos",
+          "last_name": "Adams",
+          "email": null,
+          "phone": "+1.802.317.8295",
+          "address": "76329 Smit hVillage",
+          "city": "East Christopherborough",
+          "zip_code": "251 89",
+          "SSN": "635-63-9773"
+        }
+      },
+      {
+        "record_id_a": "269f5057-6c93-420b-ba4d-f83a05834954",
+        "record_id_b": "a6c4ca01-5cf2-49a6-aa47-761879a184f9",
+        "values_a": {
+          "first_name": "Tigothy",
+          "last_name": "Phelps",
+          "email": "claire11@gmail.com",
+          "phone": null,
+          "address": "307 Peterbon Island",
+          "city": "Lake John",
+          "zip_code": "13547",
+          "SSN": "552-24-4365"
+        },
+        "values_b": {
+          "first_name": "Tmiothy",
+          "last_name": "Phelps",
+          "email": null,
+          "phone": null,
+          "address": "3307 Peterson Island",
+          "city": "South Ashley",
+          "zip_code": "51131",
+          "SSN": "552-24-4365"
+        }
+      },
+      {
+        "record_id_a": "9ec499fc-ade5-4204-9a72-271c036f8ab1",
+        "record_id_b": "1049d5c6-2784-476c-9c07-2ca132c68276",
+        "values_a": {
+          "first_name": "Joanna",
+          "last_name": "Lewis",
+          "email": "wilsonbryce7@example.org",
+          "phone": null,
+          "address": "7504 Flynn Uoions",
+          "city": "South Deniseburgh",
+          "zip_code": "828 95",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Eaine",
+          "last_name": "Lewis",
+          "email": null,
+          "phone": null,
+          "address": "991 AndreaF orges Apt. 006",
+          "city": "Port Peggyville",
+          "zip_code": "49512",
+          "SSN": "766-36-7825"
+        }
+      },
+      {
+        "record_id_a": "f688582f-f573-45a0-bf88-36448751adea",
+        "record_id_b": "ee3442d4-0f54-47eb-a828-e6a892d304b6",
+        "values_a": {
+          "first_name": "Amandt",
+          "last_name": "Rose",
+          "email": "shawn95@example.com",
+          "phone": "800-544-4156",
+          "address": "7275 Moore Ways",
+          "city": "NORTH FRANK",
+          "zip_code": "669 17",
+          "SSN": "315-95-4492"
+        },
+        "values_b": {
+          "first_name": "Stephanie",
+          "last_name": "King",
+          "email": "dowens@example.com",
+          "phone": "+1 772 260 3214",
+          "address": "6619 Kelly Passage Suite 071",
+          "city": "EAST MIRANDACHESTER",
+          "zip_code": "669 17",
+          "SSN": "116-32-5347"
+        }
+      },
+      {
+        "record_id_a": "2f9c9d11-9a84-40cb-b3a6-7884d459bb16",
+        "record_id_b": "3d21a6c8-0891-407e-8ffe-949977d781ab",
+        "values_a": {
+          "first_name": "hristopher",
+          "last_name": "Goonzale",
+          "email": null,
+          "phone": null,
+          "address": "736 Kirk Freewaay",
+          "city": "Gonzalezport",
+          "zip_code": "85060",
+          "SSN": "222-97-7253"
+        },
+        "values_b": {
+          "first_name": "Calvvin",
+          "last_name": "SSilva",
+          "email": null,
+          "phone": "+1.451.796.2822",
+          "address": "47286 Brianna Geln Apt. 012",
+          "city": "STANTONMOUTH",
+          "zip_code": "85060",
+          "SSN": "355-24-1424"
+        }
+      },
+      {
+        "record_id_a": "4054049d-fddf-483f-8ccd-a09e0daed99b",
+        "record_id_b": "05007227-d6a6-41c5-9117-60e1a7d933bb",
+        "values_a": {
+          "first_name": "Patricia",
+          "last_name": "Francis",
+          "email": null,
+          "phone": "+1 372 283 4638",
+          "address": "8753 Helen Drvie Suite 149",
+          "city": "Blakemouth",
+          "zip_code": "74899",
+          "SSN": "159-41-1541"
+        },
+        "values_b": {
+          "first_name": "Charles",
+          "last_name": "Francis",
+          "email": null,
+          "phone": "+1 475 555 7734",
+          "address": "k21836 Carpenter Strea",
+          "city": "PORT JOSHUABOROUGH",
+          "zip_code": "414 28 USA",
+          "SSN": "671-19-4729"
+        }
+      },
+      {
+        "record_id_a": "54c5431f-8814-410e-9e3c-14701a86de6a",
+        "record_id_b": "0898bab0-b31b-4c07-a788-59d7a3dbfcac",
+        "values_a": {
+          "first_name": "Aangela",
+          "last_name": "Mleton",
+          "email": "nicolerandall91@example.net",
+          "phone": null,
+          "address": "34655 Jordan Circles Apt. 038",
+          "city": "North Tonya",
+          "zip_code": "60133",
+          "SSN": "632-68-1202"
+        },
+        "values_b": {
+          "first_name": "Adam",
+          "last_name": "iRvas",
+          "email": null,
+          "phone": "(490) 901-8513",
+          "address": "45723 Amy Grove Apt. 001",
+          "city": "Fischerton",
+          "zip_code": "60133",
+          "SSN": "12-83-5658"
+        }
+      },
+      {
+        "record_id_a": "d4a6e3cb-f052-433a-afc4-2a10632c96e9",
+        "record_id_b": "d571098a-6de4-4d2d-8d32-ef88edc707ed",
+        "values_a": {
+          "first_name": "David",
+          "last_name": "Hernandez",
+          "email": "yjimenez(at)example.com",
+          "phone": "(888) 349-1986",
+          "address": "94063 donilla Falls",
+          "city": "New Davidberg",
+          "zip_code": "79067",
+          "SSN": "401-67-3185"
+        },
+        "values_b": {
+          "first_name": "Deborah",
+          "last_name": "Hernandez",
+          "email": "deborah796@example.org",
+          "phone": null,
+          "address": "935 Moreno Fals Suite 347",
+          "city": "Roblesfurt",
+          "zip_code": "78861",
+          "SSN": "394-66-8941"
+        }
+      },
+      {
+        "record_id_a": "57b5709a-1a46-4c93-8596-a56ab6ec49de",
+        "record_id_b": "fd5142b8-ccb0-452c-bc7e-fbb56524a870",
+        "values_a": {
+          "first_name": "Daine",
+          "last_name": "West",
+          "email": "brooke93@example.org",
+          "phone": null,
+          "address": "49326 Phillips Crossroad pt. 394",
+          "city": "Garciaville",
+          "zip_code": "946 93",
+          "SSN": "396-92-5949"
+        },
+        "values_b": {
+          "first_name": "Ruth",
+          "last_name": "West",
+          "email": "nicole12@example.com",
+          "phone": "(270) 407-9633",
+          "address": "1766 Houston Road",
+          "city": "Cooperport",
+          "zip_code": "44592",
+          "SSN": "151-22-3862"
+        }
+      },
+      {
+        "record_id_a": "761bcd2c-a6df-4696-8c07-fad01d2b1c91",
+        "record_id_b": "0c4a4749-2c6c-4095-9b2d-62eaefbb6956",
+        "values_a": {
+          "first_name": "Tabitha",
+          "last_name": "Clrk",
+          "email": "hduffy(at)example.com",
+          "phone": "(927) 878-6268",
+          "address": "320 Cole For",
+          "city": "Samuelland",
+          "zip_code": "97937",
+          "SSN": "515-68-4984"
+        },
+        "values_b": {
+          "first_name": "Jonathan",
+          "last_name": "Styart",
+          "email": null,
+          "phone": "960-788-0199",
+          "address": "37589 Moran Lakes Suite 113",
+          "city": "EAST GAIL",
+          "zip_code": "97937",
+          "SSN": "568-50-2188"
+        }
+      },
+      {
+        "record_id_a": "53c36540-4c28-447f-bd0b-15990d6a4835",
+        "record_id_b": "3212ee3b-1619-4e74-b937-fecd5b96cb75",
+        "values_a": {
+          "first_name": "Michael",
+          "last_name": "Henyr",
+          "email": null,
+          "phone": "+1.716.538.4936",
+          "address": "101 Scott Ports",
+          "city": "Littlemouth",
+          "zip_code": "80506",
+          "SSN": "289-27-8822"
+        },
+        "values_b": {
+          "first_name": "Michael",
+          "last_name": "HAnry",
+          "email": "karlabaxter73@example.com",
+          "phone": null,
+          "address": "101 Scott Ports",
+          "city": "Burkeland",
+          "zip_code": "90934",
+          "SSN": "289-27-8822"
+        }
+      },
+      {
+        "record_id_a": "78464785-3f19-4434-b217-ffcb0835172b",
+        "record_id_b": "a3510927-2123-4164-8e5d-373269b2d940",
+        "values_a": {
+          "first_name": "Christopehr",
+          "last_name": "Ssmith",
+          "email": "JAMESJACKSON@EXAMPLE.COM",
+          "phone": "(723) 236-1328",
+          "address": "51786 Roberta Skyway Suite 731",
+          "city": "Stoneville",
+          "zip_code": "62260",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Christopher",
+          "last_name": "Smith",
+          "email": "jamesjackson@example.com",
+          "phone": "+1 723 236 1328",
+          "address": "51786 Roberta Skyway Suite 731",
+          "city": "Charlestown",
+          "zip_code": "51563",
+          "SSN": "566-51-4090"
+        }
+      },
+      {
+        "record_id_a": "99f03efa-d987-40ac-b4f7-09e173938cc3",
+        "record_id_b": "789f7698-1f56-40fd-9ea4-c70241cda75f",
+        "values_a": {
+          "first_name": "Heather",
+          "last_name": "Daivs",
+          "email": "JENNIFERPETERS@EXAMPLE.COM",
+          "phone": null,
+          "address": "096 Cox Turnpike Suite 240",
+          "city": "SOUTH JASONCHESTER",
+          "zip_code": "489 86-0000",
+          "SSN": "605-27-9261"
+        },
+        "values_b": {
+          "first_name": "Heather",
+          "last_name": "Davis",
+          "email": null,
+          "phone": null,
+          "address": "09C Cox Turnpike Suite 240",
+          "city": "Lake Daniel",
+          "zip_code": "63868",
+          "SSN": "605-27-9261"
+        }
+      },
+      {
+        "record_id_a": "4b1e295e-62a6-4390-bfaf-ab87fea17af7",
+        "record_id_b": "e49cd07d-8e72-4ec9-8426-f5df8f9b18cd",
+        "values_a": {
+          "first_name": "Lawrence",
+          "last_name": "Ross",
+          "email": "baileysheila@example.com",
+          "phone": null,
+          "address": "1783 Jason Terrace",
+          "city": "Dianatown",
+          "zip_code": "292 05",
+          "SSN": "837-62-9004"
+        },
+        "values_b": {
+          "first_name": "Dale",
+          "last_name": "Ross",
+          "email": null,
+          "phone": null,
+          "address": "5897 Janice Curve Suite s58",
+          "city": "Port Barbara",
+          "zip_code": "73480",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "13685e0d-d6d3-4231-8f41-c62857f4aba7",
+        "record_id_b": "b9c9b867-3e15-4272-9801-e1e414ee13d4",
+        "values_a": {
+          "first_name": "AEgelica",
+          "last_name": "Parker",
+          "email": null,
+          "phone": null,
+          "address": "8018 Kevin Estates",
+          "city": "Sarahbury",
+          "zip_code": "398 52",
+          "SSN": "839-43-9201"
+        },
+        "values_b": {
+          "first_name": null,
+          "last_name": "HHardy",
+          "email": "FRANK33@EXAMPLE.COM",
+          "phone": null,
+          "address": "6277 Wagner Stret Suite 270",
+          "city": "SIMMONSLAND",
+          "zip_code": "398 52",
+          "SSN": "444-3-9098"
+        }
+      },
+      {
+        "record_id_a": "8b54c9a6-9efe-457e-890a-4043e4c21429",
+        "record_id_b": "28ec1167-cb14-4792-82f6-457e9f3f8376",
+        "values_a": {
+          "first_name": "Amy",
+          "last_name": "Warren",
+          "email": null,
+          "phone": "(001) 294-3476",
+          "address": "256 Brcue Forge",
+          "city": "Port Debbietown",
+          "zip_code": "73816",
+          "SSN": "689-59-6813"
+        },
+        "values_b": {
+          "first_name": "my",
+          "last_name": "arren",
+          "email": "jacksonkaylee@example.com",
+          "phone": "+1.001.294.3476",
+          "address": "2256 Bruce Fore",
+          "city": "Davistown",
+          "zip_code": "60545-0000",
+          "SSN": "689-59-6813"
+        }
+      },
+      {
+        "record_id_a": "6dd526df-3127-4938-b41e-70e85a1a3a61",
+        "record_id_b": "24fb2390-f6c3-441c-acac-1a44b76b6b94",
+        "values_a": {
+          "first_name": "Michele",
+          "last_name": "Hernandez",
+          "email": null,
+          "phone": "+1.001.866.6203",
+          "address": "788 Edward Islands",
+          "city": "Calhounland",
+          "zip_code": "12368",
+          "SSN": "630-29-5982"
+        },
+        "values_b": {
+          "first_name": "Karne",
+          "last_name": "Hernandez",
+          "email": "hguerrero83@example.com",
+          "phone": "+1 207 228 4385",
+          "address": "9245 Sarah CirclesS uite 904",
+          "city": "Lake Jonathan",
+          "zip_code": "997 16",
+          "SSN": "241-62-9393"
+        }
+      },
+      {
+        "record_id_a": "954676fd-e629-4ab3-a75a-fb4faaf022ad",
+        "record_id_b": "cce8c333-9efc-4fc2-85e1-7dc91f929420",
+        "values_a": {
+          "first_name": "Loir",
+          "last_name": "Dillon",
+          "email": null,
+          "phone": null,
+          "address": "1714 Micheal Manors Apt. 032",
+          "city": "West Robertview",
+          "zip_code": "75581",
+          "SSN": "179-83-7108"
+        },
+        "values_b": {
+          "first_name": "Amber",
+          "last_name": "Olsn",
+          "email": null,
+          "phone": null,
+          "address": "54596 Flowers Isle",
+          "city": "East Jessicaview",
+          "zip_code": "75581",
+          "SSN": "460-74-2215"
+        }
+      },
+      {
+        "record_id_a": "6afae4c5-67a0-4bda-a69f-b3579cf15674",
+        "record_id_b": "9a1e36cc-0a2f-43bb-a11c-d828ec0f3e26",
+        "values_a": {
+          "first_name": "Chrisotpher",
+          "last_name": "Ruz",
+          "email": null,
+          "phone": "+1 281 457 8061",
+          "address": "11678 Johnson Rds",
+          "city": "VANGBURY",
+          "zip_code": "499 47",
+          "SSN": "771-84-4728"
+        },
+        "values_b": {
+          "first_name": "Christopher",
+          "last_name": "Ruiz",
+          "email": null,
+          "phone": null,
+          "address": "11678 Johnsfon Roads",
+          "city": "Lake David",
+          "zip_code": "45110",
+          "SSN": "771-84-4728"
+        }
+      },
+      {
+        "record_id_a": "7fd08bd9-ea42-4159-b4c4-2c7a380b05c9",
+        "record_id_b": "a63cd737-d27b-4bdc-8158-a808e40de640",
+        "values_a": {
+          "first_name": "Joseph",
+          "last_name": "Adams",
+          "email": null,
+          "phone": null,
+          "address": "933 Thomas Squares Apt. 869",
+          "city": "Jasonfort",
+          "zip_code": "04907",
+          "SSN": "655-49-3876"
+        },
+        "values_b": {
+          "first_name": "Nieole",
+          "last_name": "mJensen",
+          "email": "RGONZALEZ@EXAMPLE.NET",
+          "phone": "538-355-2882",
+          "address": "99687 Patricia Wall",
+          "city": "New Davidport",
+          "zip_code": "04907",
+          "SSN": "896-43-9571"
+        }
+      },
+      {
+        "record_id_a": "0576e224-77cb-4a07-90a7-7c039844d96a",
+        "record_id_b": "945ea0d7-7488-412a-94ec-8e86c931af75",
+        "values_a": {
+          "first_name": "Vxronica",
+          "last_name": "Walton",
+          "email": null,
+          "phone": null,
+          "address": "59 Lawrence Crest Suite 383",
+          "city": "Ginaport",
+          "zip_code": "54442",
+          "SSN": "805-20-9204"
+        },
+        "values_b": {
+          "first_name": "Veronia",
+          "last_name": "Walton",
+          "email": "SKIRBY@EXAMPLE.COM",
+          "phone": "627952800161734",
+          "address": "592 Lwrence Crest Suite 383",
+          "city": "South Joshua",
+          "zip_code": "96482",
+          "SSN": "805-20-9204"
+        }
+      },
+      {
+        "record_id_a": "fa287c6a-7e52-477c-b4e0-2dfe01761649",
+        "record_id_b": "096eaa83-8263-4ca6-bcb8-f1caacaba60d",
+        "values_a": {
+          "first_name": "Roy",
+          "last_name": "Kng",
+          "email": null,
+          "phone": "(238) 416-6496",
+          "address": "983li Davi Isle",
+          "city": "West Andrea",
+          "zip_code": "45110",
+          "SSN": "665-79-7180"
+        },
+        "values_b": {
+          "first_name": "Jacob",
+          "last_name": "Rmos",
+          "email": null,
+          "phone": "5935504629",
+          "address": "1535 Jared Pike Suite 895",
+          "city": "KIMBERLYVIEW",
+          "zip_code": "45110",
+          "SSN": "570-42-4575"
+        }
+      },
+      {
+        "record_id_a": "ada2f698-3c25-4b28-a4fd-d07dc5b8499e",
+        "record_id_b": "c96bcd8b-68d2-4a62-a45b-fdfad72f1f80",
+        "values_a": {
+          "first_name": "Anderw",
+          "last_name": "Cobb",
+          "email": null,
+          "phone": null,
+          "address": "0694 Kim Prairie buite 410",
+          "city": "West Tracyshire",
+          "zip_code": "93015",
+          "SSN": "573-39-7636"
+        },
+        "values_b": {
+          "first_name": "Tyrone",
+          "last_name": "Cobb",
+          "email": "richard14@example.net",
+          "phone": null,
+          "address": "290 JosepW Land Suite 59y9",
+          "city": "Alvinland",
+          "zip_code": "88149",
+          "SSN": "809-40-2017"
+        }
+      },
+      {
+        "record_id_a": "2dc0c33c-95c9-41fe-984d-6ce6cffc52ab",
+        "record_id_b": "9274c058-431e-4390-a227-a9b322eada73",
+        "values_a": {
+          "first_name": "Sandra",
+          "last_name": "Martinez",
+          "email": null,
+          "phone": null,
+          "address": "435 Michelle Forge Apt. 365",
+          "city": "North Matthew",
+          "zip_code": "16183",
+          "SSN": "266-32-7755"
+        },
+        "values_b": {
+          "first_name": "Sindra",
+          "last_name": "Mayttinez",
+          "email": null,
+          "phone": "+1 001 303 6718",
+          "address": "435 Michelle Forge Apt. 365",
+          "city": "South Jessicaland",
+          "zip_code": "13306",
+          "SSN": "266-32-7755"
+        }
+      },
+      {
+        "record_id_a": "616bd732-b638-4f04-be6c-39e3d6fa3df7",
+        "record_id_b": "7faef1da-66c0-40cf-9c20-84f43c94fec2",
+        "values_a": {
+          "first_name": "Robert",
+          "last_name": "olton",
+          "email": null,
+          "phone": null,
+          "address": "4i215 Carl Gateway",
+          "city": "South Adm",
+          "zip_code": "51471",
+          "SSN": "483-58-8348"
+        },
+        "values_b": {
+          "first_name": "Thbresa",
+          "last_name": "Spncer",
+          "email": null,
+          "phone": "+1 695 928 8959",
+          "address": "96964 Clark Rapid",
+          "city": "Mirandahaven",
+          "zip_code": "51471",
+          "SSN": "681-96-4164"
+        }
+      },
+      {
+        "record_id_a": "9d8a168d-0d46-4c19-9420-51f4eaa073c2",
+        "record_id_b": "7041f2ae-7329-4767-8e0f-46173c4efd0c",
+        "values_a": {
+          "first_name": "Christopher",
+          "last_name": "Scott",
+          "email": null,
+          "phone": "393-797-7041",
+          "address": "467 Allison  Ville Suite 90",
+          "city": "Briannamouth",
+          "zip_code": "67989",
+          "SSN": "800-20-1519"
+        },
+        "values_b": {
+          "first_name": "Jennifeer",
+          "last_name": "Scott",
+          "email": null,
+          "phone": null,
+          "address": "973 Aaron Fort Apt. 192",
+          "city": "Kingfort",
+          "zip_code": "215 03",
+          "SSN": "567-80-3369"
+        }
+      },
+      {
+        "record_id_a": "5a26e8cc-c4a3-461e-aa58-6300edc703a1",
+        "record_id_b": "d31ab4fa-d040-4d28-8a35-2d9eafaa23e6",
+        "values_a": {
+          "first_name": "Matthew",
+          "last_name": "Lut",
+          "email": "omalone@example.net",
+          "phone": "701-965-4876",
+          "address": "9166 Rogers Spring",
+          "city": "Stevensonland",
+          "zip_code": "512 11",
+          "SSN": "173-20-3654"
+        },
+        "values_b": {
+          "first_name": "Matthew",
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "9166 Rogeers Spring",
+          "city": "Stevenfort",
+          "zip_code": "48986",
+          "SSN": "173-20-3654"
+        }
+      },
+      {
+        "record_id_a": "2c0185b4-6324-4423-b1a7-9ab72bb7606f",
+        "record_id_b": "a0afb92d-e7ea-4238-9ff3-df05bd497a0a",
+        "values_a": {
+          "first_name": "Derek",
+          "last_name": "Henderson",
+          "email": "hollyperkins@example.net",
+          "phone": null,
+          "address": "19292 Megan Tunnel",
+          "city": "Vangbury",
+          "zip_code": "10778 USA",
+          "SSN": "894-54-6752"
+        },
+        "values_b": {
+          "first_name": "Jose",
+          "last_name": "Carr",
+          "email": null,
+          "phone": null,
+          "address": "2386 Glenn Union Suite 089",
+          "city": "Danielville",
+          "zip_code": "10778 USA",
+          "SSN": "575-36-6573"
+        }
+      },
+      {
+        "record_id_a": "9e30e73d-dca1-4386-8117-6404b327d4f6",
+        "record_id_b": "1b634434-a380-489c-8a18-f55316b2d432",
+        "values_a": {
+          "first_name": "Tammy",
+          "last_name": "Williams",
+          "email": "frankvickie@example.net",
+          "phone": "953-240-2970",
+          "address": "401 Veronica Park Suite 896",
+          "city": "Pittmanfurt",
+          "zip_code": "43508",
+          "SSN": "684-92-7366"
+        },
+        "values_b": {
+          "first_name": "Anthony",
+          "last_name": "Moore",
+          "email": null,
+          "phone": "979-676-4381",
+          "address": "669003 Dougherty Trafficway",
+          "city": "North Brandn",
+          "zip_code": "43508",
+          "SSN": "352-81-9830"
+        }
+      },
+      {
+        "record_id_a": "123e8609-6029-4ada-8c98-1f45d050c023",
+        "record_id_b": "df88b46f-b1a8-4539-9ae8-61344d8e3f57",
+        "values_a": {
+          "first_name": "Victouia",
+          "last_name": "Phillips",
+          "email": "marcusjohnson(at)example.net",
+          "phone": null,
+          "address": "4527 Brown Rapids Suite 472",
+          "city": "HANSONBERG",
+          "zip_code": "72885",
+          "SSN": "180-97-8133"
+        },
+        "values_b": {
+          "first_name": "Derek",
+          "last_name": "Blair",
+          "email": "dsanders@example.com",
+          "phone": null,
+          "address": "627 William Place",
+          "city": "South Wayneborough",
+          "zip_code": "72885",
+          "SSN": "243-25-1195"
+        }
+      },
+      {
+        "record_id_a": "f0386273-86ba-44a1-8661-597936634a91",
+        "record_id_b": "f14cbf03-7ca5-4cce-a7fa-d3817f0d968c",
+        "values_a": {
+          "first_name": "Thomas",
+          "last_name": "Cunningham",
+          "email": "michelle5249@example.com",
+          "phone": null,
+          "address": "0054 Deanna Walk Apt. 998",
+          "city": "Fordside",
+          "zip_code": "08916",
+          "SSN": "l24-27-9348"
+        },
+        "values_b": {
+          "first_name": "David",
+          "last_name": "Cunningham",
+          "email": null,
+          "phone": null,
+          "address": "85 Armstrong Turnpike Apt. 594",
+          "city": "Christopherburgh",
+          "zip_code": "04950",
+          "SSN": "679-82-6971"
+        }
+      },
+      {
+        "record_id_a": "b82b9529-cc57-42df-bb6f-9b6305397175",
+        "record_id_b": "e59b1ec4-b1fc-4753-95f9-62e88e2671e0",
+        "values_a": {
+          "first_name": "Cha",
+          "last_name": "Ortiz",
+          "email": "barbaraburke@yahoo.com",
+          "phone": null,
+          "address": "97550 Garcia Thail",
+          "city": "SOUTH DAWNMOUTH",
+          "zip_code": "25771",
+          "SSN": "757-17-9584"
+        },
+        "values_b": {
+          "first_name": "Brimn",
+          "last_name": "Ortiz",
+          "email": "jennifer40@example.com",
+          "phone": "001-265-7511",
+          "address": "28920 Hamptno Highway",
+          "city": "Brianaburgh",
+          "zip_code": "69430",
+          "SSN": "525-66-9006"
+        }
+      },
+      {
+        "record_id_a": "63d6458b-b9db-4178-b568-f4f2cb9aa74b",
+        "record_id_b": "10302c5f-e99b-4931-aa99-fb4cea5daf77",
+        "values_a": {
+          "first_name": "Lori",
+          "last_name": "Cole",
+          "email": null,
+          "phone": "942-988-3903",
+          "address": "31 John Court",
+          "city": "NEW MATTHEWBURY",
+          "zip_code": "45779",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "aWlter",
+          "last_name": "Cole",
+          "email": "tesparza3@example.org",
+          "phone": null,
+          "address": "2927 Mary Ridges",
+          "city": "Lake Brian",
+          "zip_code": "05202",
+          "SSN": "656-79-8734"
+        }
+      },
+      {
+        "record_id_a": "5c04c7f5-bce5-4202-81c4-225ebe408b83",
+        "record_id_b": "49c62b6b-5897-4643-957a-f54240278ec7",
+        "values_a": {
+          "first_name": "Luren",
+          "last_name": "Gvarrett",
+          "email": null,
+          "phone": null,
+          "address": "70002 Benton Mountain",
+          "city": "Wattsmouth",
+          "zip_code": "91970",
+          "SSN": "807-40-1807"
+        },
+        "values_b": {
+          "first_name": "auren",
+          "last_name": "Garrett",
+          "email": null,
+          "phone": null,
+          "address": "70002 Benton Mountain",
+          "city": "SOUTH MARVINBURGH",
+          "zip_code": "85083-0000",
+          "SSN": "807-40-1807"
+        }
+      },
+      {
+        "record_id_a": "63c9041f-2265-4519-a793-1ab9ac49aa53",
+        "record_id_b": "69a6976d-443b-4c25-94f0-4d02e7a504d2",
+        "values_a": {
+          "first_name": "Betty",
+          "last_name": "Patrick",
+          "email": null,
+          "phone": null,
+          "address": "366 Sweens Rapid",
+          "city": "Fritzchester",
+          "zip_code": "57583",
+          "SSN": "192-60-9281"
+        },
+        "values_b": {
+          "first_name": "Linda",
+          "last_name": "Patrick",
+          "email": null,
+          "phone": "(621) 998-0418",
+          "address": "2642 Robert Expressway",
+          "city": "EAST MONICATON",
+          "zip_code": "75554",
+          "SSN": "853-42-3856"
+        }
+      }
+    ],
+    "likely_non_match": [
+      {
+        "record_id_a": "6c399343-dea6-483f-825d-691daa054c17",
+        "record_id_b": "41f7630a-3263-49b4-a571-1fdc33b57be1",
+        "values_a": {
+          "first_name": "Jason",
+          "last_name": "Griffin",
+          "email": null,
+          "phone": "(710) 541-3677",
+          "address": "249 Mendoza Mountain",
+          "city": "Port Ryantown",
+          "zip_code": "169 70",
+          "SSN": "271-37-4157"
+        },
+        "values_b": {
+          "first_name": "Brian",
+          "last_name": "tSanley",
+          "email": null,
+          "phone": "833-527-1045",
+          "address": "17191 Hall Valley Apt. 547",
+          "city": "East Laurenmouth",
+          "zip_code": "58866-0000",
+          "SSN": "377-87-3247"
+        }
+      },
+      {
+        "record_id_a": "864e9863-fe4c-4f18-97b2-aa8a23786342",
+        "record_id_b": "c6a54047-693e-4fba-927b-e71e685d0751",
+        "values_a": {
+          "first_name": "Brmce",
+          "last_name": "Helt",
+          "email": null,
+          "phone": "+1 595 497 9296",
+          "address": "70391 Mark Lodge Suite 141",
+          "city": "Natashpaort",
+          "zip_code": "592 64",
+          "SSN": "600-945341"
+        },
+        "values_b": {
+          "first_name": "Rachel",
+          "last_name": "Mkcay",
+          "email": null,
+          "phone": null,
+          "address": "522 John Branch Suite 248",
+          "city": "New Williamton",
+          "zip_code": "905 96",
+          "SSN": "212-94-1422"
+        }
+      },
+      {
+        "record_id_a": "a3ce1a8d-2cfc-45c3-bbde-3667174900e2",
+        "record_id_b": "30978128-d165-4eb7-a126-98cbe3ad5493",
+        "values_a": {
+          "first_name": "Frank",
+          "last_name": "Scmitt",
+          "email": null,
+          "phone": null,
+          "address": "38638 John Flat Apt. 624",
+          "city": "Jasonfort",
+          "zip_code": "021 14",
+          "SSN": "709-43-6238"
+        },
+        "values_b": {
+          "first_name": "Kieth",
+          "last_name": "Harrison",
+          "email": null,
+          "phone": "+1.001.583.7326",
+          "address": "5s819 Henderson Mill",
+          "city": "SOUTH ANGELACHESTER",
+          "zip_code": "91605-0000",
+          "SSN": "631-36-6325"
+        }
+      },
+      {
+        "record_id_a": "46087f65-36de-437e-a2e3-495a6deb74ec",
+        "record_id_b": "6e617136-8ba6-429a-9f47-fcfcf412c2dc",
+        "values_a": {
+          "first_name": "Debra",
+          "last_name": "Olsno",
+          "email": "baileyandrea@example.com",
+          "phone": null,
+          "address": "767 Carlson Groves",
+          "city": "South Jasonchesetr",
+          "zip_code": "56771",
+          "SSN": "39-14-4792"
+        },
+        "values_b": {
+          "first_name": "Adam",
+          "last_name": "Crig",
+          "email": "ndiaz(at)example.net",
+          "phone": "+1 747 453 9659",
+          "address": "942 Juan Lodge Suitep153",
+          "city": "East Tyroneview",
+          "zip_code": "23520",
+          "SSN": "106-78-7739"
+        }
+      },
+      {
+        "record_id_a": "c2abce01-d9e7-4c18-884d-b12a0b786218",
+        "record_id_b": "d9d50f7e-4de6-4d55-93e0-8fd771a2cc06",
+        "values_a": {
+          "first_name": "Elizabetgh",
+          "last_name": "Wgner",
+          "email": null,
+          "phone": "(811) 682-8921",
+          "address": "8309 Morris Flat",
+          "city": "Cindyfurt",
+          "zip_code": "806 55",
+          "SSN": "111-80-3316"
+        },
+        "values_b": {
+          "first_name": "Kim",
+          "last_name": "Noble DVM",
+          "email": null,
+          "phone": null,
+          "address": "941 2Kathy Green",
+          "city": "Brandybubgh",
+          "zip_code": "11090",
+          "SSN": "391-13-7333"
+        }
+      },
+      {
+        "record_id_a": "9bb10c30-4ca5-47ec-a96b-c878b3e886bf",
+        "record_id_b": "2b227397-aadd-4a6f-b6d4-d3637828dd3c",
+        "values_a": {
+          "first_name": "Jseph",
+          "last_name": "Cook",
+          "email": null,
+          "phone": "145-574-3840",
+          "address": "216 Robert Ports Apt. 649",
+          "city": "Thomasbuyr",
+          "zip_code": "27601",
+          "SSN": "795-78-6425"
+        },
+        "values_b": {
+          "first_name": "Alexandra",
+          "last_name": "Frey",
+          "email": null,
+          "phone": null,
+          "address": "505 Martinez Court Apt. 96",
+          "city": "Bryanshire",
+          "zip_code": "63374",
+          "SSN": "191-55-2524"
+        }
+      },
+      {
+        "record_id_a": "83b31ed8-50c6-443f-9430-9daa21332e53",
+        "record_id_b": "bedc24cd-f234-448a-b973-a41383305c57",
+        "values_a": {
+          "first_name": "Andrew",
+          "last_name": "Rivera",
+          "email": null,
+          "phone": null,
+          "address": "8223 Krystal Locks Suite 20",
+          "city": "Rickmouth",
+          "zip_code": "372 92",
+          "SSN": "315-31-7505"
+        },
+        "values_b": {
+          "first_name": "Christopher",
+          "last_name": "Thomas",
+          "email": null,
+          "phone": "(934) 420-1654",
+          "address": "9608 Christian hSores Apt. 550",
+          "city": "South Sarah",
+          "zip_code": "987 63",
+          "SSN": "682-89-1986"
+        }
+      },
+      {
+        "record_id_a": "15196e3b-2ff0-4241-88a7-5792106d3a06",
+        "record_id_b": "56b48d30-67ea-4ce7-b16c-00fd4ea0cbc3",
+        "values_a": {
+          "first_name": "Ashloy",
+          "last_name": "Heath",
+          "email": null,
+          "phone": null,
+          "address": "01154 Gibson Forks",
+          "city": "Christinaview",
+          "zip_code": "38633-0000",
+          "SSN": "156-68-3161"
+        },
+        "values_b": {
+          "first_name": "Debbie",
+          "last_name": "Scott",
+          "email": "JASON63@EXAMPLE.ORG",
+          "phone": "205-261-4653",
+          "address": "18674 Baldwin Way Suite 203",
+          "city": "Hodgeston",
+          "zip_code": "126 49",
+          "SSN": "864-76-46221"
+        }
+      },
+      {
+        "record_id_a": "a33dc51a-223c-4f0a-89c4-cf8fc231c6c8",
+        "record_id_b": "a34a8573-cb24-48c2-a5e3-9ea907b59fd2",
+        "values_a": {
+          "first_name": "rourtney",
+          "last_name": "Kennedy",
+          "email": null,
+          "phone": null,
+          "address": "49987b Lynch Rapid",
+          "city": "DONNAHAVEN",
+          "zip_code": "493 17",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Charles",
+          "last_name": "Galvan",
+          "email": null,
+          "phone": "+1.811.526.6497",
+          "address": "3910 Stephanie Coves",
+          "city": "West Thomashavenn",
+          "zip_code": "47249",
+          "SSN": "231-22-7453"
+        }
+      },
+      {
+        "record_id_a": "78c7a2fd-f500-4e6d-a6bb-fb6617f770f0",
+        "record_id_b": "321343c5-36e8-4e27-ac08-4a717162f8b5",
+        "values_a": {
+          "first_name": "Michael",
+          "last_name": "Wbster",
+          "email": null,
+          "phone": "4505124955",
+          "address": "90833 Jackson Throughway",
+          "city": "East Andrew",
+          "zip_code": "12655",
+          "SSN": "365-41-5543"
+        },
+        "values_b": {
+          "first_name": "Kim",
+          "last_name": "Johnsn",
+          "email": null,
+          "phone": null,
+          "address": "17552 Castillo Camp Apt. 458",
+          "city": "NEW CHARLES",
+          "zip_code": "97910",
+          "SSN": "312-85-3362"
+        }
+      },
+      {
+        "record_id_a": "10e4f295-c91c-453b-a821-1305f22423ef",
+        "record_id_b": "5cdb2197-03de-49f5-a4bf-8efedb91ad58",
+        "values_a": {
+          "first_name": "Janet",
+          "last_name": "Holjt",
+          "email": null,
+          "phone": "00126283039744088",
+          "address": "89870 Blake Springs Apt. 991",
+          "city": "Ariasberg",
+          "zip_code": "12543",
+          "SSN": "268-30-6286"
+        },
+        "values_b": {
+          "first_name": "George",
+          "last_name": "Ellis",
+          "email": null,
+          "phone": "+1 702 642 5703",
+          "address": "31582 Perez Harbors Aph. 296",
+          "city": "Collinsburgh",
+          "zip_code": "585 16",
+          "SSN": "439-96-2795"
+        }
+      },
+      {
+        "record_id_a": "a25e3bb5-773d-4de7-839a-3a5ab3c93829",
+        "record_id_b": "d2cff14f-ae01-4a88-8cd3-b7e4b0767aa8",
+        "values_a": {
+          "first_name": "aNthan",
+          "last_name": "Domez",
+          "email": null,
+          "phone": null,
+          "address": "8421 Smith Points Suite 162",
+          "city": "SOUTH VALERIE",
+          "zip_code": "32372",
+          "SSN": "417-53-4630"
+        },
+        "values_b": {
+          "first_name": "Jacqueline",
+          "last_name": "Mccarthy",
+          "email": null,
+          "phone": null,
+          "address": "0718 Shelly Rapidd Apt. 361",
+          "city": "Lake Ashleyside",
+          "zip_code": "92172",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "230d56d1-5d27-4d4f-8eb3-12a010569d08",
+        "record_id_b": "12f773c2-37eb-43a5-8082-fd84e19a19b3",
+        "values_a": {
+          "first_name": "Clayton",
+          "last_name": "Blankenship",
+          "email": null,
+          "phone": "(796) 470-2436",
+          "address": "55364 Holly Via Suite 504",
+          "city": "Port Ricardo",
+          "zip_code": "87036",
+          "SSN": "578-80-3126"
+        },
+        "values_b": {
+          "first_name": "Christopher",
+          "last_name": "Ramos",
+          "email": null,
+          "phone": "+1.683.372.6877",
+          "address": "672 Castillo Parks",
+          "city": "Calhounland",
+          "zip_code": "07317 USA",
+          "SSN": "452-82-9231"
+        }
+      },
+      {
+        "record_id_a": "7fd08bd9-ea42-4159-b4c4-2c7a380b05c9",
+        "record_id_b": "d75b3c4d-65d2-4869-96c8-03f5deda6570",
+        "values_a": {
+          "first_name": "Joseph",
+          "last_name": "Adams",
+          "email": null,
+          "phone": null,
+          "address": "933 Thomas Squares Apt. 869",
+          "city": "Jasonfort",
+          "zip_code": "04907",
+          "SSN": "655-49-3876"
+        },
+        "values_b": {
+          "first_name": "Denise",
+          "last_name": "Frency",
+          "email": null,
+          "phone": "+1.001.871.9824",
+          "address": "41746 Kristin Villageo",
+          "city": "Christopherberg",
+          "zip_code": "82629-0000",
+          "SSN": "643-75-4176"
+        }
+      },
+      {
+        "record_id_a": "bd582d2e-cc1d-468a-89bf-3f6d53dd437f",
+        "record_id_b": "cfd338c2-13ac-4073-8623-f5ac37b9dd6e",
+        "values_a": {
+          "first_name": "JuliH",
+          "last_name": "King",
+          "email": null,
+          "phone": null,
+          "address": "2880 Burns Creek",
+          "city": "Harrisfurt",
+          "zip_code": "318 86-0000",
+          "SSN": "7927-9-2424"
+        },
+        "values_b": {
+          "first_name": "Joanna",
+          "last_name": "Sha",
+          "email": null,
+          "phone": null,
+          "address": "479 Miller Lock Apt. 49",
+          "city": "Port Deborahport",
+          "zip_code": "041 77",
+          "SSN": "387-27-9824"
+        }
+      },
+      {
+        "record_id_a": "de34e78d-78ec-4420-8bca-3c49abe44f06",
+        "record_id_b": "b18c69dd-a689-4099-9094-d87aa2791dc6",
+        "values_a": {
+          "first_name": "Natahn",
+          "last_name": "Martinez",
+          "email": null,
+          "phone": null,
+          "address": "335 Baker Skyyway",
+          "city": "Fostertown",
+          "zip_code": "49555",
+          "SSN": "275-94-6531"
+        },
+        "values_b": {
+          "first_name": "Debbie",
+          "last_name": "Lee",
+          "email": null,
+          "phone": "3815889699",
+          "address": "935 Maddox Islands",
+          "city": "Rickmouth",
+          "zip_code": "01904",
+          "SSN": "74q-33-4053"
+        }
+      },
+      {
+        "record_id_a": "26b9cc1c-c75e-431d-8124-e6ae8d91c0d5",
+        "record_id_b": "f1b4521c-aca0-4965-b8f0-08219b3abd8b",
+        "values_a": {
+          "first_name": "Ioshua",
+          "last_name": "Evans",
+          "email": null,
+          "phone": "+1.549.280.4606",
+          "address": "6349 Robert Way Apt. 557",
+          "city": "Richmondshire",
+          "zip_code": "05733",
+          "SSN": "469-56-5222"
+        },
+        "values_b": {
+          "first_name": "Kenneth",
+          "last_name": "Wilson",
+          "email": null,
+          "phone": null,
+          "address": "184 Kellly Skyway",
+          "city": "Jillmouth",
+          "zip_code": "212 57",
+          "SSN": null
+        }
+      },
+      {
+        "record_id_a": "c705a30b-560a-4599-b43b-869c93f3e926",
+        "record_id_b": "f887e3af-954d-4cfe-89d5-2c51734c7fcf",
+        "values_a": {
+          "first_name": "Masy",
+          "last_name": "Trujillo",
+          "email": null,
+          "phone": "+1.208.743.1965",
+          "address": "126 Mitchell Squkre",
+          "city": "Evansberg",
+          "zip_code": "82842",
+          "SSN": "866-98-2480"
+        },
+        "values_b": {
+          "first_name": "aron",
+          "last_name": "Pena",
+          "email": null,
+          "phone": null,
+          "address": "534 Butler Ways Suite 044",
+          "city": "Jacksontown",
+          "zip_code": "84952",
+          "SSN": "391-93-9715"
+        }
+      },
+      {
+        "record_id_a": "99189112-5e1b-4741-aed9-cce2eb69c6b6",
+        "record_id_b": "3cb5ed09-2bf2-4e83-b399-8952327aa3ec",
+        "values_a": {
+          "first_name": "Dr.",
+          "last_name": "LarryW hite",
+          "email": null,
+          "phone": null,
+          "address": "312 Campos Manor",
+          "city": "North Cherylville",
+          "zip_code": "05405",
+          "SSN": "690-15-3870"
+        },
+        "values_b": {
+          "first_name": "Brittany",
+          "last_name": "Barrber",
+          "email": null,
+          "phone": "789-971-5273",
+          "address": "6567 Daidson Radnal Apt. 601",
+          "city": "Frederickburgh",
+          "zip_code": "259 58",
+          "SSN": "42-33-8988"
+        }
+      },
+      {
+        "record_id_a": "30a64f2c-dc41-4634-86a9-51753524a3e3",
+        "record_id_b": "07748631-e9f9-4330-b9b0-fa2758a4d8e3",
+        "values_a": {
+          "first_name": "Magraret",
+          "last_name": "Morn",
+          "email": null,
+          "phone": null,
+          "address": "13122 Robert Coves Suite 583",
+          "city": "New Adrana",
+          "zip_code": "56584",
+          "SSN": null
+        },
+        "values_b": {
+          "first_name": "Kathryn",
+          "last_name": "Willizms",
+          "email": null,
+          "phone": "+1 527 504 2259",
+          "address": "814l33 Richard Club",
+          "city": "West Stephanie",
+          "zip_code": "40792",
+          "SSN": "271-18-1749"
+        }
+      },
+      {
+        "record_id_a": "9255e902-2a68-4142-943e-3548d8e99aa6",
+        "record_id_b": "6c45e8c8-1fe7-46ca-b747-62d93a3cabe1",
+        "values_a": {
+          "first_name": "Jeses",
+          "last_name": "Wacd",
+          "email": null,
+          "phone": "(241) 591-3800",
+          "address": "5622 Angela Station",
+          "city": "THOMPSONMOUTH",
+          "zip_code": "550 60",
+          "SSN": "385-69-5092"
+        },
+        "values_b": {
+          "first_name": "Anderw",
+          "last_name": "Rivera",
+          "email": "michael820@example.com",
+          "phone": null,
+          "address": "8223 KrystalvLockv Suite 250",
+          "city": "Rickmouth",
+          "zip_code": "127 68",
+          "SSN": "315-31-7055"
+        }
+      },
+      {
+        "record_id_a": "d1a079ca-e065-4ad4-adcd-ed2d4bc8dc2c",
+        "record_id_b": "82b9da38-0733-42c0-8123-8f515251ac2b",
+        "values_a": {
+          "first_name": "Alicia",
+          "last_name": "Smmijth",
+          "email": null,
+          "phone": "+1 201 546 8314",
+          "address": "558 Price Summit Suite 201",
+          "city": "Port Debbietown",
+          "zip_code": "38633-0000",
+          "SSN": "404-40-2571"
+        },
+        "values_b": {
+          "first_name": "Aqber",
+          "last_name": "eRios",
+          "email": null,
+          "phone": null,
+          "address": "1154 Griffin Stravenue Suite 275",
+          "city": "Williamsstad",
+          "zip_code": "10247",
+          "SSN": "868-44-6573"
+        }
+      },
+      {
+        "record_id_a": "3e875b98-2d47-43d5-bdf1-9f29eea15e36",
+        "record_id_b": "b1d0c67d-9d14-46fe-a7cc-5183ef2c31cf",
+        "values_a": {
+          "first_name": "Susan",
+          "last_name": "Pruitt",
+          "email": null,
+          "phone": "+1.001.669.5582",
+          "address": "58025 Jackson Rapid",
+          "city": "Brianland",
+          "zip_code": "06730",
+          "SSN": "667-32-8807"
+        },
+        "values_b": {
+          "first_name": "Ryan",
+          "last_name": null,
+          "email": null,
+          "phone": null,
+          "address": "47084o Wolfe Glen",
+          "city": "Jackmouth",
+          "zip_code": "88809",
+          "SSN": "521-81-8161"
+        }
+      },
+      {
+        "record_id_a": "fb50690f-c332-48c4-a809-065456ca2769",
+        "record_id_b": "fbac634f-76b5-4231-a6ba-5961b86d30be",
+        "values_a": {
+          "first_name": "Brandno",
+          "last_name": "Johnston",
+          "email": null,
+          "phone": "+1 159 961 9387",
+          "address": "4474 Kimberly Park",
+          "city": "Port Cindy",
+          "zip_code": "940 20",
+          "SSN": "452-26-3981"
+        },
+        "values_b": {
+          "first_name": "Jo",
+          "last_name": "Evans",
+          "email": "jacobsmith(at)example.net",
+          "phone": null,
+          "address": "07028 West Shoal Apt. 020",
+          "city": "NEW MATTHEWBURY",
+          "zip_code": "49991",
+          "SSN": "890-84-6447"
+        }
+      },
+      {
+        "record_id_a": "a156567d-1fdc-4976-8e1d-a4f2ab237095",
+        "record_id_b": "f80b43f4-3e90-482b-9f28-abbfbe228f61",
+        "values_a": {
+          "first_name": "Brenad",
+          "last_name": "Fitzgerald",
+          "email": null,
+          "phone": null,
+          "address": "67011 Griffin Creek",
+          "city": "PORT RYANMOUTH",
+          "zip_code": "97752",
+          "SSN": "750-95-6869"
+        },
+        "values_b": {
+          "first_name": "Roobert",
+          "last_name": "Campebll",
+          "email": null,
+          "phone": "(726) 713-5342",
+          "address": "1832 CorteQ Village Apt. 384",
+          "city": "EAST TERESABERG",
+          "zip_code": "09989",
+          "SSN": "545-94-3141"
+        }
+      },
+      {
+        "record_id_a": "5bd2de0b-751c-4faa-bae0-d06fb2c28a14",
+        "record_id_b": "8c1fc2a3-b1ec-4d80-92ea-d94d6a194a0b",
+        "values_a": {
+          "first_name": null,
+          "last_name": "aunt",
+          "email": null,
+          "phone": null,
+          "address": "5608 PamelaTurnipke",
+          "city": "Pennyhaven",
+          "zip_code": "69483",
+          "SSN": "490-57-4056"
+        },
+        "values_b": {
+          "first_name": "Kimbyerly",
+          "last_name": "Davis",
+          "email": null,
+          "phone": "(762) 545-5407",
+          "address": "8823 Arnold Courts Apt. 808",
+          "city": "NEW DENISE",
+          "zip_code": "550 71",
+          "SSN": "302-92-8265"
+        }
+      },
+      {
+        "record_id_a": "164a894a-159a-447c-b2b3-3d9058de7565",
+        "record_id_b": "e415eeeb-fa4e-4dad-acb7-ef33be0fe361",
+        "values_a": {
+          "first_name": "rJoshua",
+          "last_name": "Evans",
+          "email": null,
+          "phone": "+1.549.280.4606",
+          "address": "6349 Robert Way Apt. 557",
+          "city": "BrandonforP",
+          "zip_code": "17360",
+          "SSN": "469-56-5222"
+        },
+        "values_b": {
+          "first_name": "bcott",
+          "last_name": "Crawford",
+          "email": null,
+          "phone": null,
+          "address": "439 Anthony Forge",
+          "city": "East Jill",
+          "zip_code": "128 69",
+          "SSN": "687-96-2889"
+        }
+      },
+      {
+        "record_id_a": "38e29c52-09a7-4699-a393-af22e054a5ab",
+        "record_id_b": "485d9226-300f-42d4-8b1c-1c67fd86afe1",
+        "values_a": {
+          "first_name": "Joh",
+          "last_name": "Thoma",
+          "email": null,
+          "phone": null,
+          "address": "1444 Fisher Unions Suite 748",
+          "city": "East Jamesville",
+          "zip_code": "033 16",
+          "SSN": "704-7-18178"
+        },
+        "values_b": {
+          "first_name": "Michaiel",
+          "last_name": "Noris",
+          "email": "JUSTINLEWIS@EXAMPLE.NET",
+          "phone": "+1 504 824 0817",
+          "address": "276 Andrew Courts Apt. 224",
+          "city": "Port Jessicaside",
+          "zip_code": "188 23",
+          "SSN": "222-58-1665"
+        }
+      },
+      {
+        "record_id_a": "e3060c54-c4a4-457c-8db4-e9d8a5448c20",
+        "record_id_b": "6c399343-dea6-483f-825d-691daa054c17",
+        "values_a": {
+          "first_name": "Kristen",
+          "last_name": "Thompson",
+          "email": null,
+          "phone": null,
+          "address": "614 Gregory Forges",
+          "city": "Anthonyfort",
+          "zip_code": "85213",
+          "SSN": "859-28-1265"
+        },
+        "values_b": {
+          "first_name": "Jason",
+          "last_name": "Griffin",
+          "email": null,
+          "phone": "(710) 541-3677",
+          "address": "249 Mendoza Mountain",
+          "city": "Port Ryantown",
+          "zip_code": "169 70",
+          "SSN": "271-37-4157"
+        }
+      },
+      {
+        "record_id_a": "d70de2a3-3e65-4bf9-9d0c-6c180a6de01b",
+        "record_id_b": "53692043-4c58-4222-b6ef-af16640f9aac",
+        "values_a": {
+          "first_name": "Jamie",
+          "last_name": "Matthews",
+          "email": null,
+          "phone": null,
+          "address": "0991 Vega Lake",
+          "city": "EDWARDSBOROUGH",
+          "zip_code": "409 63",
+          "SSN": "6800-59-9856"
+        },
+        "values_b": {
+          "first_name": "Brooke",
+          "last_name": "Bradord",
+          "email": null,
+          "phone": null,
+          "address": "62638 eJrry Creek Apt. 947",
+          "city": "Ramirezview",
+          "zip_code": "67838",
+          "SSN": "746-91-8126"
+        }
+      }
+    ]
+  },
+  "notes": [],
+  "columns": {
+    "first_name": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.4785,
+      "null_rate": 0.0195,
+      "reliability_score": 0.882388,
+      "composite_weight": 0.141433,
+      "reason": "Moderately distinctive values (48% unique), rarely empty (2% null), and agrees well across likely duplicates (reliability 0.88)."
+    },
+    "last_name": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.56175,
+      "null_rate": 0.018,
+      "reliability_score": 0.888024,
+      "composite_weight": 0.167356,
+      "reason": "Moderately distinctive values (56% unique), rarely empty (2% null), and agrees well across likely duplicates (reliability 0.89)."
+    },
+    "email": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "email",
+      "uniqueness_ratio": 0.44225,
+      "null_rate": 0.52225,
+      "reliability_score": 0.829922,
+      "composite_weight": 0.059906,
+      "reason": "Moderately distinctive values (44% unique), often empty (52% null), and usually agrees across likely duplicates (reliability 0.83)."
+    },
+    "phone": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.41575,
+      "null_rate": 0.562,
+      "reliability_score": 0.728617,
+      "composite_weight": 0.045328,
+      "reason": "Moderately distinctive values (42% unique), often empty (56% null), and usually agrees across likely duplicates (reliability 0.73)."
+    },
+    "address": {
+      "semantic_type": "STREET_ADDRESS",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.8095,
+      "null_rate": 0.0,
+      "reliability_score": 0.962586,
+      "composite_weight": 0.266207,
+      "reason": "Highly distinctive values (81% unique), rarely empty (0% null), and agrees well across likely duplicates (reliability 0.96)."
+    },
+    "city": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.44225,
+      "null_rate": 0.0,
+      "reliability_score": 0.435764,
+      "composite_weight": 0.065839,
+      "reason": "Moderately distinctive values (44% unique), rarely empty (0% null), and often disagrees across likely duplicates (reliability 0.44)."
+    },
+    "zip_code": {
+      "semantic_type": "DESCRIPTIVE",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.52025,
+      "null_rate": 0.0,
+      "reliability_score": 0.355247,
+      "composite_weight": 0.06314,
+      "reason": "Moderately distinctive values (52% unique), rarely empty (0% null), and often disagrees across likely duplicates (reliability 0.36)."
+    },
+    "SSN": {
+      "semantic_type": "QUASI_IDENTIFIER",
+      "comparison_method": "text_character",
+      "uniqueness_ratio": 0.603,
+      "null_rate": 0.05475,
+      "reliability_score": 0.979789,
+      "composite_weight": 0.190791,
+      "reason": "Moderately distinctive values (60% unique), rarely empty (5% null), and agrees well across likely duplicates (reliability 0.98)."
+    }
+  }
+}
