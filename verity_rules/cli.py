@@ -16,7 +16,7 @@ from typing import Any
 
 import pandas as pd
 
-from .core import USER_EXCLUDED_RULE, learn_rules
+from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
 
 DEFAULT_SEED = 42
 DEFAULT_MAX_ROWS = 20_000
@@ -313,6 +313,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
     if args.debug:
         (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
         written.append("debug.json")
+    if result["run"]["n_candidate_pairs"] == 0:
+        print("Warning: " + NO_CANDIDATES_NOTE, file=sys.stderr)
     print(f"Learned rules for {len(records):,} rows, {len(result['columns'])} columns, "
           f"{n_pairs} calibration pairs.")
     print(f"Wrote {', '.join(written)} to {out}")

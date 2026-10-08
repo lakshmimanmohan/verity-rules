@@ -162,11 +162,12 @@ def proportion_street_address_like(values: list[Any]) -> float:
 
 
 def column_uniqueness_and_nulls(values: list[Any], n_rows: int) -> tuple[float, float]:
-    keys = [token_key(v) for v in values]
+    """uniqueness_ratio = distinct non-null values / non-null count; null_rate = nulls / n_rows."""
     nulls = sum(1 for v in values if is_null(v))
     null_rate = nulls / n_rows if n_rows else 0.0
-    uniq = len(set(keys))
-    uniqueness_ratio = uniq / n_rows if n_rows else 0.0
+    non_null = n_rows - nulls
+    uniq = len({token_key(v) for v in values if not is_null(v)})
+    uniqueness_ratio = uniq / non_null if non_null else 0.0
     return uniqueness_ratio, null_rate
 
 

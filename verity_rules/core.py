@@ -24,6 +24,9 @@ CANDIDATE_GROUP_MIN, CANDIDATE_GROUP_MAX = 2, 10
 CANDIDATE_CAP = 20_000
 N_LIKELY_MATCH, N_UNCLEAR, N_LIKELY_NON_MATCH = 30, 40, 30
 MAX_PER_GROUP = 2
+NO_CANDIDATES_NOTE = ("No candidate pairs found (no column with enough distinct values shares a value "
+                      "between 2 and 10 records); likely_match and unclear are empty, separability "
+                      "could not be computed and reliability is not learned.")
 RELIABILITY_HIGH, RELIABILITY_MID = 0.85, 0.65  # reason wording bands
 
 
@@ -265,8 +268,7 @@ def learn_rules(
                                     "random_pair_mean": None, "gap": None}
     calibration: dict[str, list] = {"likely_match": [], "unclear": [], "likely_non_match": []}
     if len(cand_pairs) == 0:
-        notes.append("No candidate pairs found; likely_match and unclear are empty "
-                     "and separability could not be computed.")
+        notes.append(NO_CANDIDATES_NOTE)
     else:
         floor = float(np.percentile(cand_sims, 90))
         top = cand_sims >= floor
