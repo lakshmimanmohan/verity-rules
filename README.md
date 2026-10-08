@@ -11,6 +11,8 @@ pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 ```
 
+To install from a built wheel instead: `pip install verity_rules-0.1.0-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
+
 If PowerShell blocks activation, skip it and call `.venv\Scripts\python.exe` and `.venv\Scripts\verity.exe` directly.
 
 ## Usage
@@ -31,7 +33,10 @@ Options:
 | `--max-rows N` | 20000 | Larger files are cut down to N rows (fixed seed); the report and `rules.json` show rows in file, rows analysed, sample mode and groups kept |
 | `--sample-mode groups\|random` | groups | `groups` keeps rows that share an identical value in a distinctive column together (groups of 2 to 50 rows), then fills with single rows. `random` draws rows uniformly |
 | `--mask-columns A,B` | none | Replace the values of these columns with `***` in `calibration_pairs.csv` and in the pairs in `rules.json` (empty values stay empty) |
+| `--exclude-columns A,B` | none | Leave these columns out even if Verity would use them |
+| `--keep-columns A,B` | none | Use these columns even if a Verity rule would exclude them (not the record id column) |
 | `--no-pairs` | off | Write no pairs files and leave `calibration_pairs` empty in `rules.json` |
+| `--version` | | Print the Verity version and exit |
 | `--debug` | off | Also write `debug.json` (internal scores and threshold; not part of the public rules) |
 
 ## Output
