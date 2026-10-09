@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "verity-rules"
-version = "0.1.8"
+version = "0.1.9"
 description = "Learn entity-matching rules (column weights and comparison methods) from any CSV."
 requires-python = ">=3.10"
 readme = "README.md"

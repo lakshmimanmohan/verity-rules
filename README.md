@@ -11,7 +11,7 @@ pip install -r requirements-dev.txt
 pip install -e ".[debug]"
 ```
 
-To install from a built wheel instead: `pip install verity_rules-0.1.8-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
+To install from a built wheel instead: `pip install verity_rules-0.1.9-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
 
 If PowerShell blocks activation, skip it and call `.venv\Scripts\python.exe` and `.venv\Scripts\verity.exe` directly.
 

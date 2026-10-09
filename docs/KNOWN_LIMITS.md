@@ -1,4 +1,4 @@
-# Known limits (v0.1.8)
+# Known limits (v0.1.9)
 Source: validation/*.md. All data below is synthetic.
 
 Tested (synthetic customers 4,000 rows, products 500 rows, degraded copies, customers 20k and 100k):
