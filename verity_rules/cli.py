@@ -11,6 +11,7 @@ import io
 import json
 import random
 import re
+import statistics
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,9 +20,17 @@ from typing import Any
 import pandas as pd
 
 from . import __version__
-from .column_classification import is_idlike_name, pick_record_id_column, record_id_problem
-from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
-from .rule_learner import ANCHOR_MIN_COUNT, ANCHOR_MIN_UNIQUENESS
+from .column_classification import (
+    classify_columns, is_idlike_name, pick_record_id_column, record_id_problem,
+)
+from .core import (
+    CANDIDATE_CAP, CANDIDATE_GROUP_MAX, CANDIDATE_GROUP_MIN, CANDIDATE_MIN_UNIQUENESS,
+    NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, _build_candidates, learn_rules,
+)
+from .rule_learner import (
+    ANCHOR_MIN_COUNT, ANCHOR_MIN_UNIQUENESS, build_profiles, column_uniqueness_and_nulls,
+    learn_reliability_v2, numeric_series_stats,
+)
 from .sampling import group_sample_indices
 
 DEFAULT_SEED = 42
@@ -598,6 +607,117 @@ def cmd_learn(args: argparse.Namespace) -> int:
     return 0
 
 
+MANY_ROWS_MEDIAN = 10
+
+
+def _group_sizes(values: list[Any]) -> list[int]:
+    """Sizes of the groups of repeated values (2 or more rows), grouped as candidate pairs do."""
+    counts: dict[str, int] = {}
+    for v in values:
+        if v is not None and v == v and str(v).strip():
+            key = str(v).strip().lower()
+            counts[key] = counts.get(key, 0) + 1
+    return [c for c in counts.values() if c >= 2]
+
+
+def check_file(records: list[dict[str, Any]], id_column: str) -> dict[str, Any]:
+    """What a learn run would find in this file, without learning rules. Uses the same column
+    classification, profiles and candidate pairs as learn, and the same anchor counting."""
+    df = pd.DataFrame(records)
+    df.columns = [str(c).strip() for c in df.columns]
+    df = df.where(pd.notna(df), None)
+    n = len(df)
+    cls = classify_columns(df, id_column)
+    rows = df.to_dict(orient="records")
+    content = [h for h in df.columns if h in set(cls["content_columns"])]
+    profiles = build_profiles(content, rows, set(cls["metadata_columns"]))
+    stats = {}
+    for c in df.columns:
+        uniq, blank = column_uniqueness_and_nulls(df[c].tolist(), n)
+        stats[c] = {"distinct": uniq, "blank": blank}
+    per_col = {p.name: len(_build_candidates(rows, [p])) for p in profiles
+               if p.uniqueness_ratio >= CANDIDATE_MIN_UNIQUENESS}
+    cand_pairs = sorted(_build_candidates(rows, profiles))
+    n_cand = len(cand_pairs)
+    capped = n_cand > CANDIDATE_CAP
+    if capped:
+        cand_pairs = sorted(random.Random(DEFAULT_SEED).sample(cand_pairs, CANDIDATE_CAP))
+    anchors: dict[str, int] = {}
+    if cand_pairs:
+        lo_hi = {p.name: numeric_series_stats(p.values) for p in profiles}
+        _, info = learn_reliability_v2(cand_pairs, rows, profiles, lo_hi)
+        anchors = info["anchor_count"]
+    measured = [p.name for p in profiles if anchors.get(p.name, 0) >= ANCHOR_MIN_COUNT]
+    top = max(profiles, key=lambda p: (p.uniqueness_ratio, p.name), default=None)
+    sizes = _group_sizes(top.values) if top else []
+    return {"n_rows": n, "stats": stats,
+            "excluded": sorted(set(cls["metadata_columns"]) - {id_column}),
+            "candidate_columns": [c for c, k in per_col.items() if k > 0],
+            "any_distinct": bool(per_col), "n_candidate_pairs": n_cand, "capped": capped,
+            "measured": measured,
+            "unmeasured": [p.name for p in profiles if p.name not in measured],
+            "median_group": statistics.median(sizes) if sizes else 0,
+            "most_distinct": top.name if top else None}
+
+
+def check_outcome(r: dict[str, Any]) -> str:
+    """One plain line: whether reliability can be measured on this file."""
+    if r["n_candidate_pairs"] == 0:
+        why = ("no column has at least half of its values distinct" if not r["any_distinct"] else
+               f"no value in a column with at least half of its values distinct is shared by "
+               f"{CANDIDATE_GROUP_MIN} to {CANDIDATE_GROUP_MAX} rows")
+        return f"Expected outcome: reliability would not be measured, because {why}."
+    if not r["measured"]:
+        return ("Expected outcome: reliability would not be measured, because too few candidate "
+                f"pairs agree on other columns (each column needs {ANCHOR_MIN_COUNT} such pairs).")
+    if r["unmeasured"]:
+        return ("Expected outcome: reliability can be measured only partly: for "
+                f"{', '.join(r['measured'])}; not for {', '.join(r['unmeasured'])} "
+                "(too few anchor pairs).")
+    return "Expected outcome: reliability can be measured for every column."
+
+
+def cmd_check(args: argparse.Namespace) -> int:
+    """Print what a learn run would find. Writes nothing."""
+    src = Path(args.csv)
+    records, file_info = read_table(src, args.encoding, args.delimiter)
+    if args.encoding is None and file_info["encoding"] == "cp1252":
+        print("Note: the file is not valid UTF-8, so it was read as cp1252. "
+              "Use --encoding to choose another.", file=sys.stderr)
+    records, id_column, row_numbers = choose_record_id(records, None)
+    r = check_file(records, id_column)
+    if row_numbers:
+        id_line = "row numbers (no unique id column was found)"
+    else:
+        id_line = id_column + ("" if is_idlike_name(id_column) else " (guessed from the data)")
+    L = [f"File: {src.name} ({file_info['delimiter']}-delimited, {file_info['encoding']})",
+         f"Rows: {r['n_rows']:,}", f"Record id: {id_line}", "",
+         "Per column (distinct = share of non-blank values that are different):"]
+    shown = [c for c in r["stats"] if not (row_numbers and c == id_column)]
+    width = max(len(c) for c in shown)
+    L.append(f"  {'column':<{width}}  distinct  blank")
+    for c in shown:
+        st = r["stats"][c]
+        L.append(f"  {c:<{width}}  {st['distinct']:>7.0%}  {st['blank']:>5.0%}")
+    if r["excluded"]:
+        L.append(f"Verity would exclude: {', '.join(r['excluded'])}")
+    L += ["", "Columns that could produce candidate pairs (at least half distinct, values shared "
+          f"by {CANDIDATE_GROUP_MIN} to {CANDIDATE_GROUP_MAX} rows): "
+          + (", ".join(r["candidate_columns"]) or "none"),
+          f"Candidate pairs: {r['n_candidate_pairs']:,}"
+          + (f" (learn would use {CANDIDATE_CAP:,} of them)" if r["capped"] else ""),
+          check_outcome(r)]
+    if r["median_group"] > MANY_ROWS_MEDIAN:
+        L.append(f"Note: the most distinctive column ({r['most_distinct']}) repeats its values in "
+                 f"groups of {r['median_group']:g} rows (median). This looks like a table with "
+                 "many rows per entity, so Verity may not suit it.")
+    if r["n_rows"] > DEFAULT_MAX_ROWS:
+        L.append(f"Note: counts are for the whole file; learn analyses at most "
+                 f"{DEFAULT_MAX_ROWS:,} rows by default (--max-rows).")
+    print("\n".join(L))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="verity", description="Learn entity-matching rules from a CSV.")
     p.add_argument("--version", action="version", version=f"verity {__version__}")
@@ -624,12 +744,16 @@ def build_parser() -> argparse.ArgumentParser:
                             "distinct values). Default: Verity picks one, or uses row numbers")
     learn.add_argument("--overwrite", action="store_true",
                        help="replace output files that already exist in --out (default: refuse)")
-    learn.add_argument("--encoding", metavar="NAME",
-                       help="text encoding of the CSV, such as utf-8 or cp1252. Default: utf-8, "
-                            "then cp1252 if the file is not valid UTF-8")
-    learn.add_argument("--delimiter", metavar="CHAR",
-                       help="field delimiter: comma, semicolon, tab, pipe or one character. "
-                            "Default: detected from the first 20 lines")
+    check = sub.add_parser("check", help="show what a learn run would find in a CSV; writes nothing")
+    check.add_argument("csv", help="path to the input CSV")
+    for sp in (learn, check):
+        sp.add_argument("--encoding", metavar="NAME",
+                        help="text encoding of the CSV, such as utf-8 or cp1252. Default: utf-8, "
+                             "then cp1252 if the file is not valid UTF-8")
+        sp.add_argument("--delimiter", metavar="CHAR",
+                        help="field delimiter: comma, semicolon, tab, pipe or one character. "
+                             "Default: detected from the first 20 lines")
+    check.set_defaults(func=cmd_check)
     learn.add_argument("--no-pairs", action="store_true",
                        help="write no calibration pairs files and leave calibration_pairs empty")
     learn.add_argument("--debug", action="store_true", help="also write debug.json")
