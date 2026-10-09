@@ -11,7 +11,7 @@ pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 ```
 
-To install from a built wheel instead: `pip install verity_rules-0.1.4-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
+To install from a built wheel instead: `pip install verity_rules-0.1.5-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
 
 If PowerShell blocks activation, skip it and call `.venv\Scripts\python.exe` and `.venv\Scripts\verity.exe` directly.
 
@@ -22,7 +22,15 @@ verity learn data\customers.csv --out out\customers
 verity learn data\products.csv --out out\products
 ```
 
-Also works as `python -m verity_rules learn ...`.
+Check a file before learning from it. This writes nothing and takes the same `--encoding` and `--delimiter` options as `learn`:
+
+```powershell
+verity check data\customers.csv
+```
+
+It prints rows, the record id it would use, the distinct and blank share of each column, the columns and number of candidate pairs, and whether reliability can be measured (all columns, only some, or not at all, with the reason). See `docs/RUNBOOK.md`.
+
+Also works as `python -m verity_rules learn ...` and `python -m verity_rules check ...`.
 
 Options:
 

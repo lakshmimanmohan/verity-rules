@@ -15,11 +15,11 @@ Needs Python 3.10 or newer. Wheel location: <ADD PATH>
 In a fresh virtual environment:
 
 ```
-pip install verity_rules-0.1.4-py3-none-any.whl
+pip install verity_rules-0.1.5-py3-none-any.whl
 verity --version
 ```
 
-`pip install "verity_rules-0.1.4-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
+`pip install "verity_rules-0.1.5-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
 
 ## Run
 
@@ -30,6 +30,14 @@ verity learn customers.csv --out out/customers
 It writes five files to the folder: `rules.json`, `rules_report.md`, `columns.csv` (one row per column with every per-column field, to open in Excel), `calibration_pairs.csv`, `calibration_pairs_key.csv`. Same file and seed give the same output. If any of these files already exists in the folder, the run stops with a one-line error naming them; add `--overwrite` to replace them. If a file cannot be written (for example it is open in Excel), the run stops with a one-line error naming the path; close the file and run again.
 
 Run time and memory: about 1 minute and 200 MB for 20,000 rows; about 90 seconds and 350 MB for 100,000 rows with `--max-rows 100000`.
+
+### Check the file first
+
+```
+verity check customers.csv
+```
+
+Run this before `learn`. It writes nothing. It takes `--encoding` and `--delimiter` like `learn`. It prints the rows, the record id it would use (or "row numbers"), and for each column the share of non-blank values that are distinct and the share that are blank. It lists the columns that could produce candidate pairs (at least half of their values distinct, values shared by 2 to 10 rows), the number of candidate pairs, and one line on the expected outcome: reliability can be measured for every column; can be measured only partly (it lists which columns); or would not be measured, with the reason. If the most distinctive column repeats its values in groups with a median above 10 rows, it adds: "This looks like a table with many rows per entity, so Verity may not suit it." It uses the same functions as `learn`, so the candidate pair counts match. Counts cover the whole file; `learn` analyses at most `--max-rows` rows.
 
 ### File encoding and delimiter
 
