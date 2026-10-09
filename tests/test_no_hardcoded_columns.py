@@ -3,6 +3,8 @@ import ast
 import csv
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 DATASETS = ("customers.csv", "products.csv")
 # Vocabulary labels that happen to equal a column name (comparison_method value), not column references.
@@ -12,6 +14,8 @@ ALLOWED_VOCABULARY = {"email"}
 def _column_names() -> set[str]:
     names: set[str] = set()
     for fname in DATASETS:
+        if not (ROOT / "data" / fname).is_file():
+            pytest.skip(f"data/{fname} not available (data/ is git-ignored)")
         with open(ROOT / "data" / fname, newline="", encoding="utf-8-sig") as fh:
             names.update(h.strip() for h in next(csv.reader(fh)))
     return names
