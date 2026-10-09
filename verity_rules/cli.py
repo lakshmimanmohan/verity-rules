@@ -669,6 +669,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
 
 
 MANY_ROWS_MEDIAN = 10
+MAY_NOT_SUIT = ("Verity may not suit this file. This usually means each entity appears in many "
+                "rows, or duplicates differ in every column.")
 
 
 def _group_sizes(values: list[Any]) -> list[int]:
@@ -768,6 +770,8 @@ def cmd_check(args: argparse.Namespace) -> int:
           f"Candidate pairs: {r['n_candidate_pairs']:,}"
           + (f" (learn would use {CANDIDATE_CAP:,} of them)" if r["capped"] else ""),
           check_outcome(r)]
+    if r["n_candidate_pairs"] == 0 or not r["measured"] or r["unmeasured"]:
+        L.append(MAY_NOT_SUIT)
     if r["median_group"] > MANY_ROWS_MEDIAN:
         L.append(f"Note: the most distinctive column ({r['most_distinct']}) repeats its values in "
                  f"groups of {r['median_group']:g} rows (median). This looks like a table with "
