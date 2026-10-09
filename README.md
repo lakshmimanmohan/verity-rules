@@ -11,7 +11,7 @@ pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 ```
 
-To install from a built wheel instead: `pip install verity_rules-0.1.5-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
+To install from a built wheel instead: `pip install verity_rules-0.1.8-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
 
 If PowerShell blocks activation, skip it and call `.venv\Scripts\python.exe` and `.venv\Scripts\verity.exe` directly.
 
@@ -95,3 +95,5 @@ The report lists each excluded column with its reason.
 ```powershell
 .venv\Scripts\python.exe -m pytest
 ```
+
+Copyright (c) 2026 lmanmohan.
