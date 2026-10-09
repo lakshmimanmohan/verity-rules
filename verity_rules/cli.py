@@ -21,6 +21,7 @@ import pandas as pd
 from . import __version__
 from .column_classification import is_idlike_name, pick_record_id_column, record_id_problem
 from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
+from .rule_learner import ANCHOR_MIN_COUNT, ANCHOR_MIN_UNIQUENESS
 from .sampling import group_sample_indices
 
 DEFAULT_SEED = 42
@@ -30,7 +31,10 @@ DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_s
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
 MASK = "***"
 ROW_COLUMN = "_row"
-OUTPUT_FILES = ("rules.json", "rules_report.md", "calibration_pairs.csv", "calibration_pairs_key.csv")
+OUTPUT_FILES = ("rules.json", "rules_report.md", "columns.csv", "calibration_pairs.csv",
+                "calibration_pairs_key.csv")
+COLUMN_FIELDS = ("semantic_type", "comparison_method", "uniqueness_ratio", "null_rate",
+                 "reliability_score", "composite_weight", "reason")
 PAIRS_NOTICE = ("Note: calibration_pairs.csv and rules.json contain values from the source data. "
                 "Handle them like the source data.")
 
@@ -219,20 +223,58 @@ _METHOD_GLOSSARY = {
 }
 
 
+def _ordered_columns(result: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    return sorted(result["columns"].items(), key=lambda kv: (-kv[1]["composite_weight"], kv[0]))
+
+
+def _reliability_measured(result: dict[str, Any], anchor_counts: dict[str, int] | None) -> bool:
+    """True when some column had enough anchor pairs and reliability is not 1.0 everywhere."""
+    if not anchor_counts or not any(n >= ANCHOR_MIN_COUNT for n in anchor_counts.values()):
+        return False
+    return any(c["reliability_score"] != 1.0 for c in result["columns"].values())
+
+
+def _read_first_box(result: dict[str, Any]) -> list[str]:
+    """The box shown at the top of the report when no candidate pairs were found."""
+    if any(c["uniqueness_ratio"] >= ANCHOR_MIN_UNIQUENESS for c in result["columns"].values()):
+        why = ("No candidate pairs were found: no value in a column with at least half of its "
+               "values distinct is shared by 2 to 10 records.")
+    else:
+        why = ("No candidate pairs were found: no column has at least half of its values distinct.")
+    return ["> **Read this first**", ">",
+            f"> {why} Reliability was not measured, so every column's reliability is set to 1.0. "
+            "The weights come from distinctiveness only.", ""]
+
+
+def _summary_paragraph(result: dict[str, Any], measured: bool) -> str:
+    ordered = _ordered_columns(result)
+    top = [f"{_md_cell(n)} ({c['composite_weight']:.3f})" for n, c in ordered[:3]]
+    heaviest = (top[0] if len(top) == 1 else ", ".join(top[:-1]) + " and " + top[-1]) if top else "none"
+    rel = ("Reliability was measured from pairs of records that likely refer to the same thing."
+           if measured else
+           "Reliability was not measured, so the weights come from distinctiveness only.")
+    return (f"Verity analysed {result['n_records']:,} rows and kept {len(ordered)} column{'' if len(ordered) == 1 else 's'}. "
+            f"The {'three ' if len(top) == 3 else ''}heaviest column{'s are' if len(top) > 1 else ' is'} "
+            f"{heaviest}. {rel}")
+
+
 def build_report(result: dict[str, Any], source: Path, n_original: int,
                  debug: dict[str, Any], seed: int, n_pairs_written: int,
                  pairs_written: bool, masked: set[str],
                  exclude: list[str] = (), keep: list[str] = (),
                  sampling: dict[str, Any] | None = None) -> str:
     cols = result["columns"]
-    ordered = sorted(cols.items(), key=lambda kv: (-kv[1]["composite_weight"], kv[0]))
+    ordered = _ordered_columns(result)
     anchor_counts = debug.get("reliability_debug", {}).get("anchor_count")
     levels = debug.get("reliability_debug", {}).get("min_agree_used", {})
     n = result["n_records"]
     n_cand = result["run"]["n_candidate_pairs"]
     embeddings_used = result["embeddings_used"]
     L: list[str] = []
+    measured = _reliability_measured(result, anchor_counts)
     L += [f"# Verity rules report: {source.name}", "",
+          *(_read_first_box(result) if n_cand == 0 else []),
+          _summary_paragraph(result, measured), "",
           "## What is Verity?", "",
           "Verity reads a dataset and learns which columns help identify the same real-world "
           "entity, and how much each column should count. It outputs rules (weights and "
@@ -260,23 +302,30 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           f"- Candidate pairs found: {n_cand:,}",
           f"- Calibration pairs: {n_pairs_written}", "",
           "## Columns, by weight", "",
-          "| Column | Comparison method | Weight | Reliability | Anchors | Reason |",
-          "|---|---|---|---|---|---|"]
+          "| Column | Weight | Reliability | Compared by | Reason |",
+          "|---|---|---|---|---|"]
     for name, c in ordered:
-        anchors = "n/a" if anchor_counts is None else anchor_counts.get(name, 0)
+        anchors = None if anchor_counts is None else anchor_counts.get(name, 0)
         low = levels.get(name, ANCHOR_LEVEL) < ANCHOR_LEVEL
-        L.append(f"| {_md_cell(name)} | {c['comparison_method']} | "
-                 f"{c['composite_weight']:.3f} | {c['reliability_score']:.3f}"
-                 f"{' (low confidence)' if low else ''} | {anchors} | "
-                 f"{_md_cell(c['reason'])} |")
-    L += ["",
+        note = (" (not measured)" if anchors is not None and anchors < ANCHOR_MIN_COUNT
+                else " (low confidence)" if low else "")
+        L.append(f"| {_md_cell(name)} | {c['composite_weight']:.3f} | "
+                 f"{c['reliability_score']:.3f}{note} | "
+                 f"{c['comparison_method']} | {_md_cell(c['reason'])} |")
+    L += ["", "### Details", "",
+          "| Column | Anchors |", "|---|---|"]
+    for name, _ in ordered:
+        L.append(f"| {_md_cell(name)} | "
+                 f"{'n/a' if anchor_counts is None else anchor_counts.get(name, 0)} |")
+    L += ["", "`columns.csv` holds every per-column field for opening in Excel.", "",
           "Candidate pairs are pairs of records that share an identical value in a column where "
           "at least half the values are distinct (and the value is shared by 2 to 10 records). "
           "Anchors are the pairs used to measure that column's reliability: candidate pairs "
           "that agree on at least two other columns, or on one when too few pairs qualify.", "",
           "**Low confidence** marks a column whose reliability was measured with the relaxed "
-          "rule (one agreeing column, or too few anchors even then). Treat its reliability "
-          "and weight as less certain.", "",
+          "rule (one agreeing column). **Not measured** marks a column with too few anchors "
+          "to measure reliability; it is set to 1.0 and does not change the weight. Treat "
+          "the reliability and weight of both as less certain.", "",
           "**Caution:** a weight is how distinctive the column is in this dataset, times its "
           "reliability, scaled so all weights sum to 1. A column that is generally a weak "
           "identifier can still score high here if it happens to be distinctive and "
@@ -429,6 +478,18 @@ def write_calibration_csv(path: Path, key_path: Path, result: dict[str, Any], se
     return len(flat)
 
 
+def write_columns_csv(path: Path, result: dict[str, Any],
+                      anchor_counts: dict[str, int] | None) -> None:
+    """One row per kept column with every per-column field, heaviest first. UTF-8 with a BOM
+    so Excel reads accents correctly."""
+    with path.open("w", newline="", encoding="utf-8-sig") as fh:
+        w = csv.writer(fh)
+        w.writerow(["column", *COLUMN_FIELDS, "anchors"])
+        for name, c in _ordered_columns(result):
+            w.writerow([name, *(c[f] for f in COLUMN_FIELDS),
+                        "" if anchor_counts is None else anchor_counts.get(name, 0)])
+
+
 def _name_list(text: str | None) -> list[str]:
     return [c.strip() for c in text.split(",") if c.strip()] if text else []
 
@@ -439,7 +500,8 @@ def write_outputs(out: Path, src: Path, result: dict[str, Any], debug: dict[str,
     """Write the output files. Returns (file names written, number of pairs written)."""
     out.mkdir(parents=True, exist_ok=True)
     (out / "rules.json").write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
-    written = ["rules.json", "rules_report.md"]
+    write_columns_csv(out / "columns.csv", result, debug.get("reliability_debug", {}).get("anchor_count"))
+    written = ["rules.json", "rules_report.md", "columns.csv"]
     n_pairs = 0
     if not args.no_pairs:
         n_pairs = write_calibration_csv(out / "calibration_pairs.csv",
