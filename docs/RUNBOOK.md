@@ -6,6 +6,8 @@ Verity reads a CSV and learns which columns identify an entity and how much each
 
 Use it when you have a table that probably holds duplicates and you need to know which columns to compare and how heavily, before you configure a matching tool. Do not use it to find or merge duplicates, to clean data, or to get a ready cutoff. It needs at least 2 rows; if the file has no unique id column, row numbers are used. With no or few shared values in distinctive columns it finds no candidate pairs and falls back to uniqueness-only weights (the run prints a warning).
 
+Verity is not meant for transaction or event tables that repeat each customer many times. Reliability is only measured when some column has at least half of its values distinct. If duplicates repeat identical values, that holds up to about 2 rows per entity. If duplicates differ in spelling or format, it can hold with more. If no column has at least half of its values distinct, reliability is not measured and the report says so: a "Read this first" box opens the report, every reliability is 1.0, and the weights come from distinctiveness only.
+
 ## Install
 
 Needs Python 3.10 or newer. Wheel location: <ADD PATH>
@@ -13,11 +15,11 @@ Needs Python 3.10 or newer. Wheel location: <ADD PATH>
 In a fresh virtual environment:
 
 ```
-pip install verity_rules-0.1.3-py3-none-any.whl
+pip install verity_rules-0.1.4-py3-none-any.whl
 verity --version
 ```
 
-`pip install "verity_rules-0.1.3-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
+`pip install "verity_rules-0.1.4-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
 
 ## Run
 
@@ -25,7 +27,7 @@ verity --version
 verity learn customers.csv --out out/customers
 ```
 
-It writes four files to the folder: `rules.json`, `rules_report.md`, `calibration_pairs.csv`, `calibration_pairs_key.csv`. Same file and seed give the same output. If any of these files already exists in the folder, the run stops with a one-line error naming them; add `--overwrite` to replace them. If a file cannot be written (for example it is open in Excel), the run stops with a one-line error naming the path; close the file and run again.
+It writes five files to the folder: `rules.json`, `rules_report.md`, `columns.csv` (one row per column with every per-column field, to open in Excel), `calibration_pairs.csv`, `calibration_pairs_key.csv`. Same file and seed give the same output. If any of these files already exists in the folder, the run stops with a one-line error naming them; add `--overwrite` to replace them. If a file cannot be written (for example it is open in Excel), the run stops with a one-line error naming the path; close the file and run again.
 
 Run time and memory: about 1 minute and 200 MB for 20,000 rows; about 90 seconds and 350 MB for 100,000 rows with `--max-rows 100000`.
 
@@ -63,7 +65,8 @@ To choose the id yourself, use `--id-column NAME`. An unknown name, or a column 
 
 Open `rules_report.md`. Start with these parts:
 
-- **Columns, by weight.** Weight is how much the column should count (weights sum to 1). Reliability says how much more alike its values are across likely duplicates than across random pairs (0 is chance, 1 is always the same). "Low confidence" means too few anchor pairs, so treat that column's weight as less certain. The reason sentence says why.
+- **Summary paragraph and "Read this first" box.** The paragraph under the title gives rows analysed, columns kept, the three heaviest columns and whether reliability was measured. The box appears only when no candidate pairs were found; then reliability was not measured.
+- **Columns, by weight.** The table shows Column, Weight, Reliability, Compared by and a one-line Reason. Weight is how much the column should count (weights sum to 1). Reliability says how much more alike its values are across likely duplicates than across random pairs (0 is chance, 1 is always the same). "Low confidence" means the relaxed anchor rule was used. "Not measured" means too few anchor pairs, so reliability is 1.0 and does not change the weight; treat that column's weight as less certain. The anchor counts are in the Details table below it.
 - **Comparison method.** How to compare two values: `email`, `bigram_jaccard`, `text_bigram` and so on; the glossary in the report defines each.
 - **Excluded columns.** Each has a reason and, if a Verity rule excluded it, the `--keep-columns` hint. Check that nothing you need was dropped.
 - **Expected pair coverage.** The chance a typical pair has a value in both records of the kept columns, from 0 to 1. Below about 0.3, many true duplicates share too few columns to be decided; send those to review. That 0.3 comes from synthetic tests.
