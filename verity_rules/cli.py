@@ -258,7 +258,9 @@ def _read_first_box(result: dict[str, Any]) -> list[str]:
         why = ("No candidate pairs were found: no column has at least half of its values distinct.")
     return ["> **Read this first**", ">",
             f"> {why} Reliability was not measured, so every column's reliability is set to 1.0. "
-            "The weights come from distinctiveness only.", ""]
+            "The weights come from distinctiveness only. This usually means each entity appears "
+            "in many rows, or duplicates differ in every column. Run verity check on the file. "
+            "Verity may not suit it.", ""]
 
 
 NO_ANCHORS_NOTE = ("No column had enough anchor pairs, so reliability was not measured and is "

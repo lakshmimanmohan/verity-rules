@@ -61,3 +61,21 @@ def test_no_anchors_collapses_notes_and_trims_reasons(tmp_path):
 def test_notes_unchanged_when_anchors_exist(tmp_path):
     report = _report(tmp_path, _distinct_csv, "dist")
     assert "set to 1.0 for every column" not in report
+
+
+EXTENSION = ("This usually means each entity appears in many rows, or duplicates differ in every "
+             "column. Run verity check on the file. Verity may not suit it.")
+NO_MATCHES = ("This run found no likely matches, so calibration_pairs.csv cannot be used to "
+              "choose a cutoff. Add known matches from your own data.")
+
+
+def test_read_this_first_box_has_extension(tmp_path):
+    report = _report(tmp_path, _repeating_csv, "rep")
+    box = " ".join(ln.lstrip("> ") for ln in report.splitlines() if ln.startswith(">"))
+    assert EXTENSION in box
+    assert box.index("distinctiveness only.") < box.index(EXTENSION)
+
+
+def test_box_and_extension_absent_with_candidates(tmp_path):
+    report = _report(tmp_path, _distinct_csv, "dist")
+    assert EXTENSION not in report
