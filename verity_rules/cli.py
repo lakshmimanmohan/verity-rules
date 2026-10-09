@@ -28,6 +28,7 @@ DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_s
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
 MASK = "***"
 ROW_COLUMN = "_row"
+OUTPUT_FILES = ("rules.json", "rules_report.md", "calibration_pairs.csv", "calibration_pairs_key.csv")
 PAIRS_NOTICE = ("Note: calibration_pairs.csv and rules.json contain values from the source data. "
                 "Handle them like the source data.")
 
@@ -353,10 +354,37 @@ def _name_list(text: str | None) -> list[str]:
     return [c.strip() for c in text.split(",") if c.strip()] if text else []
 
 
+def write_outputs(out: Path, src: Path, result: dict[str, Any], debug: dict[str, Any],
+                  args: argparse.Namespace, n_original: int, mask: set[str], exclude: list[str],
+                  keep: list[str], sampling: dict[str, Any]) -> tuple[list[str], int]:
+    """Write the output files. Returns (file names written, number of pairs written)."""
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "rules.json").write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
+    written = ["rules.json", "rules_report.md"]
+    n_pairs = 0
+    if not args.no_pairs:
+        n_pairs = write_calibration_csv(out / "calibration_pairs.csv",
+                                        out / "calibration_pairs_key.csv", result, args.seed)
+        written += ["calibration_pairs.csv", "calibration_pairs_key.csv"]
+    (out / "rules_report.md").write_text(
+        build_report(result, src, n_original, debug, args.seed, n_pairs,
+                     not args.no_pairs, mask, exclude, keep, sampling), encoding="utf-8")
+    if args.debug:
+        (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
+        written.append("debug.json")
+    return written, n_pairs
+
+
 def cmd_learn(args: argparse.Namespace) -> int:
     src, out = Path(args.csv), Path(args.out)
     if args.max_rows < 2:
         raise CliError("--max-rows must be at least 2.")
+    existing = [f for f in (*OUTPUT_FILES, *(["debug.json"] if args.debug else []))
+                if (out / f).exists()]
+    if existing and not args.overwrite:
+        raise CliError(f"{', '.join(existing)} already exist{'s' if len(existing) == 1 else ''} in "
+                       f"{out}; use --overwrite to replace {'it' if len(existing) == 1 else 'them'}, "
+                       "or choose another --out.")
     exclude, keep = _name_list(args.exclude_columns), _name_list(args.keep_columns)
     both = sorted(set(exclude) & set(keep))
     if both:
@@ -407,20 +435,13 @@ def cmd_learn(args: argparse.Namespace) -> int:
         result["calibration_pairs"] = {cat: [] for cat in CATEGORY_ORDER}
     mask_pairs(result, mask)
 
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "rules.json").write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
-    written = ["rules.json", "rules_report.md"]
-    n_pairs = 0
-    if not args.no_pairs:
-        n_pairs = write_calibration_csv(out / "calibration_pairs.csv",
-                                        out / "calibration_pairs_key.csv", result, args.seed)
-        written += ["calibration_pairs.csv", "calibration_pairs_key.csv"]
-    (out / "rules_report.md").write_text(
-        build_report(result, src, n_original, debug, args.seed, n_pairs,
-                     not args.no_pairs, mask, exclude, keep, sampling), encoding="utf-8")
-    if args.debug:
-        (out / "debug.json").write_text(json.dumps(debug, indent=2, allow_nan=False), encoding="utf-8")
-        written.append("debug.json")
+    try:
+        written, n_pairs = write_outputs(out, src, result, debug, args, n_original, mask,
+                                         exclude, keep, sampling)
+    except OSError as exc:
+        target = exc.filename or out
+        raise CliError(f"cannot write {target} ({exc.strerror or exc}). If it is open in Excel "
+                       "or another program, close it and run again.") from None
     if result["run"]["n_candidate_pairs"] == 0:
         print("Warning: " + NO_CANDIDATES_NOTE, file=sys.stderr)
     print(f"Learned rules for {len(records):,} rows, {len(result['columns'])} columns, "
@@ -455,6 +476,8 @@ def build_parser() -> argparse.ArgumentParser:
     learn.add_argument("--id-column", metavar="NAME",
                        help="use this column as the record id (no blank values, at least 99%% "
                             "distinct values). Default: Verity picks one, or uses row numbers")
+    learn.add_argument("--overwrite", action="store_true",
+                       help="replace output files that already exist in --out (default: refuse)")
     learn.add_argument("--no-pairs", action="store_true",
                        help="write no calibration pairs files and leave calibration_pairs empty")
     learn.add_argument("--debug", action="store_true", help="also write debug.json")

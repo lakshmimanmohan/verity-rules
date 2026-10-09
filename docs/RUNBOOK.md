@@ -25,7 +25,7 @@ verity --version
 verity learn customers.csv --out out/customers
 ```
 
-It writes four files to the folder: `rules.json`, `rules_report.md`, `calibration_pairs.csv`, `calibration_pairs_key.csv`. Same file and seed give the same output.
+It writes four files to the folder: `rules.json`, `rules_report.md`, `calibration_pairs.csv`, `calibration_pairs_key.csv`. Same file and seed give the same output. If any of these files already exists in the folder, the run stops with a one-line error naming them; add `--overwrite` to replace them. If a file cannot be written (for example it is open in Excel), the run stops with a one-line error naming the path; close the file and run again.
 
 Run time and memory: about 1 minute and 200 MB for 20,000 rows; about 90 seconds and 350 MB for 100,000 rows with `--max-rows 100000`.
 
@@ -49,6 +49,7 @@ To choose the id yourself, use `--id-column NAME`. An unknown name, or a column 
 - `--id-column NAME`: use this column as the record id (no blanks, at least 99% distinct values).
 - `--keep-columns A,B`: use these columns even if a Verity rule would exclude them (not the record id column).
 - `--mask-columns A,B`: replace these columns' values with `***` in the pairs files and in `rules.json`.
+- `--overwrite`: replace output files that already exist in `--out` (default: refuse).
 - `--no-pairs`: write no pairs files and leave `calibration_pairs` empty.
 - `--debug`: also write `debug.json` (internal scores and a threshold, not part of the rules).
 

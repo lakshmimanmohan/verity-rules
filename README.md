@@ -36,6 +36,7 @@ Options:
 | `--exclude-columns A,B` | none | Leave these columns out even if Verity would use them |
 | `--id-column NAME` | auto | Use this column as the record id (no blanks, at least 99% distinct values) |
 | `--keep-columns A,B` | none | Use these columns even if a Verity rule would exclude them (not the record id column) |
+| `--overwrite` | off | Replace output files that already exist in `--out` (default: refuse and name them) |
 | `--no-pairs` | off | Write no pairs files and leave `calibration_pairs` empty in `rules.json` |
 | `--version` | | Print the Verity version and exit |
 | `--debug` | off | Also write `debug.json` (internal scores and threshold; not part of the public rules) |
