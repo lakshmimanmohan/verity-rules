@@ -5,7 +5,9 @@ This is the only module in the package allowed to read or write files.
 from __future__ import annotations
 
 import argparse
+import codecs
 import csv
+import io
 import json
 import random
 import re
@@ -37,19 +39,94 @@ class CliError(Exception):
     """A user-facing problem; printed as one line, no traceback."""
 
 
-def read_records(path: Path) -> list[dict[str, Any]]:
-    """Read a CSV as strings (empty cells become None)."""
+DELIMITERS = {",": "comma", ";": "semicolon", "	": "tab", "|": "pipe"}
+_DELIMITER_ALIASES = {**{v: k for k, v in DELIMITERS.items()}, "\t": "	"}
+SNIFF_LINES = 20
+
+
+def decode_bytes(raw: bytes, path: Path, encoding: str | None) -> tuple[str, str]:
+    """Decode a file. Without an override: utf-8-sig (a BOM is dropped), then cp1252 if the bytes
+    are not valid UTF-8. Never ignores or replaces bad bytes. Returns (text, encoding used)."""
+    if encoding is not None:
+        try:
+            codec = codecs.lookup(encoding).name
+        except LookupError:
+            raise CliError(f"--encoding: unknown encoding: {encoding}") from None
+        try:
+            return raw.decode("utf-8-sig" if codec == "utf-8" else encoding), encoding
+        except UnicodeDecodeError as exc:
+            raise CliError(f"{path} is not valid {encoding} (byte {exc.start}); "
+                           "check --encoding.") from None
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        try:
+            return raw.decode("cp1252"), "cp1252"
+        except UnicodeDecodeError as exc:
+            raise CliError(f"{path} is neither UTF-8 nor cp1252 (byte {exc.start}); "
+                           "use --encoding.") from None
+    return text, "utf-8-sig" if raw.startswith(codecs.BOM_UTF8) else "utf-8"
+
+
+def sniff_delimiter(text: str) -> str:
+    """Pick comma, semicolon, tab or pipe from the first lines: the one that splits the most
+    lines into the same number (at least 2) of fields. Falls back to comma."""
+    lines = [ln for ln in text.splitlines()[:SNIFF_LINES] if ln.strip()]
+    best, best_key = ",", (0.0, 1)
+    for d in DELIMITERS:
+        counts = [len(row) for row in csv.reader(lines, delimiter=d)]
+        if not counts:
+            continue
+        modal = max(set(counts), key=lambda c: (counts.count(c), c))
+        if modal < 2:
+            continue
+        key = (counts.count(modal) / len(counts), modal)
+        if key > best_key:
+            best, best_key = d, key
+    return best
+
+
+def parse_delimiter(value: str) -> str:
+    d = _DELIMITER_ALIASES.get(value.lower(), value)
+    if len(d) != 1:
+        raise CliError(f"--delimiter: use a single character or one of: "
+                       f"{', '.join(DELIMITERS.values())}. Got: {value}")
+    return d
+
+
+def delimiter_name(d: str) -> str:
+    return DELIMITERS.get(d, repr(d))
+
+
+def read_table(path: Path, encoding: str | None = None,
+               delimiter: str | None = None) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    """Read a CSV as strings (empty cells become None). Returns (records, {"encoding", "delimiter"})
+    with what was used, whether given or detected."""
     if not path.is_file():
         raise CliError(f"file not found: {path}")
+    delim = parse_delimiter(delimiter) if delimiter is not None else None
+    text, used = decode_bytes(path.read_bytes(), path, encoding)
+    if delim is None:
+        delim = sniff_delimiter(text)
     try:
-        df = pd.read_csv(path, dtype=str, keep_default_na=False).replace("", None)
+        df = pd.read_csv(io.StringIO(text), sep=delim, dtype=str,
+                         keep_default_na=False).replace("", None)
     except pd.errors.EmptyDataError:
         raise CliError(f"{path} is empty.") from None
-    except (pd.errors.ParserError, UnicodeDecodeError) as exc:
-        raise CliError(f"could not read {path} as CSV: {exc}") from None
+    except pd.errors.ParserError as exc:
+        raise CliError(f"could not read {path} as CSV ({delimiter_name(delim)}-delimited): "
+                       f"{exc}") from None
+    if df.shape[1] < 2:
+        raise CliError(f"only one column was read from {path} with the {delimiter_name(delim)} "
+                       "delimiter; check the delimiter (use --delimiter).")
     if len(df) < 2:
         raise CliError(f"{path} has {len(df)} data rows; Verity needs at least 2.")
-    return df.to_dict(orient="records")
+    return df.to_dict(orient="records"), {"encoding": used, "delimiter": delimiter_name(delim)}
+
+
+def read_records(path: Path) -> list[dict[str, Any]]:
+    """Read a CSV as strings (empty cells become None)."""
+    return read_table(path)[0]
 
 
 def sample_records(records: list[dict[str, Any]], max_rows: int, seed: int,
@@ -172,6 +249,8 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "## Run details", "",
           f"- Verity version: {result['run']['verity_version']}",
           f"- Seed: {seed}",
+          f"- File encoding: {result['run']['encoding']}",
+          f"- Delimiter: {result['run']['delimiter']}",
           f"- Run date (UTC): {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}",
           f"- Contract version: {result['contract_version']}",
           f"- Embeddings used: {'yes' if embeddings_used else 'no'}",
@@ -389,7 +468,11 @@ def cmd_learn(args: argparse.Namespace) -> int:
     both = sorted(set(exclude) & set(keep))
     if both:
         raise CliError("--exclude-columns and --keep-columns both list: " + ", ".join(both))
-    records, id_column, row_numbers = choose_record_id(read_records(src), args.id_column)
+    records, file_info = read_table(src, args.encoding, args.delimiter)
+    if args.encoding is None and file_info["encoding"] == "cp1252":
+        print("Note: the file is not valid UTF-8, so it was read as cp1252. "
+              "Use --encoding to choose another.", file=sys.stderr)
+    records, id_column, row_numbers = choose_record_id(records, args.id_column)
     row_note = (f"No unique id column was found. Row numbers ({id_column}) are used as record ids "
                 "in the pairs files.")
     if row_numbers:
@@ -423,6 +506,7 @@ def cmd_learn(args: argparse.Namespace) -> int:
     if guess_note:
         result["notes"].append(guess_note)
     result["run"]["sampling"] = sampling
+    result["run"].update(file_info)
     anchors = debug.get("reliability_debug", {}).get("anchor_count")
 
     mask = {c.strip() for c in args.mask_columns.split(",") if c.strip()} if args.mask_columns else set()
@@ -478,6 +562,12 @@ def build_parser() -> argparse.ArgumentParser:
                             "distinct values). Default: Verity picks one, or uses row numbers")
     learn.add_argument("--overwrite", action="store_true",
                        help="replace output files that already exist in --out (default: refuse)")
+    learn.add_argument("--encoding", metavar="NAME",
+                       help="text encoding of the CSV, such as utf-8 or cp1252. Default: utf-8, "
+                            "then cp1252 if the file is not valid UTF-8")
+    learn.add_argument("--delimiter", metavar="CHAR",
+                       help="field delimiter: comma, semicolon, tab, pipe or one character. "
+                            "Default: detected from the first 20 lines")
     learn.add_argument("--no-pairs", action="store_true",
                        help="write no calibration pairs files and leave calibration_pairs empty")
     learn.add_argument("--debug", action="store_true", help="also write debug.json")

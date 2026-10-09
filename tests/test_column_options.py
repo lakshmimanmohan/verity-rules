@@ -92,7 +92,7 @@ def test_bad_column_options_give_one_line_error(tmp_path, capsys, args, message)
 def test_run_object_has_no_date(tmp_path):
     _, out = _learn(tmp_path, "r", "--seed", "7")
     run = _rules(out)["run"]
-    assert set(run) == {"verity_version", "seed", "n_candidate_pairs", "sampling"}
+    assert set(run) == {"verity_version", "seed", "n_candidate_pairs", "sampling", "encoding", "delimiter"}
     assert run["seed"] == 7 and run["n_candidate_pairs"] > 0
 
 

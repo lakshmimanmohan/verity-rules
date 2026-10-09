@@ -29,6 +29,10 @@ It writes four files to the folder: `rules.json`, `rules_report.md`, `calibratio
 
 Run time and memory: about 1 minute and 200 MB for 20,000 rows; about 90 seconds and 350 MB for 100,000 rows with `--max-rows 100000`.
 
+### File encoding and delimiter
+
+Verity reads the file as UTF-8 (a byte order mark is dropped). If the bytes are not valid UTF-8 it reads the file as cp1252 and prints a one-line note. It never skips or replaces bytes it cannot decode; a file that fits neither stops the run with a one-line error. The delimiter is detected from the first 20 lines among comma, semicolon, tab and pipe. Both are recorded under "Run details" in `rules_report.md` and in `rules.json`. If only one column is read, the run stops with a one-line error: check the delimiter. Use `--encoding` and `--delimiter` to override detection.
+
 ### The record id column
 
 A record id has no blank values and at least 99 percent distinct values. Verity picks one that qualifies, preferring names such as `id`, `record_id`, `uuid`, `key` or ending in `_id` or `_key`, and leaves it out of the weights. The pairs files show its values.
@@ -46,6 +50,8 @@ To choose the id yourself, use `--id-column NAME`. An unknown name, or a column 
 - `--max-rows N`: analyse at most N rows of a larger file, default 20000.
 - `--sample-mode groups|random`: above the cap, `groups` keeps rows that share a distinctive value together (so duplicate sets survive the cut); `random` draws rows uniformly.
 - `--exclude-columns A,B`: leave these columns out even if Verity would use them.
+- `--encoding NAME`: text encoding of the CSV, such as `utf-8` or `cp1252` (default: UTF-8, then cp1252).
+- `--delimiter CHAR`: `comma`, `semicolon`, `tab`, `pipe` or one character (default: detected from the first 20 lines).
 - `--id-column NAME`: use this column as the record id (no blanks, at least 99% distinct values).
 - `--keep-columns A,B`: use these columns even if a Verity rule would exclude them (not the record id column).
 - `--mask-columns A,B`: replace these columns' values with `***` in the pairs files and in `rules.json`.

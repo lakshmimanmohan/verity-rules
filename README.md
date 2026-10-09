@@ -34,6 +34,8 @@ Options:
 | `--sample-mode groups\|random` | groups | `groups` keeps rows that share an identical value in a distinctive column together (groups of 2 to 50 rows), then fills with single rows. `random` draws rows uniformly |
 | `--mask-columns A,B` | none | Replace the values of these columns with `***` in `calibration_pairs.csv` and in the pairs in `rules.json` (empty values stay empty) |
 | `--exclude-columns A,B` | none | Leave these columns out even if Verity would use them |
+| `--encoding NAME` | utf-8, then cp1252 | Text encoding of the CSV; never decodes with errors ignored |
+| `--delimiter CHAR` | detected | `comma`, `semicolon`, `tab`, `pipe` or one character; detected from the first 20 lines |
 | `--id-column NAME` | auto | Use this column as the record id (no blanks, at least 99% distinct values) |
 | `--keep-columns A,B` | none | Use these columns even if a Verity rule would exclude them (not the record id column) |
 | `--overwrite` | off | Replace output files that already exist in `--out` (default: refuse and name them) |
