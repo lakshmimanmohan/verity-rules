@@ -15,11 +15,11 @@ Needs Python 3.10 or newer. Wheel location: <ADD PATH>
 In a fresh virtual environment:
 
 ```
-pip install verity_rules-0.1.6-py3-none-any.whl
+pip install verity_rules-0.1.7-py3-none-any.whl
 verity --version
 ```
 
-`pip install "verity_rules-0.1.6-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
+`pip install "verity_rules-0.1.7-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
 
 ## Run
 
