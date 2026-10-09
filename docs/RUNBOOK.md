@@ -108,6 +108,4 @@ Excel drops leading zeros and rewrites long numbers (for example `00123` becomes
 - Verity does not match, clean or standardize records, and gives no cutoff.
 - Candidate pairs need a shared value in a distinctive column. True duplicates that share none are not used to measure reliability.
 
-## What to send back to the project owner
 
-After each run send: the Verity version (`verity --version`), the command line used, `rules_report.md`, and a short note with row count, the column types you expected versus the report, any excluded column you disagree with, and how many pairs you labelled. Send `rules.json` and the pairs files only if the data owner agrees, or send masked versions. Do not send the source CSV.
