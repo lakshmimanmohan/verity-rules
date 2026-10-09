@@ -85,7 +85,7 @@ def test_cutoff_section_starts_with_no_matches_sentence(tmp_path):
     report = _report(tmp_path, _repeating_csv, "rep")
     body = _section(report, "### Choosing a match cutoff").lstrip("\n")
     assert body.startswith(NO_MATCHES)
-    assert body.index(NO_MATCHES) < body.index("Verity does not provide a cutoff.")
+    assert "Verity does not provide a cutoff." not in body.split("### Handling")[0]
 
 
 def test_cutoff_sentence_absent_when_matches_exist(tmp_path):

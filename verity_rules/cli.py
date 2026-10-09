@@ -355,15 +355,25 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "## Columns, by weight", "",
           "| Column | Weight | Reliability | Compared by | Reason |",
           "|---|---|---|---|---|"]
+    any_low = any_unmeasured = False
     for name, c in ordered:
         anchors = None if anchor_counts is None else anchor_counts.get(name, 0)
         low = levels.get(name, ANCHOR_LEVEL) < ANCHOR_LEVEL
-        note = (" (not measured)" if anchors is not None and anchors < ANCHOR_MIN_COUNT
-                else " (low confidence)" if low else "")
+        unmeasured = anchors is not None and anchors < ANCHOR_MIN_COUNT
+        any_unmeasured |= unmeasured
+        any_low |= low and not unmeasured
+        note = (" (not measured)" if unmeasured else " (low confidence)" if low else "")
         L.append(f"| {_md_cell(name)} | {c['composite_weight']:.3f} | "
                  f"{c['reliability_score']:.3f}{note} | "
                  f"{c['comparison_method']} | {_md_cell(_report_reason(c['reason'], no_anchors))} |")
-    L += ["", "### Details", "",
+    L += ["", "**Caution:** a weight is how distinctive the column is in this dataset, times its "
+          "reliability, scaled so all weights sum to 1. A column that is generally a weak "
+          "identifier can still score high here if it happens to be distinctive and "
+          "consistent in this data. Read the weights together with the reasons.", "",
+          "Compare these weights with what you know about the data before using them. A column "
+          "that is generally a weak identifier can outrank a stronger one if its values are "
+          "more distinct here.", "",
+          "### Details", "",
           "| Column | Anchors |", "|---|---|"]
     for name, _ in ordered:
         L.append(f"| {_md_cell(name)} | "
@@ -373,14 +383,12 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "at least half the values are distinct (and the value is shared by 2 to 10 records). "
           "Anchors are the pairs used to measure that column's reliability: candidate pairs "
           "that agree on at least two other columns, or on one when too few pairs qualify.", "",
-          "**Low confidence** marks a column whose reliability was measured with the relaxed "
-          "rule (one agreeing column). **Not measured** marks a column with too few anchors "
-          "to measure reliability; it is set to 1.0 and does not change the weight. Treat "
-          "the reliability and weight of both as less certain.", "",
-          "**Caution:** a weight is how distinctive the column is in this dataset, times its "
-          "reliability, scaled so all weights sum to 1. A column that is generally a weak "
-          "identifier can still score high here if it happens to be distinctive and "
-          "consistent in this data. Read the weights together with the reasons.", "",
+          *(["**Low confidence** marks a column whose reliability was measured with the "
+             "relaxed rule (one agreeing column). Treat its reliability and weight as less "
+             "certain.", ""] if any_low else []),
+          *(["**Not measured** marks a column with too few anchors to measure reliability; it "
+             "is set to 1.0 and does not change the weight. Treat its reliability and weight "
+             "as less certain.", ""] if any_unmeasured else []),
           "### Comparison methods", ""]
     methods = sorted({c["comparison_method"] for c in cols.values()})
     L += [f"- **{m}**: {_METHOD_GLOSSARY.get(m, 'See the Verity documentation.')}" for m in methods]
@@ -420,7 +428,12 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "likely refer to the same thing than across random pairs of records. 0 means no better "
           "than chance and 1 means the values are always the same.",
           "- **Comparison method** says how to compare two values of that column. Each "
-          "comparison gives a similarity from 0 (different) to 1 (the same).", "",
+          "comparison gives a similarity from 0 (different) to 1 (the same). If your tool does "
+          "not have this comparator, use its closest one: edit distance or Jaro-Winkler for "
+          "text, exact match for ids. For email, compare the part before the @ and the domain "
+          "separately if you can. The weights stay valid. Set the cutoff using the comparator "
+          "you actually use, because a cutoff only makes sense for the scoring it was chosen "
+          "with.", "",
           "### Pair score", "",
           "For two records, score = sum of (weight x similarity) over the columns that have a "
           "value in both records, divided by the sum of the weights of those same columns.", "",
@@ -438,12 +451,15 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           f"rest (for example, compare the wrong-call rate for pairs below {COVERAGE_LOW} with "
           "the rate for the others). If they are, send pairs below the coverage level you choose "
           "to review instead of deciding them automatically.", "",
-          "### Choosing a match cutoff", "",
-          *(["This run found no likely matches, so calibration_pairs.csv cannot be used to "
-             "choose a cutoff. Add known matches from your own data.", ""]
-            if pairs_written and not result["calibration_pairs"]["likely_match"] else []),
-          "Verity does not provide a cutoff. To set your own:", ""]
-    if pairs_written:
+          "### Choosing a match cutoff", ""]
+    no_matches = pairs_written and not result["calibration_pairs"]["likely_match"]
+    if no_matches:
+        L += ["This run found no likely matches, so calibration_pairs.csv cannot be used to "
+              "choose a cutoff. Add known matches from your own data. To set a cutoff, label "
+              "pairs from your own data and follow steps 2 to 6 below.", ""]
+    else:
+        L += ["Verity does not provide a cutoff. To set your own:", ""]
+    if pairs_written and not no_matches:
         L += ["1. Open `calibration_pairs.csv` and fill in `your_label` for each pair: match "
               "or not a match. Label at least 30 pairs of each kind. If the file does not "
               "have 30 of a kind, add pairs from your own data. Leave "
@@ -451,7 +467,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
               "guesses and where each pair came from, which are not the truth. The `unclear` "
               "pairs mix mid-range candidate pairs with the highest-scoring pairs that are not "
               "candidates (near-misses)."]
-    else:
+    elif not no_matches:
         L += ["1. Take pairs from your own data and label each as a match or not a match. "
               "Label at least 30 pairs of each kind. (No pairs files were written because "
               "`--no-pairs` was used.)"]
