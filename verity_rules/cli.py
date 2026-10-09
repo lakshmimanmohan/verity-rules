@@ -261,6 +261,39 @@ def _read_first_box(result: dict[str, Any]) -> list[str]:
             "The weights come from distinctiveness only.", ""]
 
 
+NO_ANCHORS_NOTE = ("No column had enough anchor pairs, so reliability was not measured and is "
+                   "set to 1.0 for every column.")
+_PER_COLUMN_ANCHOR_NOTE = re.compile(r"only \d+ anchor pairs \(need \d+\)")
+
+
+def _no_anchors(result: dict[str, Any], anchor_counts: dict[str, int] | None) -> bool:
+    """True when anchor counts are known and no kept column reached ANCHOR_MIN_COUNT."""
+    return anchor_counts is not None and all(
+        anchor_counts.get(name, 0) < ANCHOR_MIN_COUNT for name in result["columns"])
+
+
+def _report_notes(notes: list[str], no_anchors: bool) -> list[str]:
+    """The notes to print. When no column has anchors, the per-column 'only N anchor pairs'
+    lines collapse into one line; every other note stays."""
+    if not no_anchors:
+        return list(notes)
+    out: list[str] = []
+    placed = False
+    for t in notes:
+        if _PER_COLUMN_ANCHOR_NOTE.search(t):
+            if not placed:
+                out.append(NO_ANCHORS_NOTE)
+                placed = True
+            continue
+        out.append(t)
+    return out if placed else [NO_ANCHORS_NOTE, *out]
+
+
+def _report_reason(reason: str, no_anchors: bool) -> str:
+    """With no anchors the marker in the Reliability cell says it; the reason keeps its facts."""
+    return reason.split(". Reliability was not measured")[0] if no_anchors else reason
+
+
 def _summary_paragraph(result: dict[str, Any], measured: bool) -> str:
     ordered = _ordered_columns(result)
     top = [f"{_md_cell(n)} ({c['composite_weight']:.3f})" for n, c in ordered[:3]]
@@ -287,6 +320,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
     embeddings_used = result["embeddings_used"]
     L: list[str] = []
     measured = _reliability_measured(result, anchor_counts)
+    no_anchors = _no_anchors(result, anchor_counts)
     L += [f"# Verity rules report: {source.name}", "",
           *(_read_first_box(result) if n_cand == 0 else []),
           _summary_paragraph(result, measured), "",
@@ -326,7 +360,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
                 else " (low confidence)" if low else "")
         L.append(f"| {_md_cell(name)} | {c['composite_weight']:.3f} | "
                  f"{c['reliability_score']:.3f}{note} | "
-                 f"{c['comparison_method']} | {_md_cell(c['reason'])} |")
+                 f"{c['comparison_method']} | {_md_cell(_report_reason(c['reason'], no_anchors))} |")
     L += ["", "### Details", "",
           "| Column | Anchors |", "|---|---|"]
     for name, _ in ordered:
@@ -376,7 +410,7 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "columns to be decided, so send low-coverage pairs to review instead of deciding them "
           "automatically. This rule of thumb comes from synthetic tests, not from your data."]
     L += ["", "## Notes", ""]
-    L += [f"- {_md_cell(t)}" for t in result["notes"]] or ["None."]
+    L += [f"- {_md_cell(t)}" for t in _report_notes(result["notes"], no_anchors)] or ["None."]
     L += ["", "## How to use these rules", "",
           "- **Weights** show how much each column should count. They sum to 1. They "
           "describe the data, so you can use them in any matching tool.",
