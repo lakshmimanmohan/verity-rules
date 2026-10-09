@@ -112,7 +112,7 @@ def test_existing_row_column_is_not_overwritten(tmp_path):
     assert all(1 <= int(a) <= 60 for a, _ in _pair_ids(out))
 
 
-GUESS = ("Using {} as the record id because it has no blanks and every value is distinct. "
+GUESS = ("Using {} as the record id because it has no blanks and almost every value is distinct. "
          "If this is not an id, use --id-column or add row numbers.")
 
 

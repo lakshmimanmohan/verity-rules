@@ -479,7 +479,7 @@ def cmd_learn(args: argparse.Namespace) -> int:
         print(f"Warning: {row_note}", file=sys.stderr)
     guess_note = None
     if not row_numbers and args.id_column is None and not is_idlike_name(id_column):
-        guess_note = (f"Using {id_column} as the record id because it has no blanks and every "
+        guess_note = (f"Using {id_column} as the record id because it has no blanks and almost every "
                       "value is distinct. If this is not an id, use --id-column or add row numbers.")
         print(f"Warning: {guess_note}", file=sys.stderr)
     records, sampling = sample_records(records, args.max_rows, args.seed, args.sample_mode,
