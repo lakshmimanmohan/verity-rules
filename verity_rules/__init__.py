@@ -1,1 +1,1 @@
-__version__ = "0.1.1"  # keep equal to pyproject.toml
+__version__ = "0.1.2"  # keep equal to pyproject.toml
