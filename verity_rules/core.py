@@ -12,7 +12,7 @@ from . import __version__
 from .column_classification import classify_columns
 from .rule_learner import (
     build_profiles, comparison_method, kmeans_gap_threshold, learn_reliability,
-    learn_reliability_v2, check_comparator_variant,
+    learn_reliability_v2, check_comparator_variant, ANCHOR_MIN_COUNT,
     normalize_discriminative_weights, numeric_series_stats,
     is_null, record_id_from_row, weighted_pair_similarity,
 )
@@ -76,19 +76,19 @@ def _round_floats(obj: Any) -> Any:
     return obj
 
 
-def _column_reason(p) -> str:
-    """One sentence describing a kept column from uniqueness, nulls and reliability."""
-    uniq = ("highly distinctive values" if p.uniqueness_ratio >= 0.7
-            else "moderately distinctive values" if p.uniqueness_ratio >= 0.3
-            else "many repeated values")
-    nulls = ("rarely empty" if p.null_rate < 0.1
-             else "sometimes empty" if p.null_rate < 0.4
-             else "often empty")
-    rel = ("agrees well across likely duplicates" if p.reliability_score >= RELIABILITY_HIGH
-           else "usually agrees across likely duplicates" if p.reliability_score >= RELIABILITY_MID
-           else "often disagrees across likely duplicates")
-    return (f"{uniq.capitalize()} ({p.uniqueness_ratio:.0%} unique), {nulls} "
-            f"({p.null_rate:.0%} null), and {rel} (reliability {p.reliability_score:.2f}).")
+def _column_reason(p, anchors: int | None = None) -> str:
+    """One short line describing a kept column from uniqueness, nulls and reliability.
+    `anchors` is the number of anchor pairs behind the reliability; below ANCHOR_MIN_COUNT
+    reliability was not measured, so the line must not claim agreement."""
+    head = f"{p.uniqueness_ratio:.0%} unique, {p.null_rate:.0%} empty"
+    if anchors is not None and anchors < ANCHOR_MIN_COUNT:
+        why = "no anchor pairs" if anchors == 0 else "too few anchor pairs"
+        return (f"{head}. Reliability was not measured ({why}), so it is set to 1.0 "
+                "and does not change the weight.")
+    rel = ("agrees well across duplicates" if p.reliability_score >= RELIABILITY_HIGH
+           else "usually agrees across duplicates" if p.reliability_score >= RELIABILITY_MID
+           else "often disagrees across duplicates")
+    return f"{head}, {rel} ({p.reliability_score:.2f})"
 
 
 USER_EXCLUDED_RULE = "user_excluded"
@@ -372,7 +372,7 @@ def learn_rules(
                 "null_rate": round(p.null_rate, 6),
                 "reliability_score": round(p.reliability_score, 6),
                 "composite_weight": round(p.composite_weight, 6),
-                "reason": _column_reason(p),
+                "reason": _column_reason(p, rel_info.get("anchor_count", {}).get(p.name)),
             } for p in profiles
         },
     }

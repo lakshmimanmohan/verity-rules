@@ -104,7 +104,9 @@ def test_version_matches_pyproject():
 def test_reasons_have_no_weight_word(tmp_path):
     _, out = _learn(tmp_path, "w")
     for c in _rules(out)["columns"].values():
-        assert "weight" not in c["reason"].lower()
+        # the fixed "not measured" sentence is the one place a reason may say "weight"
+        reason = c["reason"].replace("and does not change the weight.", "")
+        assert "weight" not in reason.lower()
 
 
 def test_separability_uses_published_weights(tmp_path):
