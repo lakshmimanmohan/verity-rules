@@ -79,3 +79,14 @@ def test_read_this_first_box_has_extension(tmp_path):
 def test_box_and_extension_absent_with_candidates(tmp_path):
     report = _report(tmp_path, _distinct_csv, "dist")
     assert EXTENSION not in report
+
+
+def test_cutoff_section_starts_with_no_matches_sentence(tmp_path):
+    report = _report(tmp_path, _repeating_csv, "rep")
+    body = _section(report, "### Choosing a match cutoff").lstrip("\n")
+    assert body.startswith(NO_MATCHES)
+    assert body.index(NO_MATCHES) < body.index("Verity does not provide a cutoff.")
+
+
+def test_cutoff_sentence_absent_when_matches_exist(tmp_path):
+    assert NO_MATCHES not in _report(tmp_path, _distinct_csv, "dist")

@@ -439,6 +439,9 @@ def build_report(result: dict[str, Any], source: Path, n_original: int,
           "the rate for the others). If they are, send pairs below the coverage level you choose "
           "to review instead of deciding them automatically.", "",
           "### Choosing a match cutoff", "",
+          *(["This run found no likely matches, so calibration_pairs.csv cannot be used to "
+             "choose a cutoff. Add known matches from your own data.", ""]
+            if pairs_written and not result["calibration_pairs"]["likely_match"] else []),
           "Verity does not provide a cutoff. To set your own:", ""]
     if pairs_written:
         L += ["1. Open `calibration_pairs.csv` and fill in `your_label` for each pair: match "
