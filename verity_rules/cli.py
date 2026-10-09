@@ -213,17 +213,23 @@ _METHOD_GLOSSARY = {
                        "the pairs both values share divided by all distinct pairs in either. "
                        "Order matters: `abcd` and `dcba` share no pairs and score 0, and one "
                        "typo costs only the pairs next to it."),
-    "text_bigram": ("The same bigram comparison as bigram_jaccard, used for text columns: "
-                    "adjacent character pairs, so order matters and `abcd` and `dcba` score 0. "
-                    "A small typo lowers the score a little instead of failing the match."),
-    "text_character": ("The share of distinct characters the two values have in common, "
-                       "ignoring capitals and order. It is a rough measure: the same letters "
-                       "in a different order score 1. Not used by default; it appears only when "
-                       "an older comparator variant is selected."),
-    "text_hybrid": ("A blend of text embedding similarity (cosine) and a character score. It "
-                    "appears only when embeddings were used. The character part is the "
-                    "distinct-character share described under text_character, so order does "
-                    "not matter in that part."),
+    "text_bigram": ("Lower-cases the values and drops everything except letters and digits, "
+                    "then splits each into adjacent character pairs (bigrams). The score is "
+                    "the pairs both values share divided by all distinct pairs in either. "
+                    "Because pairs are adjacent, order matters: `abcd` and `dcba` share no "
+                    "pairs and score 0, and a small typo lowers the score a little instead of failing the match. Used for "
+                    "text columns."),
+    "text_character": ("The number of distinct characters both values contain, divided by the "
+                       "number of distinct characters in either, ignoring capitals and order. "
+                       "It is a rough measure: the same letters in a different order score 1. "
+                       "Not used by default; it appears only when an older comparator variant "
+                       "is selected."),
+    "text_hybrid": ("A weighted sum: 0.65 times the cosine similarity of the two records' text "
+                    "embeddings, plus 0.35 times the share of distinct characters the two "
+                    "values have in common (distinct characters both contain divided by "
+                    "distinct characters in either, ignoring capitals and order). It appears "
+                    "only when embeddings were used. If a record has no embedding, only the "
+                    "character share is used."),
     "date": ("1 minus the number of days apart divided by 3,650 (ten years), never below 0. "
              "A value that cannot be read as a date scores 0."),
     "numeric_range": ("Both numbers are placed on a 0 to 1 scale using the smallest and largest "
