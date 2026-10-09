@@ -204,7 +204,11 @@ def learn_rules(
     exclude_columns: list[str] | None = None,
     keep_columns: list[str] | None = None,
     comparator_variant: str = "v4",
+    record_id_column: str | None = None,
 ) -> dict[str, Any]:
+    """record_id_column names the column used as record id in the pairs. When None, Verity picks
+    a column with no blanks and at least 99 percent distinct values, and raises ValueError if
+    there is none."""
     if reliability not in ("v1", "v2"):
         raise ValueError(f"reliability must be 'v1' or 'v2', got {reliability!r}")
     check_comparator_variant(comparator_variant)
@@ -217,7 +221,7 @@ def learn_rules(
     if len(df) < 2:
         raise ValueError("Need at least 2 records.")
 
-    cls = classify_columns(df)
+    cls = classify_columns(df, None if record_id_column is None else str(record_id_column).strip())
     notes: list[str] = []
     _apply_column_overrides(cls, list(df.columns), list(exclude_columns or []),
                             list(keep_columns or []), notes)
@@ -231,7 +235,8 @@ def learn_rules(
 
     rid_col = str(cls.get("record_id_column") or "").strip()
     if not rid_col:
-        raise ValueError("Could not identify a record id column.")
+        raise ValueError("Could not identify a record id column: no column has no blanks and at least "
+                         "99% distinct values. Pass record_id_column or add an id column.")
     row_ids = [record_id_from_row(r, rid_col) for r in rows]
 
     n = len(rows)

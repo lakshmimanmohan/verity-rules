@@ -17,6 +17,7 @@ from typing import Any
 import pandas as pd
 
 from . import __version__
+from .column_classification import pick_record_id_column, record_id_problem
 from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
 from .sampling import group_sample_indices
 
@@ -26,6 +27,7 @@ SAMPLE_MODES = ("groups", "random")
 DEBUG_KEYS = ("reliability_debug", "candidate_pairs", "threshold", "similarity_stats", "separability")
 CATEGORY_ORDER = ("likely_match", "unclear", "likely_non_match")
 MASK = "***"
+ROW_COLUMN = "_row"
 PAIRS_NOTICE = ("Note: calibration_pairs.csv and rules.json contain values from the source data. "
                 "Handle them like the source data.")
 
@@ -50,7 +52,8 @@ def read_records(path: Path) -> list[dict[str, Any]]:
 
 
 def sample_records(records: list[dict[str, Any]], max_rows: int, seed: int,
-                   mode: str = "groups", exclude: list[str] = (), keep: list[str] = ()) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+                   mode: str = "groups", exclude: list[str] = (), keep: list[str] = (),
+                   record_id_column: str | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Cut records down to max_rows, keeping original row order. mode "groups" keeps rows that
     share a distinctive value together; "random" draws rows uniformly. Returns (records, info)."""
     n = len(records)
@@ -61,7 +64,7 @@ def sample_records(records: list[dict[str, Any]], max_rows: int, seed: int,
     if mode == "random":
         keep = sorted(pd.DataFrame(index=range(n)).sample(n=max_rows, random_state=seed).index)
     else:
-        keep, gi = group_sample_indices(records, max_rows, seed, exclude, keep)
+        keep, gi = group_sample_indices(records, max_rows, seed, exclude, keep, record_id_column)
         info["groups_kept"] = gi["groups_kept"]
     return [records[i] for i in keep], info
 
@@ -71,6 +74,30 @@ def load_records(path: Path, max_rows: int, seed: int,
     """Read and sample a CSV. Returns (records, original row count)."""
     records = read_records(path)
     return sample_records(records, max_rows, seed, mode)[0], len(records)
+
+
+def choose_record_id(records: list[dict[str, Any]], requested: str | None) -> tuple[list[dict[str, Any]], str, bool]:
+    """Decide the record id column for the whole file. Returns (records, column, row_numbers).
+    With no usable id column, adds a 1-based row-number column (file order, after the header)
+    named _row, or _row_2, _row_3, ... if the file already has that name."""
+    df = pd.DataFrame(records)
+    df.columns = [str(c).strip() for c in df.columns]
+    if requested is not None:
+        name = requested.strip()
+        if name not in df.columns:
+            raise CliError(f"--id-column: no such column: {requested}")
+        why = record_id_problem(df[name].tolist())
+        if why:
+            raise CliError(f"--id-column: {name} cannot be the record id because {why}.")
+        return records, name, False
+    picked = pick_record_id_column(df)
+    if picked is not None:
+        return records, picked, False
+    name, k = ROW_COLUMN, 1
+    while name in df.columns:
+        k += 1
+        name = f"{ROW_COLUMN}_{k}"
+    return [{**r, name: str(i)} for i, r in enumerate(records, start=1)], name, True
 
 
 def _md_cell(text: Any) -> str:
@@ -334,19 +361,23 @@ def cmd_learn(args: argparse.Namespace) -> int:
     both = sorted(set(exclude) & set(keep))
     if both:
         raise CliError("--exclude-columns and --keep-columns both list: " + ", ".join(both))
-    records, sampling = sample_records(read_records(src), args.max_rows, args.seed, args.sample_mode,
-                                       exclude, keep)
+    records, id_column, row_numbers = choose_record_id(read_records(src), args.id_column)
+    row_note = (f"No unique id column was found. Row numbers ({id_column}) are used as record ids "
+                "in the pairs files.")
+    if row_numbers:
+        print(f"Warning: {row_note}", file=sys.stderr)
+    records, sampling = sample_records(records, args.max_rows, args.seed, args.sample_mode,
+                                       exclude, keep, id_column)
     n_original = sampling["rows_in_file"]
     try:
         result = learn_rules(records, seed=args.seed, debug=True,
-                             exclude_columns=exclude, keep_columns=keep)
+                             exclude_columns=exclude, keep_columns=keep,
+                             record_id_column=id_column)
     except ValueError as exc:
         msg = str(exc)
         if msg.startswith(("exclude_columns", "keep_columns")):
             raise CliError(msg.replace("exclude_columns", "--exclude-columns")
                            .replace("keep_columns", "--keep-columns")) from None
-        if "record id" in msg.lower():
-            raise CliError(f"no usable record id column found in {src}.") from None
         raise CliError(str(exc)) from None
 
     debug = {k: result.pop(k) for k in DEBUG_KEYS if k in result}
@@ -354,6 +385,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
         result["notes"].append(
             f"Dataset has {n_original:,} rows; {len(records):,} were analysed "
             f"(sample mode {sampling['mode']}, seed {args.seed}).")
+    if row_numbers:
+        result["notes"].append(row_note)
     result["run"]["sampling"] = sampling
     anchors = debug.get("reliability_debug", {}).get("anchor_count")
 
@@ -412,6 +445,9 @@ def build_parser() -> argparse.ArgumentParser:
     learn.add_argument("--keep-columns", metavar="COLS",
                        help="comma-separated column names to use even if a Verity rule would "
                             "exclude them (not the record id column)")
+    learn.add_argument("--id-column", metavar="NAME",
+                       help="use this column as the record id (no blank values, at least 99%% "
+                            "distinct values). Default: Verity picks one, or uses row numbers")
     learn.add_argument("--no-pairs", action="store_true",
                        help="write no calibration pairs files and leave calibration_pairs empty")
     learn.add_argument("--debug", action="store_true", help="also write debug.json")

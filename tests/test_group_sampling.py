@@ -106,9 +106,9 @@ def test_cli_passes_exclude_to_sampling(tmp_path, monkeypatch):
     seen = {}
     real = cli.group_sample_indices
 
-    def spy(records, max_rows, seed, exclude=(), keep=()):
+    def spy(records, max_rows, seed, exclude=(), keep=(), record_id_column=None):
         seen["exclude"], seen["keep"] = list(exclude), list(keep)
-        return real(records, max_rows, seed, exclude, keep)
+        return real(records, max_rows, seed, exclude, keep, record_id_column)
     monkeypatch.setattr(cli, "group_sample_indices", spy)
     recs = _records()
     src = tmp_path / "in.csv"

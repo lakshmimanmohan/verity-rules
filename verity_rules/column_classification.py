@@ -196,9 +196,30 @@ def is_boolean_flag_column(col: str, n_distinct: int) -> tuple[bool, str]:
     )
 
 
-def pick_record_id_column(df: pd.DataFrame, primary_key_columns: list[str]) -> str:
-    """Prefer canonical id column names, then PK-classified columns, then highest cardinality."""
-    lower_map = {str(c).strip().lower(): c for c in df.columns}
+RECORD_ID_MIN_DISTINCT = 0.99
+
+
+def record_id_problem(values: list[Any]) -> str | None:
+    """Why a column cannot be a record id, or None if it can: it needs no blank values and at
+    least 99 percent distinct values."""
+    n = len(values)
+    blanks = sum(1 for v in values if is_null(v) or not str(v).strip())
+    if blanks:
+        return f"it has {blanks:,} blank value{'s' if blanks != 1 else ''}"
+    distinct = len({str(v).strip() for v in values})
+    if n == 0 or distinct / n < RECORD_ID_MIN_DISTINCT:
+        return f"only {distinct / max(n, 1):.1%} of its values are distinct (needs at least 99%)"
+    return None
+
+
+def pick_record_id_column(df: pd.DataFrame, primary_key_columns: list[str] | None = None) -> str | None:
+    """Pick a record id among the columns that can be one (see record_id_problem): prefer
+    canonical id column names, then the first such column in file order. primary_key_columns is
+    kept for callers; every column that qualifies is already a near-unique key. Returns None when no column qualifies."""
+    ok = [c for c in df.columns if record_id_problem(df[c].tolist()) is None]
+    if not ok:
+        return None
+    lower_map = {str(c).strip().lower(): c for c in ok}
     id_suffix_re = re.compile(r"(_id|_key)$", re.IGNORECASE)
     dynamic_prefs = [kl for kl in lower_map if id_suffix_re.search(kl)]
     static_prefs = ("id", "record_id", "uuid", "key")
@@ -206,22 +227,10 @@ def pick_record_id_column(df: pd.DataFrame, primary_key_columns: list[str]) -> s
     for p in prefs:
         if p in lower_map:
             return lower_map[p]
-    pk_lower = {str(c).strip().lower(): c for c in primary_key_columns}
-    for p in prefs:
-        if p in pk_lower:
-            return pk_lower[p]
-    if primary_key_columns:
-        order = {c: i for i, c in enumerate(df.columns)}
-        return sorted(primary_key_columns, key=lambda c: order.get(c, 999))[0]
-    best, best_u = df.columns[0], -1
-    for c in df.columns:
-        u = int(df[c].map(token_key).nunique())
-        if u > best_u:
-            best, best_u = c, u
-    return str(best)
+    return str(ok[0])
 
 
-def classify_columns(df: pd.DataFrame) -> dict[str, Any]:
+def classify_columns(df: pd.DataFrame, record_id_column: str | None = None) -> dict[str, Any]:
     """
     Classify each column as metadata (excluded from matching) vs content.
 
@@ -328,11 +337,14 @@ def classify_columns(df: pd.DataFrame) -> dict[str, Any]:
             reasoning[col] = f"included: {hint_u}; no metadata rule matched (entity-describing field)"
         content.add(col)
 
-    record_id_column = pick_record_id_column(df, primary_key_columns)
+    if record_id_column is None:
+        record_id_column = pick_record_id_column(df, primary_key_columns)
+    elif record_id_column not in df.columns:
+        raise ValueError(f"record_id_column: no such column: {record_id_column}")
 
     metadata_sorted = sorted(metadata)
     content_sorted = sorted(c for c in content if c not in metadata)
-    if record_id_column in content_sorted:
+    if record_id_column is not None and record_id_column in content_sorted:
         content_sorted = [c for c in content_sorted if c != record_id_column]
         metadata_sorted = sorted(set(metadata_sorted) | {record_id_column})
         extra = "[record_id_column] designated record id (removed from content_columns)"

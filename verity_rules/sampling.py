@@ -22,11 +22,12 @@ def _normalize(v: Any) -> str:
     return "".join(ch for ch in str(v).lower() if ch.isalnum())
 
 
-def source_columns(df: pd.DataFrame, exclude: list[str] = (), keep: list[str] = ()) -> list[str]:
+def source_columns(df: pd.DataFrame, exclude: list[str] = (), keep: list[str] = (),
+                   record_id_column: str | None = None) -> list[str]:
     """Non-metadata columns whose distinct non-null values / non-null count is at least 0.5.
     exclude and keep are the user's lists: excluded columns never count, and kept columns are
     not dropped as metadata (the record id column stays out), as in learn_rules."""
-    cls = classify_columns(df)
+    cls = classify_columns(df, record_id_column)
     metadata = (set(cls["metadata_columns"]) | set(exclude)) - (set(keep) - {cls["record_id_column"]})
     n = len(df)
     return [c for c in df.columns if c not in metadata
@@ -65,7 +66,8 @@ def build_groups(records: list[dict[str, Any]], columns: list[str]) -> list[list
 
 
 def group_sample_indices(records: list[dict[str, Any]], max_rows: int, seed: int = 42,
-                         exclude: list[str] = (), keep: list[str] = ()) -> tuple[list[int], dict[str, Any]]:
+                         exclude: list[str] = (), keep: list[str] = (),
+                         record_id_column: str | None = None) -> tuple[list[int], dict[str, Any]]:
     """Row indices (ascending) of at most max_rows rows, keeping linked rows together.
 
     Groups over MAX_GROUP_ROWS rows count as single rows. Groups (single rows included) are
@@ -78,7 +80,7 @@ def group_sample_indices(records: list[dict[str, Any]], max_rows: int, seed: int
         return list(range(n)), {"groups_kept": 0, "oversized_groups": 0, "source_columns": []}
     df = pd.DataFrame(records)
     df.columns = [str(c).strip() for c in df.columns]
-    cols = source_columns(df.where(pd.notna(df), None), exclude, keep)
+    cols = source_columns(df.where(pd.notna(df), None), exclude, keep, record_id_column)
     groups = build_groups(records, cols)
     oversized = [g for g in groups if len(g) > MAX_GROUP_ROWS]
     blocks = [g for g in groups if len(g) <= MAX_GROUP_ROWS] + [[i] for g in oversized for i in g]
