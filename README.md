@@ -7,8 +7,8 @@ Verity reads a CSV with any schema and learns which columns identify an entity a
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r requirements.txt -r requirements-dev.txt
-pip install -e .
+pip install -r requirements-dev.txt
+pip install -e ".[debug]"
 ```
 
 To install from a built wheel instead: `pip install verity_rules-0.1.8-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.

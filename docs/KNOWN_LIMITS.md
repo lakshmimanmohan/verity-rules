@@ -21,4 +21,3 @@ Not tested or weak:
 - member_part_number has the third-largest products weight, but its duplicate and random similarities overlap.
 - Weighting under comparator v4 (validation/weighting_v4.md): learned weights tied equal and uniqueness-only weights, within two errors, on customers, Copy C and Copy C25.
   They beat both on Copy H and H2, where columns were corrupted or noise was added (2 and 1 errors, against 37 and 97 for equal and 15 and 45 for uniqueness-only).
-- Hosted action, skill text and MCP server are not updated and not validated.
