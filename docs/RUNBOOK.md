@@ -79,6 +79,10 @@ A weight describes how distinctive and consistent a column is in this data. Read
 4. Sort by score. For each candidate cutoff count wrong calls (matches below it plus non-matches at or above it). Pick the cutoff with the fewest; on a tie, the middle of the tied range. Move it up if a false merge costs more than a missed match.
 5. Check whether low-coverage pairs are decided worse than the rest; if so, route them to review.
 
+## Opening the files in Excel
+
+Excel drops leading zeros and rewrites long numbers (for example `00123` becomes `123`, and a 16-digit number becomes `1.23457E+15`) when it opens a CSV, and a file saved from Excel keeps those changes. So label inside the file, but score from the source records, looking each pair up by its record ids. Do not score from the values in the labelled file. Keep the exact CSV you ran, because `_row` numbers refer to the position of rows in that file; if you edit, sort or re-export the source, they no longer line up.
+
 ## Handling the pairs files and rules.json
 
 `calibration_pairs.csv`, `calibration_pairs_key.csv` and the pairs inside `rules.json` contain values from the source data. Handle them like the source data: same access, storage and retention. For sensitive columns (names, SSN, phone, email) use `--mask-columns`; masked pairs are harder to label, so mask only what you must. `--no-pairs` removes pairs entirely but then you have nothing to calibrate with. Check the output folder before sending it anywhere.
