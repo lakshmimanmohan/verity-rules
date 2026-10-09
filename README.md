@@ -28,7 +28,7 @@ Check a file before learning from it. This writes nothing and takes the same `--
 verity check data\customers.csv
 ```
 
-It prints rows, the record id it would use, the distinct and blank share of each column, the columns and number of candidate pairs, and whether reliability can be measured (all columns, only some, or not at all, with the reason). See `docs/RUNBOOK.md`.
+It prints rows, the record id it would use, the distinct and blank share of each column, the columns and number of candidate pairs, and whether reliability can be measured (all columns, only some, or not at all, with the reason). When it is only some or not at all, it adds that Verity may not suit the file (usually each entity appears in many rows, or duplicates differ in every column). See `docs/RUNBOOK.md`.
 
 Also works as `python -m verity_rules learn ...` and `python -m verity_rules check ...`.
 
@@ -56,13 +56,13 @@ Options:
 | File | Contents |
 |---|---|
 | `rules.json` | Learned rules: per-column weight, reliability, comparison method and reason, plus expected pair coverage and calibration pairs |
-| `rules_report.md` | Plain-language report of the rules, for people new to Verity |
+| `rules_report.md` | Plain-language report of the rules, for people new to Verity. The Caution about weights sits directly under the weights table; the "Low confidence" and "Not measured" definitions appear only when a column carries that marker |
 | `calibration_pairs.csv` | Sample pairs to label by hand, in random order and without Verity's labels. Fill in `your_label` |
 | `calibration_pairs_key.csv` | `pair_id` and `suggested_label` (Verity's guess) for each pair. Open it after you label |
 
 `expected_pair_coverage` is the sum over kept columns of weight x (1 - null_rate)^2, the chance that both records of a pair have a value in that column. Low values mean many pairs share few columns.
 
-Set your own match cutoff in your own tool by scoring `calibration_pairs.csv` there. Verity does not return one.
+Set your own match cutoff in your own tool by scoring `calibration_pairs.csv` there. Verity does not return one. If your tool lacks a comparator named in the report, use its closest one (edit distance or Jaro-Winkler for text, exact match for ids, and for email the part before the @ and the domain separately); the weights stay valid, but set the cutoff with the comparator you actually use. When a run finds no likely matches, the report shortens its cutoff section and tells you to label pairs from your own data.
 
 The pairs files and the pairs inside `rules.json` contain values from the source data. Handle them like the source data, or use `--mask-columns` or `--no-pairs`.
 
