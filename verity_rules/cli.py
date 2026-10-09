@@ -17,7 +17,7 @@ from typing import Any
 import pandas as pd
 
 from . import __version__
-from .column_classification import pick_record_id_column, record_id_problem
+from .column_classification import is_idlike_name, pick_record_id_column, record_id_problem
 from .core import NO_CANDIDATES_NOTE, USER_EXCLUDED_RULE, learn_rules
 from .sampling import group_sample_indices
 
@@ -366,6 +366,11 @@ def cmd_learn(args: argparse.Namespace) -> int:
                 "in the pairs files.")
     if row_numbers:
         print(f"Warning: {row_note}", file=sys.stderr)
+    guess_note = None
+    if not row_numbers and args.id_column is None and not is_idlike_name(id_column):
+        guess_note = (f"Using {id_column} as the record id because it has no blanks and every "
+                      "value is distinct. If this is not an id, use --id-column or add row numbers.")
+        print(f"Warning: {guess_note}", file=sys.stderr)
     records, sampling = sample_records(records, args.max_rows, args.seed, args.sample_mode,
                                        exclude, keep, id_column)
     n_original = sampling["rows_in_file"]
@@ -387,6 +392,8 @@ def cmd_learn(args: argparse.Namespace) -> int:
             f"(sample mode {sampling['mode']}, seed {args.seed}).")
     if row_numbers:
         result["notes"].append(row_note)
+    if guess_note:
+        result["notes"].append(guess_note)
     result["run"]["sampling"] = sampling
     anchors = debug.get("reliability_debug", {}).get("anchor_count")
 

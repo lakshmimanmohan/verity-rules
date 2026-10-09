@@ -68,7 +68,7 @@ A column is excluded if any of these apply.
 - System or process words that match only as a whole word, not next to a letter, digit or underscore: `source`, `system`, `status`, `flag`, `type`, `tier`, `segment`, `class`, `date`, `rank`. So a column named `type` matches, `customer_type` does not.
 - `id`, `key` or `code` as a whole underscore-separated part of the name (for example `customer_id`), only when every row has a different value.
 - Flag words anywhere in the name: `is_`, `has_`, `active`, `enabled`, `verified`, `opted`, only when the column has two or three distinct values.
-- Record id: a column named `id`, `record_id`, `uuid` or `key`, or ending in `_id` or `_key`, is chosen as the record id and left out of the rules. The record id needs no blanks and at least 99% distinct values; if no column qualifies, row numbers (`_row`) are used and a warning is printed. `--id-column NAME` overrides the choice.
+- Record id: a column named `id`, `record_id`, `uuid` or `key`, or ending in `_id` or `_key`, is chosen as the record id and left out of the rules. The record id needs no blanks and at least 99% distinct values; if no column qualifies, row numbers (`_row`) are used and a warning is printed. If the chosen column's name does not read as an id, a warning says so. `--id-column NAME` overrides the choice.
 
 **Value signals (no name involved)**
 

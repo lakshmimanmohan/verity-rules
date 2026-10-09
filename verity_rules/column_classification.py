@@ -212,6 +212,16 @@ def record_id_problem(values: list[Any]) -> str | None:
     return None
 
 
+_ID_SUFFIX_RE = re.compile(r"(_id|_key)$", re.IGNORECASE)
+_ID_NAMES = ("id", "record_id", "uuid", "key")
+
+
+def is_idlike_name(name: str) -> bool:
+    """True if a column name reads as an id: id, record_id, uuid, key, or ends in _id or _key."""
+    low = str(name).strip().lower()
+    return low in _ID_NAMES or bool(_ID_SUFFIX_RE.search(low))
+
+
 def pick_record_id_column(df: pd.DataFrame, primary_key_columns: list[str] | None = None) -> str | None:
     """Pick a record id among the columns that can be one (see record_id_problem): prefer
     canonical id column names, then the first such column in file order. primary_key_columns is

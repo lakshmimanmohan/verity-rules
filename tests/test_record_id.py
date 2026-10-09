@@ -110,3 +110,43 @@ def test_existing_row_column_is_not_overwritten(tmp_path):
     assert rules["record_id_column"] == "_row_2"
     assert NOTE.format("_row_2") in rules["notes"]
     assert all(1 <= int(a) <= 60 for a, _ in _pair_ids(out))
+
+
+GUESS = ("Using {} as the record id because it has no blanks and every value is distinct. "
+         "If this is not an id, use --id-column or add row numbers.")
+
+
+def test_valid_id_with_non_id_name_warns_and_notes(tmp_path, capsys):
+    rows = [{"badge": f"B{i:03d}", **r} for i, r in enumerate(_rows())]
+    code, out = _learn(tmp_path, rows)
+    assert code == 0
+    rules = _rules(out)
+    assert rules["record_id_column"] == "badge"
+    assert GUESS.format("badge") in rules["notes"]
+    assert GUESS.format("badge") in (out / "rules_report.md").read_text(encoding="utf-8")
+    assert GUESS.format("badge") in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("name", ["id", "Record_ID", "customer_id", "rec_key", "uuid"])
+def test_id_like_name_gets_no_guess_warning(tmp_path, capsys, name):
+    rows = [{name: f"R{i:03d}", **r} for i, r in enumerate(_rows())]
+    code, out = _learn(tmp_path, rows)
+    assert code == 0
+    assert _rules(out)["record_id_column"] == name
+    assert not any("as the record id" in n for n in _rules(out)["notes"])
+    assert "as the record id" not in capsys.readouterr().err
+
+
+def test_explicit_id_column_with_non_id_name_gets_no_guess_warning(tmp_path, capsys):
+    rows = [{"badge": f"B{i:03d}", **r} for i, r in enumerate(_rows())]
+    code, out = _learn(tmp_path, rows, "--id-column", "badge")
+    assert code == 0
+    assert not any("as the record id" in n for n in _rules(out)["notes"])
+    assert "as the record id" not in capsys.readouterr().err
+
+
+def test_row_numbers_do_not_get_guess_warning(tmp_path, capsys):
+    code, out = _learn(tmp_path, _rows())
+    assert code == 0
+    assert not any("as the record id" in n for n in _rules(out)["notes"])
+    assert "as the record id" not in capsys.readouterr().err

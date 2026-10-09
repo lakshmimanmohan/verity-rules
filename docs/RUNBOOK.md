@@ -35,6 +35,8 @@ A record id has no blank values and at least 99 percent distinct values. Verity 
 
 If no column qualifies, Verity does not pick one. It adds a row-number column named `_row` (1-based position in the file after the header; `_row_2` and so on if the file already has `_row`) and uses it as the record id. The run prints a warning, and `rules.json` notes and the report say: "No unique id column was found. Row numbers (_row) are used as record ids in the pairs files." Every other column, such as email, stays in the weights.
 
+If Verity picks a column whose name does not read as an id (it is not `id`, `record_id`, `uuid` or `key`, and does not end in `_id` or `_key`), the run prints a warning, and `rules.json` notes and the report say: "Using <col> as the record id because it has no blanks and every value is distinct. If this is not an id, use --id-column or add row numbers." Nothing is printed when the name reads as an id or when you pass `--id-column`.
+
 To choose the id yourself, use `--id-column NAME`. An unknown name, or a column with blanks or under 99 percent distinct values, stops the run with a one-line error. After the run, check that the "Record id column" line near the top of `rules_report.md` names the column you expect.
 
 ## Options
