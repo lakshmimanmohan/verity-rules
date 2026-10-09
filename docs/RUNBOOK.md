@@ -4,7 +4,7 @@ Verity reads a CSV and learns which columns identify an entity and how much each
 
 ## When to use Verity, and when not
 
-Use it when you have a table that probably holds duplicates and you need to know which columns to compare and how heavily, before you configure a matching tool. Do not use it to find or merge duplicates, to clean data, or to get a ready cutoff. It also needs a record id column and at least 2 rows. With no or few shared values in distinctive columns it finds no candidate pairs and falls back to uniqueness-only weights (the run prints a warning).
+Use it when you have a table that probably holds duplicates and you need to know which columns to compare and how heavily, before you configure a matching tool. Do not use it to find or merge duplicates, to clean data, or to get a ready cutoff. It needs at least 2 rows; if the file has no unique id column, row numbers are used. With no or few shared values in distinctive columns it finds no candidate pairs and falls back to uniqueness-only weights (the run prints a warning).
 
 ## Install
 
@@ -13,11 +13,11 @@ Needs Python 3.10 or newer. Wheel location: <ADD PATH>
 In a fresh virtual environment:
 
 ```
-pip install verity_rules-0.1.0-py3-none-any.whl
+pip install verity_rules-0.1.1-py3-none-any.whl
 verity --version
 ```
 
-`pip install "verity_rules-0.1.0-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
+`pip install "verity_rules-0.1.1-py3-none-any.whl[debug]"` adds scikit-learn, used only for the debug threshold in `--debug`.
 
 ## Run
 
@@ -29,15 +29,13 @@ It writes four files to the folder: `rules.json`, `rules_report.md`, `calibratio
 
 Run time and memory: about 1 minute and 200 MB for 20,000 rows; about 90 seconds and 350 MB for 100,000 rows with `--max-rows 100000`.
 
-### The file needs a unique id column
+### The record id column
 
-Verity does not stop when there is no unique id column. It takes the column with the most distinct values as the record id and leaves that column out of the weights, with no error or warning. On a customers file with `customer_id` removed, it chose `email` (82% unique); the report lists `email` as excluded with the reason "It is the record id column." The pair files then use email values as record ids, and email is not weighted. If your file has no id column, add a row-number column first:
+A record id has no blank values and at least 99 percent distinct values. Verity picks one that qualifies, preferring names such as `id`, `record_id`, `uuid`, `key` or ending in `_id` or `_key`, and leaves it out of the weights. The pairs files show its values.
 
-```
-python -c "import pandas as pd; d=pd.read_csv('in.csv',dtype=str,keep_default_na=False); d.insert(0,'row_id',range(1,len(d)+1)); d.to_csv('in_with_id.csv',index=False)"
-```
+If no column qualifies, Verity does not pick one. It adds a row-number column named `_row` (1-based position in the file after the header; `_row_2` and so on if the file already has `_row`) and uses it as the record id. The run prints a warning, and `rules.json` notes and the report say: "No unique id column was found. Row numbers (_row) are used as record ids in the pairs files." Every other column, such as email, stays in the weights.
 
-Names ending in `_id` (and `id`) are preferred as the record id. After the run, check that the "Record id column" line near the top of `rules_report.md` names the column you expect.
+To choose the id yourself, use `--id-column NAME`. An unknown name, or a column with blanks or under 99 percent distinct values, stops the run with a one-line error. After the run, check that the "Record id column" line near the top of `rules_report.md` names the column you expect.
 
 ## Options
 
@@ -46,6 +44,7 @@ Names ending in `_id` (and `id`) are preferred as the record id. After the run, 
 - `--max-rows N`: analyse at most N rows of a larger file, default 20000.
 - `--sample-mode groups|random`: above the cap, `groups` keeps rows that share a distinctive value together (so duplicate sets survive the cut); `random` draws rows uniformly.
 - `--exclude-columns A,B`: leave these columns out even if Verity would use them.
+- `--id-column NAME`: use this column as the record id (no blanks, at least 99% distinct values).
 - `--keep-columns A,B`: use these columns even if a Verity rule would exclude them (not the record id column).
 - `--mask-columns A,B`: replace these columns' values with `***` in the pairs files and in `rules.json`.
 - `--no-pairs`: write no pairs files and leave `calibration_pairs` empty.

@@ -1,4 +1,4 @@
-# Known limits (v0.1.0)
+# Known limits (v0.1.1)
 Source: validation/*.md. All data below is synthetic.
 
 Tested (synthetic customers 4,000 rows, products 500 rows, degraded copies, customers 20k and 100k):
@@ -19,6 +19,6 @@ Not tested or weak:
 - likely_non_match pairs are random pairs, not hard negatives. Weights depend on the seed only through the random pair sample.
 - With half of every column blank (Copy C), hard negatives score about as high as duplicates (AUC 0.76).
 - member_part_number has the third-largest products weight, but its duplicate and random similarities overlap.
-- Learned versus equal or v1 weights was compared under the v0 comparator; the v4 comparison is below (validation/weighting_v4.md):
-  learned made 2 and 1 errors on Copy H and H2 (equal 37 and 97, v1 417 and 502), but did not beat equal on Copy C (AUC 0.755 vs 0.760) or Copy C25 (22 errors vs 20; v1 44).
+- Weighting under comparator v4 (validation/weighting_v4.md): learned weights tied equal and uniqueness-only weights, within two errors, on customers, Copy C and Copy C25.
+  They beat both on Copy H and H2, where columns were corrupted or noise was added (2 and 1 errors, against 37 and 97 for equal and 15 and 45 for uniqueness-only).
 - Hosted action, skill text and MCP server are not updated and not validated.

@@ -11,7 +11,7 @@ pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 ```
 
-To install from a built wheel instead: `pip install verity_rules-0.1.0-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
+To install from a built wheel instead: `pip install verity_rules-0.1.1-py3-none-any.whl`. Add the `debug` extra (`[debug]`) for scikit-learn, used only by `--debug`. See `docs/RUNBOOK.md`.
 
 If PowerShell blocks activation, skip it and call `.venv\Scripts\python.exe` and `.venv\Scripts\verity.exe` directly.
 
@@ -34,6 +34,7 @@ Options:
 | `--sample-mode groups\|random` | groups | `groups` keeps rows that share an identical value in a distinctive column together (groups of 2 to 50 rows), then fills with single rows. `random` draws rows uniformly |
 | `--mask-columns A,B` | none | Replace the values of these columns with `***` in `calibration_pairs.csv` and in the pairs in `rules.json` (empty values stay empty) |
 | `--exclude-columns A,B` | none | Leave these columns out even if Verity would use them |
+| `--id-column NAME` | auto | Use this column as the record id (no blanks, at least 99% distinct values) |
 | `--keep-columns A,B` | none | Use these columns even if a Verity rule would exclude them (not the record id column) |
 | `--no-pairs` | off | Write no pairs files and leave `calibration_pairs` empty in `rules.json` |
 | `--version` | | Print the Verity version and exit |
@@ -67,7 +68,7 @@ A column is excluded if any of these apply.
 - System or process words that match only as a whole word, not next to a letter, digit or underscore: `source`, `system`, `status`, `flag`, `type`, `tier`, `segment`, `class`, `date`, `rank`. So a column named `type` matches, `customer_type` does not.
 - `id`, `key` or `code` as a whole underscore-separated part of the name (for example `customer_id`), only when every row has a different value.
 - Flag words anywhere in the name: `is_`, `has_`, `active`, `enabled`, `verified`, `opted`, only when the column has two or three distinct values.
-- Record id: a column named `id`, `record_id`, `uuid` or `key`, or ending in `_id` or `_key`, is chosen as the record id and left out of the rules. If none match, Verity falls back to a near-unique column.
+- Record id: a column named `id`, `record_id`, `uuid` or `key`, or ending in `_id` or `_key`, is chosen as the record id and left out of the rules. The record id needs no blanks and at least 99% distinct values; if no column qualifies, row numbers (`_row`) are used and a warning is printed. `--id-column NAME` overrides the choice.
 
 **Value signals (no name involved)**
 
